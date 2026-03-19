@@ -112,10 +112,68 @@ function initTabs() {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            currentTab = btn.dataset.tab;
+            // 转换大小写: us->US, hk->HK, cn->CN
+            currentTab = btn.dataset.tab.toUpperCase();
             loadNuclearStocks(currentTab);
         });
     });
+}
+
+// 获取实时股价
+async function fetchNuclearStockPrice(code, market) {
+    let symbol = code;
+    if (market === 'CN') {
+        symbol = code + '.SS';
+    } else if (market === 'HK') {
+        symbol = code + '.HK';
+    }
+    
+    try {
+        const response = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=5d`);
+        const data = await response.json();
+        
+        if (data.chart && data.chart.result && data.chart.result[0]) {
+            const result = data.chart.result[0];
+            const meta = result.meta;
+            const currentPrice = meta.regularMarketPrice || 0;
+            const prevClose = meta.chartPreviousClose || meta.previousClose || currentPrice;
+            const change = ((currentPrice - prevClose) / prevClose) * 100;
+            
+            // 港股价格修正
+            if (market === 'HK' && currentPrice > 50) {
+                return { price: currentPrice / 10, change: change };
+            }
+            
+            return { price: currentPrice, change: change };
+        }
+    } catch (error) {
+        console.log('获取数据失败:', code, error);
+    }
+    return null;
+}
+
+// 刷新核医药股票数据
+async function refreshNuclearStocks(market) {
+    const stocks = NUCLEAR_STOCKS[market] || [];
+    const btn = document.querySelector('.btn-refresh');
+    if (btn) {
+        btn.innerHTML = '<span>⏳</span> 刷新中...';
+    }
+    
+    // 获取每只股票的价格
+    for (let stock of stocks) {
+        const data = await fetchNuclearStockPrice(stock.code, market);
+        if (data) {
+            stock.price = data.price;
+            stock.change = data.change;
+        }
+    }
+    
+    loadNuclearStocks(market);
+    
+    if (btn) {
+        btn.innerHTML = '<span>🔄</span> 刷新数据';
+    }
 }
 
 // 加载核医药股票
