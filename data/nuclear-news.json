@@ -1,0 +1,59 @@
+{
+  "news": [
+    {
+      "id": 1,
+      "title": "诺华宣布在中国投资设立全新放射性药物生产基地",
+      "summary": "诺华宣布将在中国投资设立全新的放射性药物生产基地，以加快将创新型放射配体疗法引入中国，造福国内肿瘤患者。",
+      "category": "alpha",
+      "source": "诺华中国",
+      "date": "2026-03-18",
+      "url": "https://www.novartis.com.cn/news/nuohuaxuanbuzaizhongguotouzisheliquanxinshengchanjidejiakuaichuangxinxingfangshepeitiliaofayinru"
+    },
+    {
+      "id": 2,
+      "title": "\"四川造\"原创核药闯世界",
+      "summary": "成都纽瑞特医疗科技股份有限公司研发的钇[90Y]炭微球注射液，是全球首创的精准靶向治疗药物，已成功进入国际市场。",
+      "category": "alpha",
+      "source": "四川日报",
+      "date": "2026-03-19",
+      "url": "https://finance.sina.com.cn/jjxw/2026-03-19/doc-inhrnemz7093520.shtml"
+    },
+    {
+      "id": 3,
+      "title": "第三届全球核药开发峰会在上海召开",
+      "summary": "RDS2026第三届全球核药开发峰会于2026年3月19-20日在上海举行，国内外核药研发专家齐聚一堂。",
+      "category": "trial",
+      "source": "触界生物",
+      "date": "2026-03-19",
+      "url": "https://news.yaozh.com/meeting/detail/1912"
+    },
+    {
+      "id": 4,
+      "title": "国内首个\"救命核药\"预计2026年在海盐投产",
+      "summary": "诺华公司的放射配体疗法药物派威妥（镥[177Lu]特昔维匹肽注射液）的两个适应症已同步获得国家药品监督管理局批准。",
+      "category": "policy",
+      "source": "杭州网",
+      "date": "2025-11-06",
+      "url": "https://news.hangzhou.com.cn/zjnews/content/2025-11/06/content_9118064.htm"
+    },
+    {
+      "id": 5,
+      "title": "FDA扩展Pluvicto适应症",
+      "summary": "FDA于2025年3月28日扩展了Pluvicto（Lu-177 vipivotide tetraxetan）的适应症，允许在化疗前用于转移性去势抵抗性前列腺癌患者。",
+      "category": "alpha",
+      "source": "FDA",
+      "date": "2025-03-28",
+      "url": "https://www.fda.gov/drugs/resources-information-approved-drugs/fda-expands-pluvictos-metastatic-castration-resistant-prostate-cancer-indication"
+    },
+    {
+      "id": 6,
+      "title": "外商投资核药领域政策放开",
+      "summary": "2026年2月1日起，外商可投资ADC、核药等医药产业，国家鼓励目录净增加205条，医药领域增加新靶点和新作用机制的核药开发生产。",
+      "category": "policy",
+      "source": "中国医药报",
+      "date": "2025-12-29",
+      "url": "https://www.cnpharm.com/c/2025-12-29/1087607.shtml"
+    }
+  ],
+  "lastUpdated": "2026-03-20T12:00:00Z"
+}
