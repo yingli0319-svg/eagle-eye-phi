@@ -361,10 +361,67 @@ function generateStockData(stock) {
 }
 
 // 刷新数据
-function refreshData() {
-    stockData = generateMockStockData();
+async function refreshData() {
+    const btn = document.querySelector('.btn-refresh');
+    if (btn) {
+        btn.innerHTML = '<span>⏳</span> 刷新中...';
+    }
+    
+    if (USE_REAL_DATA) {
+        // 使用真实API刷新数据
+        try {
+            const stocks = ALL_STOCKS;
+            const realData = await fetchAllRealTimeData(stocks);
+            
+            stockData = stocks.map((stock, idx) => {
+                const realInfo = realData[idx]?.data;
+                
+                if (realInfo && realInfo.price > 0) {
+                    const targetPrice = realInfo.price * (1 + (Math.random() * 0.4 - 0.1));
+                    const upside = ((targetPrice - realInfo.price) / realInfo.price * 100);
+                    
+                    const financialScore = Math.floor(Math.random() * 15 + 15);
+                    const valuationScore = Math.floor(Math.random() * 15 + 15);
+                    const sentimentScore = Math.floor(Math.random() * 13 + 12);
+                    const catalystScore = Math.floor(Math.random() * 8 + 7);
+                    const totalScore = financialScore + valuationScore + sentimentScore + catalystScore;
+                    
+                    let rating = 'hold';
+                    if (totalScore >= 75 && upside > 15) rating = 'strong_buy';
+                    else if (totalScore >= 60 && upside > 5) rating = 'buy';
+                    else if (totalScore <= 35 || upside < -10) rating = 'sell';
+                    
+                    return {
+                        ...stock,
+                        price: realInfo.price.toFixed(2),
+                        change: realInfo.change,
+                        changePercent: realInfo.changePercent,
+                        targetPrice: targetPrice.toFixed(2),
+                        upside: upside.toFixed(1),
+                        score: totalScore,
+                        rating: rating,
+                        financialScore,
+                        valuationScore,
+                        sentimentScore,
+                        catalystScore,
+                    };
+                }
+                return generateMockStockData().find(s => s.code === stock.code) || stock;
+            });
+        } catch (error) {
+            console.error('刷新数据失败:', error);
+            stockData = generateMockStockData();
+        }
+    } else {
+        stockData = generateMockStockData();
+    }
+    
     applyFilters();
     updateStats();
+    
+    if (btn) {
+        btn.innerHTML = '<span>🔄</span> 刷新数据';
+    }
 }
 
 // ==================== 渲染股票表格 ====================
