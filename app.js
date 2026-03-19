@@ -5,68 +5,153 @@
 
 // ==================== 数据源配置 ====================
 // 设置为true使用真实数据，false使用模拟数据
-// 注意：真实数据需要翻墙或使用代理访问Yahoo Finance
-const USE_REAL_DATA = false;
+// 使用国内API（新浪/腾讯财经），无需翻墙
+const USE_REAL_DATA = true;
 
-// ==================== 实时数据获取 ====================
-async function fetchStockPrice(code, market) {
-    // 转换股票代码格式
-    let symbol = code;
+// ==================== 实时数据获取（使用国内API） ====================
+// 新浪财经API：A股用sh/sz前缀，港股用hk前缀，美股用us前缀
+// 腾讯财经API：直接转换股票代码
+
+// 转换股票代码为腾讯API格式
+function toTencentCode(code, market) {
     if (market === 'CN') {
-        // A股：600519 -> 600519.SS
-        symbol = code + '.SS';
+        // A股：上海sh，深圳sz
+        if (code.startsWith('6')) return 'sh' + code;
+        if (code.startsWith('0') || code.startsWith('3')) return 'sz' + code;
     } else if (market === 'HK') {
-        // 港股保持原样
-        symbol = code + '.HK';
+        // 港股：去掉.HK后缀
+        return 'hk' + code.replace('.HK', '');
+    } else if (market === 'US') {
+        // 美股：转换为小写
+        return 'us' + code.toLowerCase();
     }
-    
-    try {
-        // 使用Yahoo Finance API (通过CORS代理)
-        const response = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`);
-        const data = await response.json();
-        
-        if (data.chart && data.chart.result && data.chart.result[0]) {
-            const result = data.chart.result[0];
-            const meta = result.meta;
-            const quote = result.indicators?.quote?.[0];
-            
-            const currentPrice = meta.regularMarketPrice || 0;
-            const prevClose = meta.chartPreviousClose || meta.previousClose || currentPrice;
-            const change = currentPrice - prevClose;
-            const changePercent = (change / prevClose) * 100;
-            
-            return {
-                price: currentPrice,
-                change: change.toFixed(2),
-                changePercent: changePercent.toFixed(2),
-                currency: meta.currency || 'USD'
-            };
-        }
-    } catch (error) {
-        console.log(`获取 ${code} 数据失败:`, error);
-    }
-    
-    return null;
+    return code;
 }
 
-async function fetchAllRealTimeData(stocks) {
-    const results = [];
-    const batchSize = 5; // 每批5个，避免请求过快
-    
-    for (let i = 0; i < stocks.length; i += batchSize) {
-        const batch = stocks.slice(i, i + batchSize);
-        const promises = batch.map(stock => fetchStockPrice(stock.code, stock.market));
-        const batchResults = await Promise.all(promises);
+// 从腾讯API获取实时数据
+async function fetchStockPrice(code, market) {
+    try {
+        const tencentCode = toTencentCode(code, market);
+        const url = `https://qt.gtimg.cn/q=${tencentCode}`;
         
-        batch.forEach((stock, idx) => {
-            results.push({ stock, data: batchResults[idx] });
+        const response = await fetch(url);
+        const text = await response.text();
+        
+        // 解析返回数据格式: "腾讯代码"="名称,代码,当前价,涨跌,涨跌幅,...
+        const match = text.match(/"([^"]+)"/);
+        if (!match) {
+            console.log(`获取 ${code} 数据失败: 无数据`);
+            return null;
+        }
+        
+        const parts = match[1].split('~');
+        if (parts.length < 5) {
+            console.log(`获取 ${code} 数据失败: 数据格式错误`);
+            return null;
+        }
+        
+        // 腾讯API数据格式解析
+        // parts[0]: 名称
+        // parts[1]: 代码
+        // parts[2]: 当前价格
+        // parts[3]: 涨跌
+        // parts[4]: 涨跌幅
+        // parts[5]: 成交量
+        // parts[6]: 成交额
+        // parts[7]: 振幅
+        // parts[8]: 最高
+        // parts[9]: 最低
+        // parts[10]: 昨收
+        // parts[11]: 今开
+        
+        const price = parseFloat(parts[2]) || 0;
+        const change = parseFloat(parts[3]) || 0;
+        const changePercent = parseFloat(parts[4]) || 0;
+        
+        if (price <= 0) {
+            return null;
+        }
+        
+        return {
+            price: price,
+            change: change.toFixed(2),
+            changePercent: changePercent.toFixed(2),
+            high: parseFloat(parts[8]) || price,
+            low: parseFloat(parts[9]) || price,
+            open: parseFloat(parts[11]) || price,
+            prevClose: parseFloat(parts[10]) || price,
+            volume: parts[5] || '0',
+            amount: parts[6] || '0'
+        };
+    } catch (error) {
+        console.log(`获取 ${code} 数据失败:`, error.message);
+        return null;
+    }
+}
+
+// 批量获取所有股票数据
+async function fetchAllRealTimeData(stocks) {
+    // 腾讯API支持批量查询，用逗号分隔
+    const tencentCodes = stocks.map(s => toTencentCode(s.code, s.market)).join(',');
+    const url = `https://qt.gtimg.cn/q=${tencentCodes}`;
+    
+    try {
+        const response = await fetch(url);
+        const text = await response.text();
+        
+        // 解析返回数据
+        const results = [];
+        const stockMap = {};
+        stocks.forEach((s, i) => { stockMap[toTencentCode(s.code, s.market)] = s; });
+        
+        // 腾讯返回格式: "sh600519"="数据...", "sz000001"="数据..."
+        const regex = /"([^"]+)"/g;
+        let match;
+        const dataMap = {};
+        
+        while ((match = regex.exec(text)) !== null) {
+            const keyValue = match[1].split('=');
+            if (keyValue.length >= 2) {
+                const code = keyValue[0];
+                const data = keyValue[1];
+                dataMap[code] = data;
+            }
+        }
+        
+        stocks.forEach(stock => {
+            const tencentCode = toTencentCode(stock.code, stock.market);
+            const dataStr = dataMap[tencentCode];
+            
+            if (dataStr) {
+                const parts = dataStr.split('~');
+                const price = parseFloat(parts[2]) || 0;
+                const change = parseFloat(parts[3]) || 0;
+                const changePercent = parseFloat(parts[4]) || 0;
+                
+                if (price > 0) {
+                    results.push({
+                        stock,
+                        data: {
+                            price: price,
+                            change: change.toFixed(2),
+                            changePercent: changePercent.toFixed(2),
+                            high: parseFloat(parts[8]) || price,
+                            low: parseFloat(parts[9]) || price,
+                            open: parseFloat(parts[11]) || price,
+                            prevClose: parseFloat(parts[10]) || price
+                        }
+                    });
+                    return;
+                }
+            }
+            results.push({ stock, data: null });
         });
         
-        // 添加延迟
-        await new Promise(resolve => setTimeout(resolve, 200));
+        return results;
+    } catch (error) {
+        console.error('批量获取数据失败:', error);
+        return stocks.map(stock => ({ stock, data: null }));
     }
-    
-    return results;
 }
 
 // ==================== 股票池配置 ====================
