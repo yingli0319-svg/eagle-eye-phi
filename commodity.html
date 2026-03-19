@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大宗商品 - 鹰眼看盘</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="commodity.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">🦅</span>
+                <span class="logo-text">鹰眼看盘</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">鹰眼看盘</a></li>
+                <li><a href="nuclear.html" class="nav-link">鹰眼查核</a></li>
+                <li><a href="commodity.html" class="nav-link active">大宗商品</a></li>
+                <li><a href="daohang.html" class="nav-link">鹰眼导航</a></li>
+                <li><a href="method.html" class="nav-link">方法说明</a></li>
+            </ul>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <main class="main-content">
+        <section class="page-section active">
+            <div class="section-header">
+                <h1>📈 大宗商品 & 数字货币</h1>
+                <p class="subtitle">实时行情 · 趋势分析 · 投资建议</p>
+            </div>
+
+            <!-- 商品分类标签 -->
+            <div class="commodity-tabs">
+                <button class="tab-btn active" data-type="metals">贵金属</button>
+                <button class="tab-btn" data-type="energy">能源</button>
+                <button class="tab-btn" data-type="agriculture">农产品</button>
+                <button class="tab-btn" data-type="crypto">数字货币</button>
+            </div>
+
+            <!-- 价格概览卡片 -->
+            <div class="overview-grid" id="overview-grid">
+                <!-- 动态加载 -->
+            </div>
+
+            <!-- 详细行情表格 -->
+            <div class="market-section">
+                <h2 class="section-title">📊 详细行情</h2>
+                
+                <!-- 筛选 -->
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>商品类型:</label>
+                        <select id="commodity-filter">
+                            <option value="all">全部</option>
+                            <option value="metals">贵金属</option>
+                            <option value="energy">能源</option>
+                            <option value="agriculture">农产品</option>
+                            <option value="crypto">数字货币</option>
+                        </select>
+                    </div>
+                    <button class="btn-refresh" onclick="refreshCommodities()">
+                        <span>🔄</span> 刷新数据
+                    </button>
+                </div>
+
+                <!-- 行情表格 -->
+                <div class="commodity-table-container">
+                    <table class="commodity-table">
+                        <thead>
+                            <tr>
+                                <th>商品名称</th>
+                                <th>代码</th>
+                                <th>当前价格</th>
+                                <th>涨跌</th>
+                                <th>涨跌幅</th>
+                                <th>7日涨跌</th>
+                                <th>建议</th>
+                            </tr>
+                        </thead>
+                        <tbody id="commodity-tbody">
+                            <!-- 动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 分析指标 -->
+            <div class="analysis-section">
+                <h2 class="section-title">📋 分析指标说明</h2>
+                <div class="analysis-cards">
+                    <div class="analysis-card">
+                        <h3>📰 新闻情绪</h3>
+                        <p>基于媒体报道、行业动态、政策变化等因素综合评估市场情绪。</p>
+                        <div class="sentiment-meter">
+                            <div class="sentiment-bar" id="sentiment-bar" style="width: 60%"></div>
+                            <div class="sentiment-labels">
+                                <span>极度悲观</span>
+                                <span>中性</span>
+                                <span>极度乐观</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="analysis-card">
+                        <h3>🌍 地缘风险</h3>
+                        <p>评估国际局势、地区冲突、贸易政策对大宗商品供给的影响。</p>
+                        <div class="risk-indicator high">
+                            <span class="risk-label">风险等级</span>
+                            <span class="risk-value">中高</span>
+                        </div>
+                    </div>
+                    <div class="analysis-card">
+                        <h3>⛏️ 供给/稀缺性</h3>
+                        <p>分析商品产能、库存水平、开采进度等供给面因素。</p>
+                        <div class="supply-status">
+                            <div class="supply-item">
+                                <span class="supply-label">黄金</span>
+                                <span class="supply-value stable">供给稳定</span>
+                            </div>
+                            <div class="supply-item">
+                                <span class="supply-label">原油</span>
+                                <span class="supply-value tight">供给偏紧</span>
+                            </div>
+                            <div class="supply-item">
+                                <span class="supply-label">铜</span>
+                                <span class="supply-value tight">供给偏紧</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="analysis-card">
+                        <h3>🎯 目标价对比</h3>
+                        <p>当前价格与机构目标价对比，评估上行空间。</p>
+                        <div class="target-comparison">
+                            <div class="comparison-item">
+                                <span class="comp-name">黄金</span>
+                                <span class="comp-values">现价 $2150 → 目标 $2400</span>
+                            </div>
+                            <div class="comparison-item">
+                                <span class="comp-name">原油</span>
+                                <span class="comp-values">现价 $82 → 目标 $95</span>
+                            </div>
+                            <div class="comparison-item">
+                                <span class="comp-name">BTC</span>
+                                <span class="comp-values">现价 $68000 → 目标 $85000</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>🦅 鹰眼看盘 · 数据仅供参考，不构成投资建议</p>
+        <p class="footer-disclaimer">投资有风险，入市需谨慎</p>
+    </footer>
+
+    <script src="commodity.js"></script>
+</body>
+</html>
