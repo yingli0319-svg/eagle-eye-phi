@@ -5,128 +5,103 @@
 
 // ==================== 数据源配置 ====================
 // 设置为true使用真实数据，false使用模拟数据
-// 使用国内API（新浪/腾讯财经），无需翻墙
+// 使用国内API（新浪财经），无需翻墙
 const USE_REAL_DATA = true;
 
-// ==================== 实时数据获取（使用国内API） ====================
-// 新浪财经API：A股用sh/sz前缀，港股用hk前缀，美股用us前缀
-// 腾讯财经API：直接转换股票代码
+// ==================== 实时数据获取（使用新浪JSONP API） ====================
+// 新浪财经API：A股用sh/sz前缀，港股用hk前缀，美股用n_前缀
 
-// 转换股票代码为腾讯API格式
-function toTencentCode(code, market) {
+// 转换股票代码为新浪API格式
+function toSinaCode(code, market) {
     if (market === 'CN') {
         // A股：上海sh，深圳sz
         if (code.startsWith('6')) return 'sh' + code;
         if (code.startsWith('0') || code.startsWith('3')) return 'sz' + code;
     } else if (market === 'HK') {
-        // 港股：去掉.HK后缀
+        // 港股：hk前缀
         return 'hk' + code.replace('.HK', '');
     } else if (market === 'US') {
-        // 美股：转换为小写
-        return 'us' + code.toLowerCase();
+        // 美股：n_前缀
+        return 'n_' + code.toLowerCase();
     }
     return code;
 }
 
-// 从腾讯API获取实时数据
-async function fetchStockPrice(code, market) {
-    try {
-        const tencentCode = toTencentCode(code, market);
-        const url = `https://qt.gtimg.cn/q=${tencentCode}`;
+// 使用JSONP获取单只股票数据
+function fetchStockPriceJSONP(code, market) {
+    return new Promise((resolve) => {
+        const sinaCode = toSinaCode(code, market);
+        const callbackName = 'jsonp_callback_' + Math.random().toString(36).substr(2);
         
-        const response = await fetch(url);
-        const text = await response.text();
+        // 创建script标签
+        const script = document.createElement('script');
+        script.src = `https://hq.sinajs.cn/list=${sinaCode}&callback=${callbackName}`;
         
-        // 解析返回数据格式: "腾讯代码"="名称,代码,当前价,涨跌,涨跌幅,...
-        const match = text.match(/"([^"]+)"/);
-        if (!match) {
-            console.log(`获取 ${code} 数据失败: 无数据`);
-            return null;
-        }
-        
-        const parts = match[1].split('~');
-        if (parts.length < 5) {
-            console.log(`获取 ${code} 数据失败: 数据格式错误`);
-            return null;
-        }
-        
-        // 腾讯API数据格式解析
-        // parts[0]: 名称
-        // parts[1]: 代码
-        // parts[2]: 当前价格
-        // parts[3]: 涨跌
-        // parts[4]: 涨跌幅
-        // parts[5]: 成交量
-        // parts[6]: 成交额
-        // parts[7]: 振幅
-        // parts[8]: 最高
-        // parts[9]: 最低
-        // parts[10]: 昨收
-        // parts[11]: 今开
-        
-        const price = parseFloat(parts[2]) || 0;
-        const change = parseFloat(parts[3]) || 0;
-        const changePercent = parseFloat(parts[4]) || 0;
-        
-        if (price <= 0) {
-            return null;
-        }
-        
-        return {
-            price: price,
-            change: change.toFixed(2),
-            changePercent: changePercent.toFixed(2),
-            high: parseFloat(parts[8]) || price,
-            low: parseFloat(parts[9]) || price,
-            open: parseFloat(parts[11]) || price,
-            prevClose: parseFloat(parts[10]) || price,
-            volume: parts[5] || '0',
-            amount: parts[6] || '0'
+        window[callbackName] = (data) => {
+            try {
+                const result = data.split(',');
+                if (result.length >= 3) {
+                    const price = parseFloat(result[1]) || 0;
+                    const change = parseFloat(result[2]) || 0;
+                    if (price > 0) {
+                        resolve({
+                            price: price,
+                            change: change.toFixed(2),
+                            changePercent: ((change / (price - change)) * 100).toFixed(2),
+                            name: result[0]
+                        });
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.log(`解析 ${code} 数据失败:`, e);
+            }
+            resolve(null);
+            delete window[callbackName];
         };
-    } catch (error) {
-        console.log(`获取 ${code} 数据失败:`, error.message);
-        return null;
-    }
+        
+        script.onerror = () => {
+            console.log(`获取 ${code} 失败`);
+            resolve(null);
+            delete window[callbackName];
+        };
+        
+        document.head.appendChild(script);
+        setTimeout(() => {
+            document.head.removeChild(script);
+            delete window[callbackName];
+        }, 3000);
+    });
 }
 
-// 批量获取所有股票数据
+// 批量获取所有股票数据（使用CORS代理）
 async function fetchAllRealTimeData(stocks) {
-    // 腾讯API支持批量查询，用逗号分隔
-    const tencentCodes = stocks.map(s => toTencentCode(s.code, s.market)).join(',');
-    const url = `https://qt.gtimg.cn/q=${tencentCodes}`;
+    // 使用代理绕过CORS
+    const sinaCodes = stocks.map(s => toSinaCode(s.code, s.market)).join(',');
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://hq.sinajs.cn/list=${sinaCodes}`)}`;
     
     try {
-        const response = await fetch(url);
+        const response = await fetch(proxyUrl);
         const text = await response.text();
         
-        // 解析返回数据
+        // 解析返回数据: var hq_str_sh600519="贵州茅台,1800.00,...
         const results = [];
-        const stockMap = {};
-        stocks.forEach((s, i) => { stockMap[toTencentCode(s.code, s.market)] = s; });
-        
-        // 腾讯返回格式: "sh600519"="数据...", "sz000001"="数据..."
-        const regex = /"([^"]+)"/g;
-        let match;
+        const dataRegex = /hq_str_(\w+)="([^"]+)"/g;
         const dataMap = {};
+        let match;
         
-        while ((match = regex.exec(text)) !== null) {
-            const keyValue = match[1].split('=');
-            if (keyValue.length >= 2) {
-                const code = keyValue[0];
-                const data = keyValue[1];
-                dataMap[code] = data;
-            }
+        while ((match = dataRegex.exec(text)) !== null) {
+            dataMap[match[1]] = match[2];
         }
         
         stocks.forEach(stock => {
-            const tencentCode = toTencentCode(stock.code, stock.market);
-            const dataStr = dataMap[tencentCode];
+            const sinaCode = toSinaCode(stock.code, stock.market);
+            const dataStr = dataMap[sinaCode];
             
             if (dataStr) {
-                const parts = dataStr.split('~');
-                const price = parseFloat(parts[2]) || 0;
-                const change = parseFloat(parts[3]) || 0;
-                const changePercent = parseFloat(parts[4]) || 0;
+                const parts = dataStr.split(',');
+                const price = parseFloat(parts[1]) || 0;
+                const change = parseFloat(parts[2]) || 0;
                 
                 if (price > 0) {
                     results.push({
@@ -134,11 +109,8 @@ async function fetchAllRealTimeData(stocks) {
                         data: {
                             price: price,
                             change: change.toFixed(2),
-                            changePercent: changePercent.toFixed(2),
-                            high: parseFloat(parts[8]) || price,
-                            low: parseFloat(parts[9]) || price,
-                            open: parseFloat(parts[11]) || price,
-                            prevClose: parseFloat(parts[10]) || price
+                            changePercent: ((change / (price - change)) * 100).toFixed(2),
+                            name: parts[0]
                         }
                     });
                     return;
@@ -149,9 +121,15 @@ async function fetchAllRealTimeData(stocks) {
         
         return results;
     } catch (error) {
-        console.error('批量获取数据失败:', error);
+        console.error('获取数据失败:', error);
         return stocks.map(stock => ({ stock, data: null }));
     }
+}
+
+// 兼容旧的单股票接口
+async function fetchStockPrice(code, market) {
+    const results = await fetchAllRealTimeData([{ code, market, name: '' }]);
+    return results[0]?.data;
 }
 
 // ==================== 股票池配置 ====================
