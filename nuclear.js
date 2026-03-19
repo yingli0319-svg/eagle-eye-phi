@@ -85,10 +85,10 @@ const NEWS_DATA = [
 
 // API配置 - 使用GitHub仓库存储新闻数据
 const API_CONFIG = {
-    // GitHub仓库RAW地址（您的仓库）
-    newsApiUrl: 'https://raw.githubusercontent.com/your-username/your-repo/main/data/nuclear-news.json',
-    // 设为true使用本地数据，设为false从GitHub获取
-    useGitHubData: false
+    // GitHub仓库RAW地址
+    newsApiUrl: 'https://raw.githubusercontent.com/yingli0319-svg/eagle-eye-phi/main/data/nuclear-news.json',
+    // 设为true从GitHub获取数据，设为false使用本地数据
+    useGitHubData: true
 };
 
 // 当前选中市场
