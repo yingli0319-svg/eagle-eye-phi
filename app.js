@@ -5,7 +5,8 @@
 
 // ==================== 数据源配置 ====================
 // 设置为true使用真实数据，false使用模拟数据
-const USE_REAL_DATA = true;
+// 注意：真实数据需要翻墙或使用代理访问Yahoo Finance
+const USE_REAL_DATA = false;
 
 // ==================== 实时数据获取 ====================
 async function fetchStockPrice(code, market) {
