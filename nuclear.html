@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鹰眼查核 - 核医药专项分析</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="nuclear.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">🦅</span>
+                <span class="logo-text">鹰眼看盘</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">鹰眼看盘</a></li>
+                <li><a href="nuclear.html" class="nav-link active">鹰眼查核</a></li>
+                <li><a href="commodity.html" class="nav-link">大宗商品</a></li>
+                <li><a href="daohang.html" class="nav-link">鹰眼导航</a></li>
+                <li><a href="method.html" class="nav-link">方法说明</a></li>
+            </ul>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <main class="main-content">
+        <section class="page-section active">
+            <div class="section-header">
+                <h1>🔬 鹰眼查核</h1>
+                <p class="subtitle">核医药专项 · α核素 · 靶向核药</p>
+            </div>
+
+            <!-- 核医药股票池 -->
+            <div class="nuclear-stocks-section">
+                <h2 class="section-title">📊 核医药股票池</h2>
+                <div class="nuclear-tabs">
+                    <button class="tab-btn active" data-tab="us">美股</button>
+                    <button class="tab-btn" data-tab="hk">港股</button>
+                    <button class="tab-btn" data-tab="cn">A股</button>
+                </div>
+                
+                <div class="nuclear-grid" id="nuclear-stocks">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+
+            <!-- 新闻资讯 -->
+            <div class="news-section">
+                <h2 class="section-title">📰 核医药最新资讯</h2>
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>分类:</label>
+                        <select id="news-category">
+                            <option value="all">全部</option>
+                            <option value="alpha">α核素</option>
+                            <option value="target">靶向核药</option>
+                            <option value="trial">临床试验</option>
+                            <option value="policy">政策</option>
+                        </select>
+                    </div>
+                    <button class="btn-refresh" onclick="refreshNews()">
+                        <span>🔄</span> 刷新资讯
+                    </button>
+                </div>
+                
+                <div class="news-grid" id="news-grid">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+
+            <!-- 核素科普 -->
+            <div class="knowledge-section">
+                <h2 class="section-title">💡 核医药知识</h2>
+                <div class="knowledge-cards">
+                    <div class="knowledge-card">
+                        <h3>α核素 (Alpha Emitters)</h3>
+                        <p>α核素具有极高的放射能量和极短的射程，能够精确杀灭癌细胞而减少对周围健康组织的损伤。主要包括：</p>
+                        <ul>
+                            <li><strong>Ac-225 (锕-225)</strong> - 最具潜力的α核素之一</li>
+                            <li><strong>Ra-223 (镭-223)</strong> - 已获批用于骨转移</li>
+                            <li><strong>Bi-212 / Bi-213</strong> - 短半衰期α发射体</li>
+                        </ul>
+                    </div>
+                    <div class="knowledge-card">
+                        <h3>靶向核药 (Targeted Radiopharmaceuticals)</h3>
+                        <p>通过将放射性核素与靶向分子结合，实现精准治疗：</p>
+                        <ul>
+                            <li><strong>PSMA靶点</strong> - 前列腺癌特异性膜抗原</li>
+                            <li><strong>SSTR</strong> - 生长抑素受体，用于神经内分泌肿瘤</li>
+                            <li><strong>FAP</strong> - 肿瘤相关成纤维细胞活化蛋白</li>
+                        </ul>
+                    </div>
+                    <div class="knowledge-card">
+                        <h3>临床进展</h3>
+                        <p>全球核医药领域重大进展：</p>
+                        <ul>
+                            <li>Pluvicto™ (Lu-177 PSMA-617) 已获FDA批准</li>
+                            <li>多款Ac-225核药进入临床试验</li>
+                            <li>中国核药产业快速发展</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>🦅 鹰眼看盘 · 数据仅供参考，不构成投资建议</p>
+        <p class="footer-disclaimer">投资有风险，入市需谨慎</p>
+    </footer>
+
+    <script src="nuclear.js"></script>
+</body>
+</html>
