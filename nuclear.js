@@ -83,6 +83,14 @@ const NEWS_DATA = [
     }
 ];
 
+// API配置 - 使用GitHub仓库存储新闻数据
+const API_CONFIG = {
+    // GitHub仓库RAW地址（您的仓库）
+    newsApiUrl: 'https://raw.githubusercontent.com/your-username/your-repo/main/data/nuclear-news.json',
+    // 设为true使用本地数据，设为false从GitHub获取
+    useGitHubData: false
+};
+
 // 当前选中市场
 let currentTab = 'US';
 
@@ -214,11 +222,36 @@ function loadNuclearStocks(market) {
     `).join('');
 }
 
-// 加载新闻
-function loadNews() {
+// 加载新闻（优先从GitHub获取，支持手动刷新）
+async function loadNews() {
     const grid = document.getElementById('news-grid');
     
-    grid.innerHTML = NEWS_DATA.map(news => `
+    // 尝试从GitHub获取新闻数据
+    if (API_CONFIG.useGitHubData && API_CONFIG.newsApiUrl) {
+        try {
+            const response = await fetch(API_CONFIG.newsApiUrl);
+            const result = await response.json();
+            if (result.news && result.news.length > 0) {
+                renderNews(result.news);
+                // 显示最后更新时间
+                if (result.lastUpdated) {
+                    console.log('新闻最后更新时间:', result.lastUpdated);
+                }
+                return;
+            }
+        } catch (error) {
+            console.log('从GitHub获取新闻失败，使用本地数据:', error);
+        }
+    }
+    
+    // 使用本地静态数据
+    renderNews(NEWS_DATA);
+}
+
+// 渲染新闻列表
+function renderNews(newsList) {
+    const grid = document.getElementById('news-grid');
+    grid.innerHTML = newsList.map(news => `
         <div class="news-card" onclick="openNews('${news.id}')">
             <div class="news-card-header">
                 <span class="news-tag ${news.category}">${getCategoryText(news.category)}</span>
@@ -231,16 +264,18 @@ function loadNews() {
     `).join('');
 }
 
-// 刷新新闻
-function refreshNews() {
+// 刷新新闻（手动触发）
+async function refreshNews() {
     const btn = document.querySelector('#news-section .btn-refresh');
     const originalText = btn.innerHTML;
     btn.innerHTML = '<span>⏳</span> 刷新中...';
     
-    setTimeout(() => {
-        loadNews();
-        btn.innerHTML = originalText;
-    }, 1000);
+    // 如果配置了手动刷新API，可以在这里调用
+    // 暂时使用本地刷新
+    await loadNews();
+    
+    btn.innerHTML = originalText;
+    showToast('新闻已更新');
 }
 
 // 获取分类文本
@@ -252,6 +287,35 @@ function getCategoryText(category) {
         'policy': '政策'
     };
     return texts[category] || category;
+}
+
+// 显示提示信息
+function showToast(message) {
+    // 如果页面已有toast函数，直接调用
+    if (typeof toast === 'function') {
+        toast(message);
+        return;
+    }
+    
+    // 否则创建简单的提示
+    const toast = document.createElement('div');
+    toast.className = 'toast-message';
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #4CAF50;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        z-index: 10000;
+        font-size: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
 }
 
 // 打开新闻详情
