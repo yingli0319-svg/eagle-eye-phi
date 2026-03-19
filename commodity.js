@@ -2,6 +2,42 @@
  * 大宗商品页面 JavaScript
  */
 
+// 货币汇率数据
+const FOREX = {
+    pairs: [
+        { name: '美元/人民币', code: 'USDCNY=X', symbol: 'USDCNY', price: 7.24, change: 0, changePercent: 0, type: 'forex' },
+        { name: '欧元/美元', code: 'EURUSD=X', symbol: 'EURUSD', price: 1.08, change: 0, changePercent: 0, type: 'forex' },
+        { name: '英镑/美元', code: 'GBPUSD=X', symbol: 'GBPUSD', price: 1.26, change: 0, changePercent: 0, type: 'forex' },
+        { name: '美元/日元', code: 'USDJPY=X', symbol: 'USDJPY', price: 151.50, change: 0, changePercent: 0, type: 'forex' },
+        { name: '澳元/美元', code: 'AUDUSD=X', symbol: 'AUDUSD', price: 0.65, change: 0, changePercent: 0, type: 'forex' },
+        { name: '美元/港币', code: 'USDHKD=X', symbol: 'USDHKD', price: 7.82, change: 0, changePercent: 0, type: 'forex' },
+    ]
+};
+
+// 获取货币汇率
+async function fetchForexRates() {
+    const symbols = FOREX.pairs.map(p => p.symbol).join(',');
+    try {
+        const response = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}`);
+        const data = await response.json();
+        
+        if (data.quoteResponse && data.quoteResponse.result) {
+            data.quoteResponse.result.forEach(quote => {
+                const pair = FOREX.pairs.find(p => p.symbol === quote.symbol);
+                if (pair) {
+                    const prevClose = quote.regularMarketPreviousClose || quote.regularMarketPrice;
+                    pair.price = quote.regularMarketPrice;
+                    pair.change = quote.regularMarketChange || 0;
+                    pair.changePercent = ((quote.regularMarketChange || 0) / prevClose) * 100;
+                }
+            });
+        }
+    } catch (error) {
+        console.log('获取汇率失败:', error);
+    }
+    return FOREX.pairs;
+}
+
 // 商品数据
 const COMMODITIES = {
     metals: [
@@ -72,9 +108,39 @@ function initTabs() {
             document.querySelectorAll('.commodity-tabs .tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentType = btn.dataset.type;
-            loadCommodities(currentType);
+            
+            // 显示/隐藏货币汇率区块
+            const forexSection = document.getElementById('forex-section');
+            if (currentType === 'forex') {
+                forexSection.style.display = 'block';
+                loadForexRates();
+            } else {
+                forexSection.style.display = 'none';
+                loadCommodities(currentType);
+            }
         });
     });
+}
+
+// 加载货币汇率
+async function loadForexRates() {
+    const grid = document.getElementById('forex-grid');
+    
+    // 先显示加载状态
+    grid.innerHTML = '<p>加载中...</p>';
+    
+    // 获取实时汇率
+    const rates = await fetchForexRates();
+    
+    grid.innerHTML = rates.map(item => `
+        <div class="overview-card">
+            <div class="overview-name">${item.name}</div>
+            <div class="overview-price">${item.price.toFixed(4)}</div>
+            <div class="overview-change ${item.changePercent >= 0 ? 'up' : 'down'}">
+                ${item.changePercent >= 0 ? '↑' : '↓'} ${Math.abs(item.changePercent).toFixed(2)}%
+            </div>
+        </div>
+    `).join('');
 }
 
 // 加载概览卡片
@@ -126,16 +192,21 @@ function loadCommodities(type) {
 }
 
 // 刷新数据
-function refreshCommodities() {
+async function refreshCommodities() {
     const btn = document.querySelector('.btn-refresh');
     const originalText = btn.innerHTML;
     btn.innerHTML = '<span>⏳</span> 刷新中...';
     
-    setTimeout(() => {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    if (currentType === 'forex') {
+        await loadForexRates();
+    } else {
         loadCommodities(currentType);
         loadOverview();
-        btn.innerHTML = originalText;
-    }, 1000);
+    }
+    
+    btn.innerHTML = originalText;
 }
 
 // 筛选设置
