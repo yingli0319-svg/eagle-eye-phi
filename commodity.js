@@ -1,95 +1,98 @@
 /**
  * 大宗商品页面 JavaScript
+ * 数据来源：Yahoo Finance API (直接调用)
  */
 
-// 货币汇率数据
-const FOREX = {
-    pairs: [
-        { name: '美元/人民币', code: 'USDCNY=X', symbol: 'USDCNY', price: 7.24, change: 0, changePercent: 0, type: 'forex' },
-        { name: '欧元/美元', code: 'EURUSD=X', symbol: 'EURUSD', price: 1.08, change: 0, changePercent: 0, type: 'forex' },
-        { name: '英镑/美元', code: 'GBPUSD=X', symbol: 'GBPUSD', price: 1.26, change: 0, changePercent: 0, type: 'forex' },
-        { name: '美元/日元', code: 'USDJPY=X', symbol: 'USDJPY', price: 151.50, change: 0, changePercent: 0, type: 'forex' },
-        { name: '澳元/美元', code: 'AUDUSD=X', symbol: 'AUDUSD', price: 0.65, change: 0, changePercent: 0, type: 'forex' },
-        { name: '美元/港币', code: 'USDHKD=X', symbol: 'USDHKD', price: 7.82, change: 0, changePercent: 0, type: 'forex' },
-    ]
+// 存储从API获取的数据
+let commodityData = {
+    metals: [],
+    baseMetals: [],
+    energy: [],
+    agriculture: [],
+    crypto: [],
+    forex: []
 };
-
-// 获取货币汇率
-async function fetchForexRates() {
-    const symbols = FOREX.pairs.map(p => p.symbol).join(',');
-    try {
-        const response = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}`);
-        const data = await response.json();
-        
-        if (data.quoteResponse && data.quoteResponse.result) {
-            data.quoteResponse.result.forEach(quote => {
-                const pair = FOREX.pairs.find(p => p.symbol === quote.symbol);
-                if (pair) {
-                    const prevClose = quote.regularMarketPreviousClose || quote.regularMarketPrice;
-                    pair.price = quote.regularMarketPrice;
-                    pair.change = quote.regularMarketChange || 0;
-                    pair.changePercent = ((quote.regularMarketChange || 0) / prevClose) * 100;
-                }
-            });
-        }
-    } catch (error) {
-        console.log('获取汇率失败:', error);
-    }
-    return FOREX.pairs;
-}
-
-// 商品数据
-const COMMODITIES = {
-    metals: [
-        { name: '黄金', code: 'XAUUSD', price: 2150.30, change: 12.50, changePercent: 0.58, weekChange: 2.3, type: 'metals' },
-        { name: '白银', code: 'XAGUSD', price: 24.85, change: 0.32, changePercent: 1.30, weekChange: 3.5, type: 'metals' },
-        { name: '铂金', code: 'XPTUSD', price: 985.40, change: -5.20, changePercent: -0.53, weekChange: -1.2, type: 'metals' },
-        { name: '钯金', code: 'XPDUSD', price: 1045.60, change: 15.80, changePercent: 1.53, weekChange: 4.1, type: 'metals' },
-        { name: '铜', code: 'HG=F', price: 4.12, change: 0.08, changePercent: 1.98, weekChange: 2.8, type: 'metals' },
-    ],
-    energy: [
-        { name: 'WTI原油', code: 'CL=F', price: 82.45, change: -1.25, changePercent: -1.49, weekChange: -3.2, type: 'energy' },
-        { name: '布伦特原油', code: 'BZ=F', price: 86.20, change: -0.95, changePercent: -1.09, weekChange: -2.8, type: 'energy' },
-        { name: '天然气', code: 'NG=F', price: 2.85, change: 0.12, changePercent: 4.39, weekChange: 5.6, type: 'energy' },
-        { name: '汽油', code: 'RB=F', price: 2.65, change: 0.05, changePercent: 1.92, weekChange: 1.8, type: 'energy' },
-        { name: '取暖油', code: 'HO=F', price: 2.92, change: -0.03, changePercent: -1.02, weekChange: -2.1, type: 'energy' },
-    ],
-    agriculture: [
-        { name: '小麦', code: 'ZW=F', price: 612.50, change: 8.25, changePercent: 1.37, weekChange: 2.5, type: 'agriculture' },
-        { name: '玉米', code: 'ZC=F', price: 458.75, change: -3.50, changePercent: -0.76, weekChange: -1.8, type: 'agriculture' },
-        { name: '大豆', code: 'ZS=F', price: 1218.25, change: 15.50, changePercent: 1.29, weekChange: 3.2, type: 'agriculture' },
-        { name: '咖啡', code: 'KC=F', price: 185.40, change: 2.80, changePercent: 1.53, weekChange: 4.5, type: 'agriculture' },
-        { name: '糖', code: 'SB=F', price: 21.85, change: -0.15, changePercent: -0.68, weekChange: -0.5, type: 'agriculture' },
-    ],
-    crypto: [
-        { name: '比特币', code: 'BTC', price: 68245.30, change: 1250.50, changePercent: 1.87, weekChange: 8.5, type: 'crypto' },
-        { name: '以太坊', code: 'ETH', price: 3456.80, change: -45.20, changePercent: -1.29, weekChange: 5.2, type: 'crypto' },
-        { name: 'BNB', code: 'BNB', price: 585.20, change: 12.50, changePercent: 2.18, weekChange: 6.8, type: 'crypto' },
-        { name: 'XRP', code: 'XRP', price: 0.62, change: 0.02, changePercent: 3.33, weekChange: 12.5, type: 'crypto' },
-        { name: 'SOL', code: 'SOL', price: 145.60, change: 5.80, changePercent: 4.15, weekChange: 15.2, type: 'crypto' },
-    ]
-};
-
-// 合并所有商品
-const ALL_COMMODITIES = [
-    ...COMMODITIES.metals,
-    ...COMMODITIES.energy,
-    ...COMMODITIES.agriculture,
-    ...COMMODITIES.crypto
-];
 
 let currentType = 'metals';
+
+// Yahoo Finance 期货代码映射
+const COMMODITY_CODES = {
+    // 贵金属
+    gold: 'GC=F',
+    silver: 'SI=F',
+    platinum: 'PL=F',
+    // 基本金属
+    copper: 'HG=F',
+    aluminum: 'ALI=F',
+    zinc: 'ZN=F',
+    nickel: 'NI=F',
+    lead: 'PB=F',
+    tin: 'SN=F',
+    // 能源
+    oil: 'CL=F',
+    brent_oil: 'BZ=F',
+    natural_gas: 'NG=F',
+    // 农产品
+    corn: 'ZC=F',
+    soybean: 'ZS=F',
+    wheat: 'ZW=F',
+    cotton: 'CT=F',
+    sugar: 'SB=F',
+    coffee: 'KC=F',
+    cocoa: 'CC=F',
+    orange_juice: 'OJ=F',
+    // 加密货币
+    btc: 'BTC-USD',
+    eth: 'ETH-USD',
+    // 汇率
+    usd_cny: 'CNY=X',
+    usd_hkd: 'HKD=X',
+    usd_jpy: 'JPY=X',
+    eur_usd: 'EUR=X',
+    gbp_usd: 'GBP=X',
+    hkd_cny: 'CNYHKD=X'
+};
+
+// 商品中文名称映射
+const COMMODITY_NAMES = {
+    gold: '黄金',
+    silver: '白银',
+    platinum: '铂金',
+    copper: '铜',
+    aluminum: '铝',
+    zinc: '锌',
+    nickel: '镍',
+    lead: '铅',
+    tin: '锡',
+    oil: 'WTI原油',
+    brent_oil: '布伦特原油',
+    natural_gas: '天然气',
+    corn: '玉米',
+    soybean: '大豆',
+    wheat: '小麦',
+    cotton: '棉花',
+    sugar: '糖',
+    coffee: '咖啡',
+    cocoa: '可可',
+    orange_juice: '橙汁',
+    btc: '比特币',
+    eth: '以太坊',
+    usd_cny: '美元/人民币',
+    usd_hkd: '美元/港币',
+    usd_jpy: '美元/日元',
+    eur_usd: '欧元/美元',
+    gbp_usd: '英镑/美元',
+    hkd_cny: '港币/人民币'
+};
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
     initNav();
     initTabs();
-    loadOverview();
-    loadCommodities(currentType);
     setupFilter();
+    loadData();
 });
 
-// 导航初始化
 function initNav() {
     const toggle = document.querySelector('.nav-toggle');
     const menu = document.querySelector('.nav-menu');
@@ -101,7 +104,6 @@ function initNav() {
     }
 }
 
-// 标签页初始化
 function initTabs() {
     document.querySelectorAll('.commodity-tabs .tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -122,22 +124,201 @@ function initTabs() {
     });
 }
 
+// 从 Yahoo Finance API 获取数据
+async function fetchFromYahoo(symbol) {
+    try {
+        const response = await fetch(
+            `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=5d`
+        );
+        
+        if (!response.ok) throw new Error('API请求失败');
+        
+        const data = await response.json();
+        
+        if (data.chart && data.chart.result && data.chart.result[0]) {
+            const result = data.chart.result[0];
+            const meta = result.meta;
+            const currentPrice = meta.regularMarketPrice || 0;
+            const previousClose = meta.chartPreviousClose || meta.previousClose || currentPrice;
+            const changePercent = previousClose > 0 ? ((currentPrice - previousClose) / previousClose) * 100 : 0;
+            
+            return {
+                price: currentPrice,
+                changePercent: changePercent
+            };
+        }
+    } catch (error) {
+        console.log('获取数据失败:', symbol, error);
+    }
+    return null;
+}
+
+// 批量获取商品数据
+async function fetchCommoditiesBatch(items) {
+    const promises = items.map(async (item) => {
+        const data = await fetchFromYahoo(COMMODITY_CODES[item.key]);
+        return {
+            key: item.key,
+            data: data
+        };
+    });
+    
+    return Promise.all(promises);
+}
+
+// 从 Yahoo Finance API 加载所有数据
+async function loadData() {
+    try {
+        // 定义所有商品类别
+        const allItems = [
+            // 贵金属
+            { key: 'gold', type: 'metals' },
+            { key: 'silver', type: 'metals' },
+            { key: 'platinum', type: 'metals' },
+            // 基本金属
+            { key: 'copper', type: 'baseMetals' },
+            { key: 'aluminum', type: 'baseMetals' },
+            { key: 'zinc', type: 'baseMetals' },
+            { key: 'nickel', type: 'baseMetals' },
+            { key: 'lead', type: 'baseMetals' },
+            { key: 'tin', type: 'baseMetals' },
+            // 能源
+            { key: 'oil', type: 'energy' },
+            { key: 'brent_oil', type: 'energy' },
+            { key: 'natural_gas', type: 'energy' },
+            // 农产品
+            { key: 'corn', type: 'agriculture' },
+            { key: 'soybean', type: 'agriculture' },
+            { key: 'wheat', type: 'agriculture' },
+            { key: 'cotton', type: 'agriculture' },
+            { key: 'sugar', type: 'agriculture' },
+            { key: 'coffee', type: 'agriculture' },
+            { key: 'cocoa', type: 'agriculture' },
+            { key: 'orange_juice', type: 'agriculture' },
+            // 加密货币
+            { key: 'btc', type: 'crypto' },
+            { key: 'eth', type: 'crypto' },
+            // 汇率
+            { key: 'usd_cny', type: 'forex' },
+            { key: 'usd_hkd', type: 'forex' },
+            { key: 'usd_jpy', type: 'forex' },
+            { key: 'eur_usd', type: 'forex' },
+            { key: 'gbp_usd', type: 'forex' },
+            { key: 'hkd_cny', type: 'forex' }
+        ];
+        
+        // 分批获取数据（避免请求过多）
+        const batchSize = 10;
+        const results = {};
+        
+        for (let i = 0; i < allItems.length; i += batchSize) {
+            const batch = allItems.slice(i, i + batchSize);
+            const batchResults = await fetchCommoditiesBatch(batch);
+            batchResults.forEach(item => {
+                results[item.key] = item.data;
+            });
+            // 添加短暂延迟避免限流
+            if (i + batchSize < allItems.length) {
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+        }
+        
+        // 处理贵金属数据
+        commodityData.metals = ['gold', 'silver', 'platinum'].map(key => ({
+            name: COMMODITY_NAMES[key],
+            code: COMMODITY_CODES[key],
+            price: results[key]?.price || 0,
+            change: 0,
+            changePercent: results[key]?.changePercent || 0,
+            weekChange: 0,
+            type: 'metals'
+        }));
+        
+        // 处理基本金属数据
+        commodityData.baseMetals = ['copper', 'aluminum', 'zinc', 'nickel', 'lead', 'tin'].map(key => ({
+            name: COMMODITY_NAMES[key],
+            code: COMMODITY_CODES[key],
+            price: results[key]?.price || 0,
+            change: 0,
+            changePercent: results[key]?.changePercent || 0,
+            weekChange: 0,
+            type: 'baseMetals'
+        }));
+        
+        // 处理能源数据
+        commodityData.energy = ['oil', 'brent_oil', 'natural_gas'].map(key => ({
+            name: COMMODITY_NAMES[key],
+            code: COMMODITY_CODES[key],
+            price: results[key]?.price || 0,
+            change: 0,
+            changePercent: results[key]?.changePercent || 0,
+            weekChange: 0,
+            type: 'energy'
+        }));
+        
+        // 处理农产品数据
+        commodityData.agriculture = ['corn', 'soybean', 'wheat', 'cotton', 'sugar', 'coffee', 'cocoa', 'orange_juice'].map(key => ({
+            name: COMMODITY_NAMES[key],
+            code: COMMODITY_CODES[key],
+            price: results[key]?.price || 0,
+            change: 0,
+            changePercent: results[key]?.changePercent || 0,
+            weekChange: 0,
+            type: 'agriculture'
+        }));
+        
+        // 处理加密货币数据
+        commodityData.crypto = ['btc', 'eth'].map(key => ({
+            name: COMMODITY_NAMES[key],
+            code: key.toUpperCase(),
+            price: results[key]?.price || 0,
+            change: 0,
+            changePercent: results[key]?.changePercent || 0,
+            weekChange: 0,
+            type: 'crypto'
+        }));
+        
+        // 处理汇率数据
+        commodityData.forex = ['usd_cny', 'usd_hkd', 'usd_jpy', 'eur_usd', 'gbp_usd', 'hkd_cny'].map(key => ({
+            name: COMMODITY_NAMES[key],
+            code: key.toUpperCase(),
+            price: results[key]?.price || 0,
+            change: 0,
+            changePercent: results[key]?.changePercent || 0,
+            type: 'forex'
+        }));
+        
+        console.log('商品数据加载成功:', commodityData);
+        
+        // 加载视图
+        loadOverview();
+        loadCommodities(currentType);
+        
+    } catch (error) {
+        console.error('加载商品数据失败:', error);
+        // 使用默认数据
+        loadOverview();
+        loadCommodities(currentType);
+    }
+}
+
 // 加载货币汇率
-async function loadForexRates() {
+function loadForexRates() {
     const grid = document.getElementById('forex-grid');
     
-    // 先显示加载状态
-    grid.innerHTML = '<p>加载中...</p>';
+    const rates = commodityData.forex || [];
     
-    // 获取实时汇率
-    const rates = await fetchForexRates();
+    if (rates.length === 0) {
+        grid.innerHTML = '<p>暂无数据，请点击刷新</p>';
+        return;
+    }
     
     grid.innerHTML = rates.map(item => `
         <div class="overview-card">
             <div class="overview-name">${item.name}</div>
-            <div class="overview-price">${item.price.toFixed(4)}</div>
+            <div class="overview-price">${formatPrice(item.price, item.code)}</div>
             <div class="overview-change ${item.changePercent >= 0 ? 'up' : 'down'}">
-                ${item.changePercent >= 0 ? '↑' : '↓'} ${Math.abs(item.changePercent).toFixed(2)}%
+                ${item.changePercent >= 0 ? '↑' : '↓'} ${Math.abs(item.changePercent || 0).toFixed(2)}%
             </div>
         </div>
     `).join('');
@@ -147,13 +328,38 @@ async function loadForexRates() {
 function loadOverview() {
     const grid = document.getElementById('overview-grid');
     
-    // 选取代表性商品
-    const highlights = [
-        { name: '黄金', code: 'XAUUSD', price: 2150.30, change: 0.58, icon: '🥇' },
-        { name: '原油', code: 'CL=F', price: 82.45, change: -1.49, icon: '🛢️' },
-        { name: '比特币', code: 'BTC', price: 68245.30, change: 1.87, icon: '₿' },
-        { name: '铜', code: 'HG=F', price: 4.12, change: 1.98, icon: '🔶' },
-    ];
+    // 从commodityData获取代表性商品
+    const highlights = [];
+    
+    if (commodityData.metals.length > 0) {
+        const gold = commodityData.metals.find(m => m.name === '黄金');
+        if (gold) highlights.push({ name: '黄金', code: 'GC=F', price: gold.price, change: gold.changePercent, icon: '🥇' });
+    }
+    
+    if (commodityData.energy.length > 0) {
+        const oil = commodityData.energy.find(m => m.name === 'WTI原油');
+        if (oil) highlights.push({ name: '原油', code: 'CL=F', price: oil.price, change: oil.changePercent, icon: '🛢️' });
+    }
+    
+    if (commodityData.crypto.length > 0) {
+        const btc = commodityData.crypto.find(m => m.name === '比特币');
+        if (btc) highlights.push({ name: '比特币', code: 'BTC', price: btc.price, change: btc.changePercent, icon: '₿' });
+    }
+    
+    if (commodityData.baseMetals.length > 0) {
+        const copper = commodityData.baseMetals.find(m => m.name === '铜');
+        if (copper) highlights.push({ name: '铜', code: 'HG=F', price: copper.price, change: copper.changePercent, icon: '🔶' });
+    }
+    
+    // 如果没有数据，显示默认提示
+    if (highlights.length === 0 || highlights.every(h => h.price === 0)) {
+        highlights.push(
+            { name: '黄金', code: 'GC=F', price: 0, change: 0, icon: '🥇' },
+            { name: '原油', code: 'CL=F', price: 0, change: 0, icon: '🛢️' },
+            { name: '比特币', code: 'BTC', price: 0, change: 0, icon: '₿' },
+            { name: '铜', code: 'HG=F', price: 0, change: 0, icon: '🔶' }
+        );
+    }
     
     grid.innerHTML = highlights.map(item => `
         <div class="overview-card">
@@ -161,7 +367,7 @@ function loadOverview() {
             <div class="overview-name">${item.name}</div>
             <div class="overview-price">${formatPrice(item.price, item.code)}</div>
             <div class="overview-change ${item.change >= 0 ? 'up' : 'down'}">
-                ${item.change >= 0 ? '↑' : '↓'} ${Math.abs(item.change).toFixed(2)}%
+                ${item.change >= 0 ? '↑' : '↓'} ${Math.abs(item.change || 0).toFixed(2)}%
             </div>
         </div>
     `).join('');
@@ -170,21 +376,43 @@ function loadOverview() {
 // 加载商品列表
 function loadCommodities(type) {
     const tbody = document.getElementById('commodity-tbody');
-    const commodities = COMMODITIES[type] || [];
+    
+    // 获取对应类型的数据
+    let commodities = commodityData[type] || [];
+    
+    // 处理 'all' 类型
+    if (type === 'all') {
+        commodities = [
+            ...commodityData.metals,
+            ...commodityData.baseMetals,
+            ...commodityData.energy,
+            ...commodityData.crypto
+        ];
+    }
+    
+    // 处理 'metals' 类型时合并贵金属和基本金属
+    if (type === 'metals') {
+        commodities = [...commodityData.metals, ...commodityData.baseMetals];
+    }
+    
+    if (commodities.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7">暂无数据，请点击刷新按钮更新数据</td></tr>';
+        return;
+    }
     
     tbody.innerHTML = commodities.map(item => `
         <tr>
             <td><span class="commodity-name">${item.name}</span></td>
             <td><span class="commodity-code">${item.code}</span></td>
             <td><span class="commodity-price">${formatPrice(item.price, item.code)}</span></td>
-            <td><span class="commodity-change ${item.change >= 0 ? 'up' : 'down'}">
-                ${item.change >= 0 ? '+' : ''}${formatPrice(item.change, item.code)}
+            <td><span class="commodity-change ${(item.change || 0) >= 0 ? 'up' : 'down'}">
+                ${(item.change || 0) >= 0 ? '+' : ''}${formatPrice(item.change || 0, item.code)}
             </span></td>
-            <td><span class="commodity-change ${item.changePercent >= 0 ? 'up' : 'down'}">
-                ${item.changePercent >= 0 ? '+' : ''}${item.changePercent.toFixed(2)}%
+            <td><span class="commodity-change ${(item.changePercent || 0) >= 0 ? 'up' : 'down'}">
+                ${(item.changePercent || 0) >= 0 ? '+' : ''}${(item.changePercent || 0).toFixed(2)}%
             </span></td>
-            <td><span class="commodity-change ${item.weekChange >= 0 ? 'up' : 'down'}">
-                ${item.weekChange >= 0 ? '+' : ''}${item.weekChange.toFixed(1)}%
+            <td><span class="commodity-change ${(item.weekChange || 0) >= 0 ? 'up' : 'down'}">
+                ${(item.weekChange || 0) >= 0 ? '+' : ''}${(item.weekChange || 0).toFixed(1)}%
             </span></td>
             <td>${getRecommendation(item)}</td>
         </tr>
@@ -197,13 +425,21 @@ async function refreshCommodities() {
     const originalText = btn.innerHTML;
     btn.innerHTML = '<span>⏳</span> 刷新中...';
     
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    if (currentType === 'forex') {
-        await loadForexRates();
-    } else {
-        loadCommodities(currentType);
-        loadOverview();
+    try {
+        // 重新从 Yahoo Finance API 获取数据
+        await loadData();
+        
+        if (currentType === 'forex') {
+            loadForexRates();
+        } else {
+            loadCommodities(currentType);
+            loadOverview();
+        }
+        
+        showToast('数据已更新');
+    } catch (error) {
+        console.error('刷新数据失败:', error);
+        showToast('数据更新失败，请重试');
     }
     
     btn.innerHTML = originalText;
@@ -216,7 +452,7 @@ function setupFilter() {
         filter.addEventListener('change', (e) => {
             const type = e.target.value;
             if (type === 'all') {
-                loadAllCommodities();
+                loadCommodities('all');
             } else {
                 loadCommodities(type);
             }
@@ -224,37 +460,23 @@ function setupFilter() {
     }
 }
 
-// 加载全部
-function loadAllCommodities() {
-    const tbody = document.getElementById('commodity-tbody');
-    tbody.innerHTML = ALL_COMMODITIES.map(item => `
-        <tr>
-            <td><span class="commodity-name">${item.name}</span></td>
-            <td><span class="commodity-code">${item.code}</span></td>
-            <td><span class="commodity-price">${formatPrice(item.price, item.code)}</span></td>
-            <td><span class="commodity-change ${item.change >= 0 ? 'up' : 'down'}">
-                ${item.change >= 0 ? '+' : ''}${formatPrice(item.change, item.code)}
-            </span></td>
-            <td><span class="commodity-change ${item.changePercent >= 0 ? 'up' : 'down'}">
-                ${item.changePercent >= 0 ? '+' : ''}${item.changePercent.toFixed(2)}%
-            </span></td>
-            <td><span class="commodity-change ${item.weekChange >= 0 ? 'up' : 'down'}">
-                ${item.weekChange >= 0 ? '+' : ''}${item.weekChange.toFixed(1)}%
-            </span></td>
-            <td>${getRecommendation(item)}</td>
-        </tr>
-    `).join('');
-}
-
 // 格式化价格
 function formatPrice(price, code) {
+    if (price === 0) return '--';
+    
     // 判断是否为加密货币
     if (code === 'BTC' || code === 'ETH' || code === 'BNB' || code === 'XRP' || code === 'SOL') {
         return '$' + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
-    // 判断是否为金属
-    if (code.startsWith('XAU') || code.startsWith('XAG') || code.startsWith('XPT') || code.startsWith('XPD')) {
-        return '$' + price.toFixed(2);
+    // 判断是否为汇率
+    if (code.includes('CNY') || code.includes('HKD') || code.includes('JPY') || 
+        code.includes('EUR') || code.includes('GBP') || code === 'CNYHKD=X') {
+        return price.toFixed(4);
+    }
+    // 判断是否为金属期货
+    if (code.endsWith('=F') || code.startsWith('HG') || code.startsWith('ALI') || 
+        code.startsWith('ZN') || code.startsWith('NI') || code.startsWith('PB') || code.startsWith('SN')) {
+        return '$' + price.toFixed(4);
     }
     // 其他商品
     return '$' + price.toFixed(2);
@@ -266,13 +488,13 @@ function getRecommendation(item) {
     let recommendation, className;
     
     if (score >= 70) {
-        recommendation = 'Buy';
+        recommendation = '买入';
         className = 'buy';
     } else if (score >= 45) {
-        recommendation = 'Hold';
+        recommendation = '持有';
         className = 'hold';
     } else {
-        recommendation = 'Sell';
+        recommendation = '卖出';
         className = 'sell';
     }
     
@@ -284,17 +506,68 @@ function calculateScore(item) {
     // 简化的评分逻辑
     let score = 50;
     
+    const changePercent = item.changePercent || 0;
+    const weekChange = item.weekChange || 0;
+    
     // 短期动能
-    if (item.changePercent > 2) score += 15;
-    else if (item.changePercent > 0) score += 5;
-    else if (item.changePercent < -2) score -= 15;
+    if (changePercent > 2) score += 15;
+    else if (changePercent > 0) score += 5;
+    else if (changePercent < -2) score -= 15;
     else score -= 5;
     
     // 周趋势
-    if (item.weekChange > 5) score += 15;
-    else if (item.weekChange > 0) score += 5;
-    else if (item.weekChange < -5) score -= 15;
+    if (weekChange > 5) score += 15;
+    else if (weekChange > 0) score += 5;
+    else if (weekChange < -5) score -= 15;
     else score -= 5;
     
     return Math.max(0, Math.min(100, score));
+}
+
+// 显示提示信息
+function showToast(message) {
+    // 移除已有的toast
+    const existingToast = document.querySelector('.toast-message');
+    if (existingToast) existingToast.remove();
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast-message';
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: linear-gradient(135deg, #4CAF50, #45a049);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        z-index: 10000;
+        font-size: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        animation: slideIn 0.3s ease-out;
+    `;
+    document.body.appendChild(toast);
+    
+    // 添加动画样式
+    if (!document.getElementById('toast-animation')) {
+        const style = document.createElement('style');
+        style.id = 'toast-animation';
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // 3秒后移除
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
