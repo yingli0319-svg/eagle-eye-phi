@@ -302,3 +302,35 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* 加载提示 */
+.loading-text {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+/* 评分徽章 */
+.score-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.score-badge.buy {
+    background: rgba(34, 197, 94, 0.2);
+    color: var(--accent-green);
+}
+
+.score-badge.hold {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+}
+
+.score-badge.sell {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--accent-red);
+}
