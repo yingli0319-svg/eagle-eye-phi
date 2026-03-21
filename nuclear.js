@@ -200,6 +200,126 @@ function getMarketName(market) {
 }
 
 // ============================================
+// Yahoo Finance API（支持CORS）
+// ============================================
+async function fetchFromYahooFinance(symbols) {
+    try {
+        const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols.join(',')}`;
+        const response = await fetch(url);
+        if (!response.ok) return null;
+        const json = await response.json();
+        return json.quoteResponse?.result || [];
+    } catch (e) {
+        console.log('Yahoo Finance API error:', e);
+        return null;
+    }
+}
+
+// ============================================
+// 新浪财经 API（港股和A股）
+// ============================================
+async function fetchFromSinaFinance(codes, market) {
+    try {
+        let sinaCodes = codes.map(c => {
+            if (market === 'CN') {
+                if (c.startsWith('6')) return 'sh' + c;
+                return 'sz' + c;
+            } else if (market === 'HK') {
+                return 'hk' + c.replace('.HK', '');
+            }
+            return c;
+        }).join(',');
+        
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://hq.sinajs.cn/list=${sinaCodes}`)}`;
+        const response = await fetch(proxyUrl);
+        const text = await response.text();
+        
+        const dataRegex = /hq_str_(\w+)="([^"]+)"/g;
+        const dataMap = {};
+        let match;
+        
+        while ((match = dataRegex.exec(text)) !== null) {
+            const parts = match[2].split(',');
+            dataMap[match[1]] = {
+                name: parts[0],
+                price: parseFloat(parts[1]) || 0,
+                change: parseFloat(parts[2]) || 0
+            };
+        }
+        return dataMap;
+    } catch (e) {
+        console.log('Sina Finance API error:', e);
+        return null;
+    }
+}
+
+// ============================================
+// 多源数据获取
+// ============================================
+async function fetchRealTimeStocks(market, stockPool) {
+    const codes = stockPool.map(s => s.code);
+    
+    if (market === 'US') {
+        // 使用 Yahoo Finance
+        const yahooData = await fetchFromYahooFinance(codes);
+        if (yahooData && yahooData.length > 0) {
+            return stockPool.map(s => {
+                const data = yahooData.find(y => y.symbol === s.code.toUpperCase());
+                if (data) {
+                    const price = data.regularMarketPrice || 0;
+                    const prevClose = data.regularMarketPreviousClose || 0;
+                    const change = price - prevClose;
+                    const changePercent = prevClose > 0 ? ((change / prevClose) * 100) : 0;
+                    return {
+                        code: s.code,
+                        name: s.name,
+                        sector: s.sector,
+                        desc: s.desc || '',
+                        price: price,
+                        change: change.toFixed(2),
+                        changePercent: changePercent.toFixed(2),
+                        hasData: true,
+                        date: new Date().toISOString().split('T')[0]
+                    };
+                }
+                return null;
+            }).filter(s => s !== null);
+        }
+    } else {
+        // 使用新浪财经
+        const sinaData = await fetchFromSinaFinance(codes, market);
+        if (sinaData) {
+            return stockPool.map(s => {
+                let sinaCode;
+                if (market === 'CN') {
+                    sinaCode = s.code.startsWith('6') ? 'sh' + s.code : 'sz' + s.code;
+                } else {
+                    sinaCode = 'hk' + s.code.replace('.HK', '');
+                }
+                
+                const data = sinaData[sinaCode];
+                if (data && data.price > 0) {
+                    const changePercent = data.change !== 0 ? ((data.change / (data.price - data.change)) * 100) : 0;
+                    return {
+                        code: s.code,
+                        name: data.name || s.name,
+                        sector: s.sector,
+                        desc: s.desc || '',
+                        price: data.price,
+                        change: data.change.toFixed(2),
+                        changePercent: changePercent.toFixed(2),
+                        hasData: true,
+                        date: new Date().toISOString().split('T')[0]
+                    };
+                }
+                return null;
+            }).filter(s => s !== null);
+        }
+    }
+    return null;
+}
+
+// ============================================
 // 从本地后端获取数据
 // ============================================
 async function fetchStocksFromBackend(market) {
@@ -231,9 +351,24 @@ async function refreshNuclearStocks(market) {
     });
 
     try {
-        // 尝试从后端获取数据
-        const backendData = await fetchStocksFromBackend(market);
+        // 1. 尝试从实时API获取数据（Yahoo/Sina）
+        let stockPool = [];
+        switch (market) {
+            case 'US': stockPool = US_NUCLEAR_STOCKS; break;
+            case 'HK': stockPool = HK_NUCLEAR_STOCKS; break;
+            case 'CN': stockPool = CN_NUCLEAR_STOCKS; break;
+        }
+        
+        const realTimeData = await fetchRealTimeStocks(market, stockPool);
+        if (realTimeData && realTimeData.length > 0) {
+            stockPrices[market] = realTimeData;
+            loadNuclearStocks(market);
+            showToast(`${getMarketName(market)}数据已更新`);
+            return;
+        }
 
+        // 2. 尝试从后端获取数据
+        const backendData = await fetchStocksFromBackend(market);
         if (backendData && backendData.length > 0) {
             const marketCode = market === 'US' ? 'US' : market === 'HK' ? 'HK' : 'CN';
             const filtered = backendData.filter(s => s.market === marketCode);
@@ -250,7 +385,7 @@ async function refreshNuclearStocks(market) {
             }
         }
 
-        // 后端数据不可用，加载默认数据
+        // 3. 后端数据不可用，加载默认数据
         loadDefaultStocks(market);
         showToast(`${getMarketName(market)}使用默认数据`);
 
