@@ -1,11 +1,93 @@
 /**
  * 大宗商品页面 JavaScript
- * 数据来源：本地后端多源爬虫
- * - 新浪财经
- * - 东方财富
- * - 凤凰金融
- * - Yahoo Finance (备用)
+ * 数据来源：本地后端多源爬虫 + Yahoo Finance + 新浪财经
  */
+
+// ============================================
+// Yahoo Finance API
+// ============================================
+const YAHOO_SYMBOLS = {
+    // 贵金属
+    'GC=F': { key: 'gold', name: '黄金', unit: 'USD/oz' },
+    'SI=F': { key: 'silver', name: '白银', unit: 'USD/oz' },
+    'PL=F': { key: 'platinum', name: '铂金', unit: 'USD/oz' },
+    'PA=F': { key: 'palladium', name: '钯金', unit: 'USD/oz' },
+    // 基本金属
+    'HG=F': { key: 'copper', name: '铜', unit: 'USD/lb' },
+    // 能源
+    'CL=F': { key: 'wtiOil', name: 'WTI原油', unit: 'USD/bbl' },
+    'BZ=F': { key: 'brentOil', name: '布伦特原油', unit: 'USD/bbl' },
+    'NG=F': { key: 'naturalGas', name: '天然气', unit: 'USD/MMBtu' },
+    // 加密货币
+    'BTC-USD': { key: 'btc', name: '比特币', unit: 'USD' },
+    'ETH-USD': { key: 'eth', name: '以太坊', unit: 'USD' },
+    // 外汇
+    'CNY=X': { key: 'usdCny', name: '美元/人民币', unit: 'CNY' },
+    'HKD=X': { key: 'usdHkd', name: '美元/港币', unit: 'HKD' },
+    'JPY=X': { key: 'usdJpy', name: '美元/日元', unit: 'JPY' },
+    'EURUSD=X': { key: 'eurUsd', name: '欧元/美元', unit: 'EUR' },
+    'GBPUSD=X': { key: 'gbpUsd', name: '英镑/美元', unit: 'GBP' },
+};
+
+async function fetchFromYahooFinance() {
+    try {
+        const symbols = Object.keys(YAHOO_SYMBOLS).join(',');
+        const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}`;
+        const response = await fetch(url);
+        if (!response.ok) return null;
+        const json = await response.json();
+        return json.quoteResponse?.result || [];
+    } catch (e) {
+        console.log('Yahoo Finance API error:', e);
+        return null;
+    }
+}
+
+// ============================================
+// 新浪财经 API（国内期货）
+// ============================================
+async function fetchFromSinaCommodity() {
+    try {
+        // 新浪期货代码
+        const codes = [
+            'hf_GC', 'hf_SI', 'hf_CL', 'hf_HG', // 国际
+            'hf_ni', 'hf_zn', 'hf_pb', 'hf_sn', // LME
+            'hf_rb', 'hf_hc', 'hf_i', 'hf_j', 'hf_jm', // 黑色系
+            'hf_cu', 'hf_al', // 上期所
+            'C2309', 'M2309', 'Y2309', 'P2309', // 大商所
+            'CZCE_RM', 'CZCE_CF', 'CZCE_SR', // 郑商所
+        ];
+        
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://hq.sinajs.cn/list=${codes.join(',')}`)}`;
+        const response = await fetch(proxyUrl);
+        const text = await response.text();
+        
+        const dataMap = {};
+        const dataRegex = /hq_str_(\w+)="([^"]+)"/g;
+        let match;
+        while ((match = dataRegex.exec(text)) !== null) {
+            const parts = match[2].split(',');
+            if (parts.length > 2) {
+                dataMap[match[1]] = {
+                    price: parseFloat(parts[0]) || 0,
+                    change: parseFloat(parts[1]) || 0,
+                };
+            }
+        }
+        return dataMap;
+    } catch (e) {
+        console.log('Sina Commodity API error:', e);
+        return null;
+    }
+}
+
+// ============================================
+// 多源数据获取
+// ============================================
+async function fetchMultiSourceData() {
+    const yahooData = await fetchFromYahooFinance();
+    return yahooData;
+}
 
 let commodityData = {
     metals: [],       // 贵金属
@@ -158,16 +240,23 @@ async function loadData() {
     showLoading(true);
 
     try {
-        // 从本地后端获取多源数据
-        const backendData = await fetchFromBackend();
-
-        if (backendData) {
-            processBackendData(backendData);
+        // 1. 尝试从Yahoo Finance获取数据
+        const yahooData = await fetchFromYahooFinance();
+        if (yahooData && yahooData.length > 0) {
+            processYahooData(yahooData);
             lastUpdate = new Date().toLocaleTimeString('zh-CN');
-            console.log('数据来源: 本地后端多源爬虫');
+            console.log('数据来源: Yahoo Finance');
         } else {
-            console.log('后端数据获取失败，使用默认数据');
-            loadDefaultData();
+            // 2. 尝试从本地后端获取多源数据
+            const backendData = await fetchFromBackend();
+            if (backendData) {
+                processBackendData(backendData);
+                lastUpdate = new Date().toLocaleTimeString('zh-CN');
+                console.log('数据来源: 本地后端多源爬虫');
+            } else {
+                console.log('数据获取失败，使用默认数据');
+                loadDefaultData();
+            }
         }
 
         loadOverview();
@@ -183,6 +272,64 @@ async function loadData() {
         isLoading = false;
         showLoading(false);
     }
+}
+
+// 处理Yahoo Finance数据
+function processYahooData(data) {
+    const metals = [];
+    const baseMetals = [];
+    const energy = [];
+    const crypto = [];
+    const forex = [];
+
+    data.forEach(item => {
+        const symbol = item.symbol;
+        const info = YAHOO_SYMBOLS[symbol];
+        if (!info) return;
+
+        const price = item.regularMarketPrice || 0;
+        const prevClose = item.regularMarketPreviousClose || 0;
+        const change = price - prevClose;
+        const changePercent = prevClose > 0 ? ((change / prevClose) * 100) : 0;
+
+        const commodity = {
+            key: info.key,
+            name: info.name,
+            code: symbol,
+            price: price,
+            change: changePercent,
+            hasData: price > 0
+        };
+
+        // 根据品种分类
+        if (['gold', 'silver', 'platinum', 'palladium'].includes(info.key)) {
+            metals.push(commodity);
+        } else if (info.key === 'copper') {
+            baseMetals.push(commodity);
+        } else if (['wtiOil', 'brentOil', 'naturalGas'].includes(info.key)) {
+            energy.push(commodity);
+        } else if (['btc', 'eth'].includes(info.key)) {
+            crypto.push(commodity);
+        } else if (['usdCny', 'usdHkd', 'usdJpy', 'eurUsd', 'gbpUsd'].includes(info.key)) {
+            forex.push(commodity);
+        }
+    });
+
+    // 补充默认数据中没有的品种
+    if (metals.length === 0) {
+        metals.push({ key: 'platinum', name: '铂金', code: 'PL=F', price: 1960, change: 0, hasData: false });
+        metals.push({ key: 'palladium', name: '钯金', code: 'PA=F', price: 980, change: 0, hasData: false });
+    }
+    if (baseMetals.length === 0) {
+        baseMetals.push({ key: 'aluminum', name: '铝', code: 'LME', price: 2450, change: 0, hasData: false });
+    }
+
+    commodityData.metals = metals;
+    commodityData.baseMetals = baseMetals;
+    commodityData.energy = energy;
+    commodityData.crypto = crypto;
+    commodityData.forex = forex;
+    commodityData.agriculture = []; // 农产品暂无API
 }
 
 // 加载默认数据（备用）
