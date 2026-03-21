@@ -199,9 +199,28 @@
 }
 
 .news-source {
-    margin-top: 0.75rem;
     font-size: 0.8rem;
     color: var(--text-muted);
+}
+
+.news-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.75rem;
+}
+
+.news-link {
+    font-size: 0.85rem;
+    color: var(--accent-gold);
+    font-weight: 500;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.news-link:hover {
+    opacity: 0.8;
+    text-decoration: underline;
 }
 
 /* 知识科普区域 */
