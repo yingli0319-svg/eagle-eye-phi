@@ -1,0 +1,336 @@
+/* 大宗商品页面专项样式 */
+
+/* 标签页 */
+.commodity-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+}
+
+.tab-btn.active {
+    background: linear-gradient(135deg, var(--accent-gold) 0%, #b8943f 100%);
+    color: var(--bg-primary);
+    border-color: var(--accent-gold);
+}
+
+/* 价格概览网格 */
+.overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.overview-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.overview-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-card);
+}
+
+.overview-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.overview-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.overview-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.overview-change {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+}
+
+.overview-change.up { color: var(--accent-green); }
+.overview-change.down { color: var(--accent-red); }
+
+/* 行情表格 */
+.market-section {
+    margin-bottom: 2rem;
+}
+
+.commodity-table-container {
+    background: var(--bg-card);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.commodity-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.commodity-table th {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.commodity-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.commodity-table tbody tr:hover {
+    background: var(--bg-card-hover);
+}
+
+.commodity-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.commodity-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.commodity-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+}
+
+.commodity-change {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.commodity-change.up { color: var(--accent-green); }
+.commodity-change.down { color: var(--accent-red); }
+
+/* 分析指标区域 */
+.analysis-section {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    color: var(--accent-gold);
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.analysis-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.analysis-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.analysis-card h3 {
+    color: var(--accent-gold);
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.analysis-card p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+/* 情绪仪表 */
+.sentiment-meter {
+    margin-top: 1rem;
+}
+
+.sentiment-bar {
+    height: 8px;
+    background: linear-gradient(90deg, 
+        var(--accent-red) 0%, 
+        #ffc107 50%, 
+        var(--accent-green) 100%);
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+.sentiment-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* 风险指标 */
+.risk-indicator {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.risk-indicator.high {
+    border-left: 3px solid var(--accent-red);
+}
+
+.risk-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.risk-value {
+    font-weight: 600;
+    color: var(--accent-red);
+}
+
+/* 供给状态 */
+.supply-status {
+    margin-top: 1rem;
+}
+
+.supply-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.supply-item:last-child {
+    border-bottom: none;
+}
+
+.supply-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.supply-value {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.supply-value.stable { color: var(--accent-green); }
+.supply-value.tight { color: #ffc107; }
+.supply-value.scarce { color: var(--accent-red); }
+
+/* 目标价对比 */
+.target-comparison {
+    margin-top: 1rem;
+}
+
+.comparison-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.comparison-item:last-child {
+    border-bottom: none;
+}
+
+.comp-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.comp-values {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent-green);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .overview-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .commodity-table-container {
+        overflow-x: auto;
+    }
+    
+    .commodity-table {
+        min-width: 700px;
+    }
+    
+    .analysis-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 加载提示 */
+.loading-text {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+/* 评分徽章 */
+.score-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.score-badge.buy {
+    background: rgba(34, 197, 94, 0.2);
+    color: var(--accent-green);
+}
+
+.score-badge.hold {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+}
+
+.score-badge.sell {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--accent-red);
+}
