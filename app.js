@@ -6,8 +6,7 @@
 
 // ==================== 数据源配置 ====================
 // 设置为true使用真实数据，false使用模拟数据
-// 注意：真实数据需要后端服务器配合避免跨域问题，当前使用模拟数据展示页面功能
-const USE_REAL_DATA = false;
+const USE_REAL_DATA = true;
 
 // ==================== 实时数据获取（使用新浪JSONP API） ====================
 // 新浪财经API：A股用sh/sz前缀，港股用hk前缀，美股用n_前缀
@@ -75,56 +74,119 @@ function fetchStockPriceJSONP(code, market) {
     });
 }
 
-// 批量获取所有股票数据（使用CORS代理）
-async function fetchAllRealTimeData(stocks) {
-    // 使用代理绕过CORS
-    const sinaCodes = stocks.map(s => toSinaCode(s.code, s.market)).join(',');
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://hq.sinajs.cn/list=${sinaCodes}`)}`;
-    
+// ==================== Yahoo Finance API（支持CORS） ====================
+// 转换代码为Yahoo Finance格式
+function toYahooSymbol(code, market) {
+    if (market === 'US') {
+        // 美股直接使用
+        return code.toUpperCase();
+    } else if (market === 'HK') {
+        // 港股：代码.hk后缀
+        return code.replace('.HK', '').toLowerCase() + '.hk';
+    } else if (market === 'CN') {
+        // A股：sz/sh前缀
+        if (code.startsWith('6')) return 'sh' + code;
+        return 'sz' + code;
+    }
+    return code;
+}
+
+// 使用Yahoo Finance API获取数据
+async function fetchFromYahooFinance(symbols) {
     try {
-        const response = await fetch(proxyUrl);
-        const text = await response.text();
-        
-        // 解析返回数据: var hq_str_sh600519="贵州茅台,1800.00,...
-        const results = [];
-        const dataRegex = /hq_str_(\w+)="([^"]+)"/g;
-        const dataMap = {};
-        let match;
-        
-        while ((match = dataRegex.exec(text)) !== null) {
-            dataMap[match[1]] = match[2];
+        const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols.join(',')}`;
+        const response = await fetch(url);
+        if (!response.ok) return null;
+        const json = await response.json();
+        return json.quoteResponse?.result || [];
+    } catch (e) {
+        console.log('Yahoo Finance API error:', e);
+        return null;
+    }
+}
+
+// ==================== 多源数据获取 ====================
+// 批量获取所有股票数据（多源：Yahoo + Sina）
+async function fetchAllRealTimeData(stocks) {
+    // 按市场分组
+    const usStocks = stocks.filter(s => s.market === 'US');
+    const hkStocks = stocks.filter(s => s.market === 'HK');
+    const cnStocks = stocks.filter(s => s.market === 'CN');
+    
+    const results = [];
+    const dataMap = {};
+    
+    // 1. Yahoo Finance 获取美股数据（支持CORS）
+    if (usStocks.length > 0) {
+        const yahooSymbols = usStocks.map(s => s.code.toUpperCase());
+        const yahooData = await fetchFromYahooFinance(yahooSymbols);
+        if (yahooData) {
+            yahooData.forEach(item => {
+                const symbol = item.symbol;
+                const price = item.regularMarketPrice || 0;
+                const prevClose = item.regularMarketPreviousClose || 0;
+                const change = price - prevClose;
+                const changePercent = prevClose > 0 ? ((change / prevClose) * 100) : 0;
+                dataMap[symbol] = {
+                    price: price,
+                    change: change.toFixed(2),
+                    changePercent: changePercent.toFixed(2),
+                    name: item.shortName || item.symbol
+                };
+            });
         }
+    }
+    
+    // 2. Sina Finance 获取港股和A股数据
+    const otherStocks = [...hkStocks, ...cnStocks];
+    if (otherStocks.length > 0) {
+        const sinaCodes = otherStocks.map(s => toSinaCode(s.code, s.market)).join(',');
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://hq.sinajs.cn/list=${sinaCodes}`)}`;
         
-        stocks.forEach(stock => {
-            const sinaCode = toSinaCode(stock.code, stock.market);
-            const dataStr = dataMap[sinaCode];
+        try {
+            const response = await fetch(proxyUrl);
+            const text = await response.text();
+            const dataRegex = /hq_str_(\w+)="([^"]+)"/g;
+            let match;
             
-            if (dataStr) {
+            while ((match = dataRegex.exec(text)) !== null) {
+                const sinaCode = match[1];
+                const dataStr = match[2];
                 const parts = dataStr.split(',');
                 const price = parseFloat(parts[1]) || 0;
                 const change = parseFloat(parts[2]) || 0;
                 
                 if (price > 0) {
-                    results.push({
-                        stock,
-                        data: {
-                            price: price,
-                            change: change.toFixed(2),
-                            changePercent: ((change / (price - change)) * 100).toFixed(2),
-                            name: parts[0]
-                        }
-                    });
-                    return;
+                    dataMap[sinaCode] = {
+                        price: price,
+                        change: change.toFixed(2),
+                        changePercent: ((change / (price - change)) * 100).toFixed(2),
+                        name: parts[0]
+                    };
                 }
             }
-            results.push({ stock, data: null });
-        });
-        
-        return results;
-    } catch (error) {
-        console.error('获取数据失败:', error);
-        return stocks.map(stock => ({ stock, data: null }));
+        } catch (e) {
+            console.log('Sina API error:', e);
+        }
     }
+    
+    // 合并结果
+    stocks.forEach(stock => {
+        let data = null;
+        
+        if (stock.market === 'US') {
+            // 从Yahoo获取
+            data = dataMap[stock.code.toUpperCase()];
+        } else {
+            // 从Sina获取
+            const sinaCode = toSinaCode(stock.code, stock.market);
+            data = dataMap[sinaCode];
+        }
+        
+        results.push({ stock, data });
+    });
+    
+    return results;
 }
 
 // 兼容旧的单股票接口
