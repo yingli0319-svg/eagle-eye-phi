@@ -18,5 +18,3 @@ function initNav() {
         });
     }
 }
-
-// Trigger Vercel 2026-03-21 23:26:13
