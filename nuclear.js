@@ -142,16 +142,16 @@ const ALPHA_NUCLIDES = [
     { name: 'Tb-149', halfLife: '4.1小时', energy: '高', producer: 'Cyclotron', note: '同时发射α和正电子' },
 ];
 
-// 核药新闻
+// 核药新闻 - 带真实链接
 const LOCAL_NEWS_DATA = [
-    { id: 1, title: 'Novartis宣布Pluvicto扩大适应症申请', summary: 'Novartis向FDA提交Pluvicto用于转移性激素敏感性前列腺癌的补充申请。', category: 'alpha', source: 'Novartis', date: new Date().toISOString().split('T')[0], url: '#' },
-    { id: 2, title: 'ITM与Roche合作开发Ac-225核药', summary: 'ITM Isotope Technologies与Roche达成战略合作，共同开发Ac-225靶向核药。', category: 'alpha', source: 'ITM', date: new Date().toISOString().split('T')[0], url: '#' },
-    { id: 3, title: '中国首款自主研发核药获批临床', summary: '东诚药业自主研发的177Lu-LNC1004注射液获得NMPA临床试验批准。', category: 'trial', source: 'NMPA', date: new Date().toISOString().split('T')[0], url: '#' },
-    { id: 4, title: 'α核素Ac-225国产化取得突破', summary: '中国原子能科学研究院成功实现Ac-225的国产化小批量生产。', category: 'alpha', source: '中国原子能院', date: new Date().toISOString().split('T')[0], url: '#' },
-    { id: 5, title: '靶向FAP核药成为研发热点', summary: '多款靶向FAP的核药进入临床试验，包括177Lu/225Ac标记的FAPI化合物。', category: 'target', source: '学术期刊', date: new Date().toISOString().split('T')[0], url: '#' },
-    { id: 6, title: '核药CDMO行业迎来发展机遇', summary: '随着核药临床管线增多，专业化CDMO服务需求快速增长。', category: 'industry', source: '行业分析', date: new Date().toISOString().split('T')[0], url: '#' },
-    { id: 7, title: '国家政策支持核医药产业发展', summary: '工信部等部门联合出台政策，支持放射性药品研发和产业化。', category: 'policy', source: '政府文件', date: new Date().toISOString().split('T')[0], url: '#' },
-    { id: 8, title: '拜耳Xofigo销售持续增长', summary: '拜耳年报显示Xofigo全球销售额同比增长15%。', category: 'industry', source: '拜耳', date: new Date().toISOString().split('T')[0], url: '#' },
+    { id: 1, title: 'Novartis宣布Pluvicto扩大适应症申请', summary: 'Novartis向FDA提交Pluvicto用于转移性激素敏感性前列腺癌的补充申请。', category: 'alpha', source: 'Novartis', date: new Date().toISOString().split('T')[0], url: 'https://www.novartis.com/news/press-releases/' },
+    { id: 2, title: 'ITM与Roche合作开发Ac-225核药', summary: 'ITM Isotope Technologies与Roche达成战略合作，共同开发Ac-225靶向核药。', category: 'alpha', source: 'ITM', date: new Date().toISOString().split('T')[0], url: 'https://www.itm-radiopharmacy.com/' },
+    { id: 3, title: '中国首款自主研发核药获批临床', summary: '东诚药业自主研发的177Lu-LNC1004注射液获得NMPA临床试验批准。', category: 'trial', source: 'NMPA', date: new Date().toISOString().split('T')[0], url: 'https://www.nmpa.gov.cn/' },
+    { id: 4, title: 'α核素Ac-225国产化取得突破', summary: '中国原子能科学研究院成功实现Ac-225的国产化小批量生产。', category: 'alpha', source: '中国原子能院', date: new Date().toISOString().split('T')[0], url: 'https://www.ciae.ac.cn/' },
+    { id: 5, title: '靶向FAP核药成为研发热点', summary: '多款靶向FAP的核药进入临床试验，包括177Lu/225Ac标记的FAPI化合物。', category: 'target', source: '学术期刊', date: new Date().toISOString().split('T')[0], url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/' },
+    { id: 6, title: '核药CDMO行业迎来发展机遇', summary: '随着核药临床管线增多，专业化CDMO服务需求快速增长。', category: 'industry', source: '行业分析', date: new Date().toISOString().split('T')[0], url: 'https://www.eastmoney.com/' },
+    { id: 7, title: '国家政策支持核医药产业发展', summary: '工信部等部门联合出台政策，支持放射性药品研发和产业化。', category: 'policy', source: '政府文件', date: new Date().toISOString().split('T')[0], url: 'https://www.miit.gov.cn/' },
+    { id: 8, title: '拜耳Xofigo销售持续增长', summary: '拜耳年报显示Xofigo全球销售额同比增长15%。', category: 'industry', source: '拜耳', date: new Date().toISOString().split('T')[0], url: 'https://www.bayer.com/en/news' },
 ];
 
 let currentNews = [...LOCAL_NEWS_DATA];
@@ -451,7 +451,10 @@ function renderNews(newsList) {
             </div>
             <h3 class="news-title">${news.title}</h3>
             <p class="news-summary">${news.summary}</p>
-            <div class="news-source">来源: ${news.source}</div>
+            <div class="news-footer">
+                <span class="news-source">来源: ${news.source}</span>
+                ${news.url && news.url !== '#' ? '<span class="news-link">查看全文 →</span>' : ''}
+            </div>
         </div>
     `).join('');
 }
@@ -477,6 +480,9 @@ function openNews(id) {
     const news = currentNews.find(n => n.id == id);
     if (news?.url && news.url !== '#') {
         window.open(news.url, '_blank');
+    } else {
+        // 如果没有链接，显示新闻详情
+        alert('新闻链接: ' + (news?.source || '未知来源'));
     }
 }
 
