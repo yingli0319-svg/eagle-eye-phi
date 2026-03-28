@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>🦅 鹰歌V99 · 实盘持仓</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#070d18;color:#e2e8f0;font-family:'SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;}
+.top-bar{background:linear-gradient(90deg,#0f172a,#0b1220);border-bottom:1px solid #1e293b;padding:14px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.top-bar .logo{font-size:1.05rem;font-weight:700;color:#f0c040;letter-spacing:0.05em;}
+.top-bar .update-time{font-size:0.76rem;color:#475569;}
+.back-btn{font-size:0.76rem;color:#475569;text-decoration:none;padding:6px 14px;border:1px solid #334155;border-radius:6px;transition:all 0.2s;}
+.back-btn:hover{color:#94a3b8;border-color:#475569;}
+.container{max-width:1100px;margin:0 auto;padding:32px 24px;}
+h1{font-size:1.4rem;font-weight:700;color:#f0c040;margin-bottom:4px;}
+.subtitle{font-size:0.8rem;color:#475569;margin-bottom:28px;}
+.summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:28px;}
+.stat-card{background:#0f1623;border:1px solid #1e293b;border-radius:12px;padding:16px;text-align:center;}
+.stat-val{font-size:1.35rem;font-weight:700;}
+.stat-label{font-size:0.7rem;color:#475569;margin-top:5px;}
+.stat-sub{font-size:0.66rem;color:#334155;margin-top:3px;}
+.pos{color:#22c55e;} .neg{color:#ef4444;} .warn{color:#f59e0b;} .gold{color:#f0c040;}
+.alloc-section{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:28px;}
+.alloc-card{background:#0f1623;border:1px solid #1e293b;border-radius:12px;padding:20px;}
+.alloc-title{font-size:0.82rem;font-weight:600;color:#94a3b8;margin-bottom:14px;}
+.alloc-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.alloc-label{width:120px;font-size:0.76rem;color:#94a3b8;flex-shrink:0;}
+.alloc-bar-bg{flex:1;height:9px;background:#1e293b;border-radius:5px;overflow:hidden;}
+.alloc-bar-fill{height:100%;border-radius:5px;}
+.alloc-pct{width:44px;font-size:0.76rem;text-align:right;font-weight:600;}
+.strategy-header{display:flex;align-items:center;gap:12px;margin:26px 0 14px;flex-wrap:wrap;}
+.strategy-badge{padding:4px 12px;border-radius:20px;font-size:0.76rem;font-weight:600;}
+.badge-mf{background:#1e3a5f;color:#93c5fd;border:1px solid #1d4ed8;}
+.badge-mo{background:#2d1b4e;color:#c4b5fd;border:1px solid #7c3aed;}
+.strategy-title{font-size:0.95rem;font-weight:600;color:#e2e8f0;}
+.strategy-meta{font-size:0.76rem;color:#475569;margin-left:auto;}
+table{width:100%;border-collapse:collapse;margin-bottom:6px;}
+thead tr{background:#0b1220;border-bottom:2px solid #1e3a5f;}
+th{padding:10px 12px;font-size:0.72rem;color:#64748b;text-align:left;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;}
+tbody tr{border-bottom:1px solid #1e293b;transition:background 0.15s;}
+tbody tr:hover{background:#0f1a2e;}
+td{padding:12px 12px;font-size:0.82rem;}
+.ticker-cell{font-weight:700;color:#e2e8f0;font-size:0.88rem;}
+.ticker-sub{font-size:0.7rem;color:#475569;font-weight:400;margin-top:2px;}
+.sector-tag{display:inline-block;background:#1e293b;font-size:0.68rem;padding:2px 7px;border-radius:8px;margin-top:3px;}
+.weight-bar-wrap{display:flex;align-items:center;gap:7px;}
+.weight-bar{height:5px;border-radius:3px;background:linear-gradient(90deg,#f0c040,#d97706);min-width:4px;}
+.weight-bar.mo{background:linear-gradient(90deg,#a78bfa,#7c3aed);}
+.footer-note{text-align:center;color:#334155;font-size:0.7rem;margin-top:32px;padding-top:16px;border-top:1px solid #1e293b;line-height:1.8;}
+@media(max-width:768px){
+  .summary-grid{grid-template-columns:repeat(2,1fr);}
+  .alloc-section{grid-template-columns:1fr;}
+  .strategy-meta{display:none;}
+}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <div class="logo">🦅 鹰歌V99 · 实盘持仓看板</div>
+  <a href="/" class="back-btn">← 返回主页</a>
+  <div class="update-time">最后更新：2026-03-28 &nbsp;·&nbsp; 每交易日收盘后自动同步</div>
+</div>
+
+<div class="container">
+  <h1>实盘持仓明细</h1>
+  <div class="subtitle">Eagle Song Strategy V99 &nbsp;·&nbsp; 双策略：多因子精选 + 动量轮动 &nbsp;·&nbsp; 实盘起点 2026-03-28</div>
+
+  <!-- 总资产概览 -->
+  <div class="summary-grid">
+    <div class="stat-card">
+      <div class="stat-val gold">$1,000,000</div>
+      <div class="stat-label">总资产（估算）</div>
+      <div class="stat-sub">含现金 + 所有持仓</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val pos">69.4%</div>
+      <div class="stat-label">已投入仓位</div>
+      <div class="stat-sub">$694,019</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val warn">$305,981</div>
+      <div class="stat-label">现金储备</div>
+      <div class="stat-sub">30.6% 仓位</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" style="color:#38bdf8;">59/100</div>
+      <div class="stat-label">宏观评分</div>
+      <div class="stat-sub">七成仓 70%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" style="color:#22c55e;">10</div>
+      <div class="stat-label">持仓标的数</div>
+      <div class="stat-sub">美股 + 港股 + ETF</div>
+    </div>
+  </div>
+
+  <!-- 仓位分配 -->
+  <div class="alloc-section">
+    <div class="alloc-card">
+      <div class="alloc-title">📊 策略分配（占总资产）</div>
+      <div class="alloc-bar-row">
+        <div class="alloc-label">多因子精选</div>
+        <div class="alloc-bar-bg"><div class="alloc-bar-fill" style="width:48%;background:linear-gradient(90deg,#38bdf8,#0ea5e9);"></div></div>
+        <div class="alloc-pct" style="color:#38bdf8;">48%</div>
+      </div>
+      <div class="alloc-bar-row">
+        <div class="alloc-label">动量轮动ETF</div>
+        <div class="alloc-bar-bg"><div class="alloc-bar-fill" style="width:20%;background:linear-gradient(90deg,#a78bfa,#7c3aed);"></div></div>
+        <div class="alloc-pct" style="color:#a78bfa;">20%</div>
+      </div>
+      <div class="alloc-bar-row">
+        <div class="alloc-label">现金</div>
+        <div class="alloc-bar-bg"><div class="alloc-bar-fill" style="width:30%;background:linear-gradient(90deg,#475569,#334155);"></div></div>
+        <div class="alloc-pct" style="color:#64748b;">30%</div>
+      </div>
+    </div>
+    <div class="alloc-card">
+      <div class="alloc-title">⚙️ 策略参数</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;">
+        <div style="background:#0b1220;border:1px solid #1e293b;border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-size:1.1rem;font-weight:700;color:#38bdf8;">70%</div>
+          <div style="font-size:0.7rem;color:#475569;margin-top:4px;">多因子预算</div>
+        </div>
+        <div style="background:#0b1220;border:1px solid #1e293b;border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-size:1.1rem;font-weight:700;color:#a78bfa;">30%</div>
+          <div style="font-size:0.7rem;color:#475569;margin-top:4px;">动量预算</div>
+        </div>
+        <div style="background:#0b1220;border:1px solid #1e293b;border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-size:1.1rem;font-weight:700;color:#22c55e;">70%</div>
+          <div style="font-size:0.7rem;color:#475569;margin-top:4px;">总仓位目标</div>
+        </div>
+        <div style="background:#0b1220;border:1px solid #1e293b;border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-size:1.1rem;font-weight:700;color:#f0c040;">59</div>
+          <div style="font-size:0.7rem;color:#475569;margin-top:4px;">宏观分</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 多因子持仓 ── -->
+  <div class="strategy-header">
+    <span class="strategy-badge badge-mf">多因子精选</span>
+    <div class="strategy-title">Multi-Factor Selection &nbsp;·&nbsp; 每周一调仓 &nbsp;·&nbsp; Top 6</div>
+    <div class="strategy-meta">$485,219 &nbsp;|&nbsp; 占总资产 48.5%</div>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>代码 / 名称</th>
+        <th>市场</th>
+        <th>股数</th>
+        <th>成本价</th>
+        <th>当前市值</th>
+        <th>占总资产</th>
+        <th>盈亏</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="ticker-cell">WPM<div class="ticker-sub">Wheaton Precious Metals</div>
+          <span class="sector-tag" style="color:#f0c040;">🥇 贵金属矿业</span></td>
+        <td style="color:#64748b;font-size:0.78rem;">美股</td>
+        <td>650</td>
+        <td>$124.70</td>
+        <td style="font-weight:600;">$81,055</td>
+        <td>
+          <div class="weight-bar-wrap">
+            <div class="weight-bar" style="width:48px;"></div>
+            <span style="color:#94a3b8;font-size:0.78rem;">8.1%</span>
+          </div>
+        </td>
+        <td class="pos">--</td>
+      </tr>
+      <tr>
+        <td class="ticker-cell">STX<div class="ticker-sub">Seagate Technology</div>
+          <span class="sector-tag" style="color:#38bdf8;">💾 数据存储/科技</span></td>
+        <td style="color:#64748b;font-size:0.78rem;">美股</td>
+        <td>210</td>
+        <td>$380.07</td>
+        <td style="font-weight:600;">$79,815</td>
+        <td>
+          <div class="weight-bar-wrap">
+            <div class="weight-bar" style="width:47px;"></div>
+            <span style="color:#94a3b8;font-size:0.78rem;">8.0%</span>
+          </div>
+        </td>
+        <td class="pos">--</td>
+      </tr>
+      <tr>
+        <td class="ticker-cell">PLTR<div class="ticker-sub">Palantir Technologies</div>
+          <span class="sector-tag" style="color:#a78bfa;">🤖 AI/大数据软件</span></td>
+        <td style="color:#64748b;font-size:0.78rem;">美股</td>
+        <td>570</td>
+        <td>$143.06</td>
+        <td style="font-weight:600;">$81,544</td>
+        <td>
+          <div class="weight-bar-wrap">
+            <div class="weight-bar" style="width:48px;"></div>
+            <span style="color:#94a3b8;font-size:0.78rem;">8.2%</span>
+          </div>
+        </td>
+        <td class="pos">--</td>
+      </tr>
+      <tr>
+        <td class="ticker-cell">0175.HK<div class="ticker-sub">吉利汽车</div>
+          <span class="sector-tag" style="color:#fb923c;">🚗 新能源汽车(港)</span></td>
+        <td style="color:#64748b;font-size:0.78rem;">港股</td>
+        <td>30,500</td>
+        <td>HKD 20.90</td>
+        <td style="font-weight:600;">$81,411</td>
+        <td>
+          <div class="weight-bar-wrap">
+            <div class="weight-bar" style="width:48px;"></div>
+            <span style="color:#94a3b8;font-size:0.78rem;">8.1%</span>
+          </div>
+        </td>
+        <td class="pos">--</td>
+      </tr>
+      <tr>
+        <td class="ticker-cell">AEM<div class="ticker-sub">Agnico Eagle Mines</div>
+          <span class="sector-tag" style="color:#fcd34d;">🥇 黄金矿业</span></td>
+        <td style="color:#64748b;font-size:0.78rem;">美股</td>
+        <td>420</td>
+        <td>$193.40</td>
+        <td style="font-weight:600;">$81,228</td>
+        <td>
+          <div class="weight-bar-wrap">
+            <div class="weight-bar" style="width:48px;"></div>
+            <span style="color:#94a3b8;font-size:0.78rem;">8.1%</span>
+          </div>
+        </td>
+        <td class="pos">--</td>
+      </tr>
+      <tr>
+        <td class="ticker-cell">LNG<div class="ticker-sub">Cheniere Energy</div>
+          <span class="sector-tag" style="color:#22c55e;">⛽ 天然气/能源</span></td>
+        <td style="color:#64748b;font-size:0.78rem;">美股</td>
+        <td>270</td>
+        <td>$296.91</td>
+        <td style="font-weight:600;">$80,166</td>
+        <td>
+          <div class="weight-bar-wrap">
+            <div class="weight-bar" style="width:48px;"></div>
+            <span style="color:#94a3b8;font-size:0.78rem;">8.0%</span>
+          </div>
+        </td>
+        <td class="pos">--</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ── 动量轮动 ── -->
+  <div class="strategy-header">
+    <span class="strategy-badge badge-mo">动量轮动</span>
+    <div class="strategy-title">Momentum Rotation ETF &nbsp;·&nbsp; 每月末换仓 &nbsp;·&nbsp; Top 4</div>
+    <div class="strategy-meta">$208,800 &nbsp;|&nbsp; 占总资产 20.9%</div>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>代码 / 名称</th>
+        <th>市场</th>
+        <th>股数</th>
+        <th>成本价</th>
+        <th>当前市值</th>
+        <th>占总资产</th>
+        <th>盈亏</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="ticker-cell">USO<div class="ticker-sub">US Oil Fund ETF</div>
+          <span class="sector-tag" style="color:#ef4444;">🛢️ 原油ETF</span></td>
+        <td style="color:#64748b;font-size:0.78rem;">美股ETF</td>
+        <td>420</td>
+        <td>$124.20</td>
+        <td style="font-weight:600;">$52,164</td>
+        <td>
+          <div class="weight-bar-wrap">
+            <div class="weight-bar mo" style="width:31px;"></div>
+            <span style="color:#94a3b8;font-size:0.78rem;">5.2%</span>
+          </div>
+        </td>
+        <td class="pos">--</td>
+      </tr>
+      <tr>
+        <td class="ticker-cell">GSG<div class="ticker-sub">iShares GSCI Commodity</div>
+          <span class="sector-tag" style="color:#f97316;">📦 大宗商品综合</span></td>
+        <td style="color:#64748b;font-size:0.78rem;">美股ETF</td>
+        <td>1,630</td>
+        <td>$32.05</td>
+        <td style="font-weight:600;">$52,242</td>
+        <td>
+          <div class="weight-bar-wrap">
+            <div class="weight-bar mo" style="width:31px;"></div>
+            <span style="color:#94a3b8;font-size:0.78rem;">5.2%</span>
+          </div>
+        </td>
+        <td class="pos">--</td>
+      </tr>
+      <tr>
+        <td class="ticker-cell">SLV<div class="ticker-sub">iShares Silver Trust</div>
+          <span class="sector-tag" style="color:#94a3b8;">🥈 白银ETF</span></td>
+        <td style="color:#64748b;font-size:0.78rem;">美股ETF</td>
+        <td>820</td>
+        <td>$63.44</td>
+        <td style="font-weight:600;">$52,021</td>
+        <td>
+          <div class="weight-bar-wrap">
+            <div class="weight-bar mo" style="width:31px;"></div>
+            <span style="color:#94a3b8;font-size:0.78rem;">5.2%</span>
+          </div>
+        </td>
+        <td class="pos">--</td>
+      </tr>
+      <tr>
+        <td class="ticker-cell">PDBC<div class="ticker-sub">Invesco Opt.Diversified</div>
+          <span class="sector-tag" style="color:#34d399;">🌐 多元大宗商品</span></td>
+        <td style="color:#64748b;font-size:0.78rem;">美股ETF</td>
+        <td>3,010</td>
+        <td>$17.40</td>
+        <td style="font-weight:600;">$52,374</td>
+        <td>
+          <div class="weight-bar-wrap">
+            <div class="weight-bar mo" style="width:31px;"></div>
+            <span style="color:#94a3b8;font-size:0.78rem;">5.2%</span>
+          </div>
+        </td>
+        <td class="pos">--</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="footer-note">
+    🦅 鹰歌策略 V99 &nbsp;·&nbsp; 实盘看板自动生成 &nbsp;·&nbsp; 数据更新：2026-03-28<br>
+    本页仅供参考，不构成投资建议。投资有风险，入市须谨慎。
+  </div>
+</div>
+</body>
+</html>
