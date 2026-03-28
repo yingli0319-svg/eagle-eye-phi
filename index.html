@@ -296,6 +296,7 @@ body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c1
   <a href="#s3">运行表现</a>
   <a href="#s4">同业对比</a>
   <a href="#s4b">稳健性雷达</a>
+  <a href="#s8">最新持仓</a>
   <a href="#s5">月度热力图</a>
   <a href="#s6">风控分析</a>
   <a href="#s7">调仓择时</a>
@@ -912,6 +913,133 @@ const timingChart = new Chart(document.getElementById('timingChart'), {
         <p>报告中所引用的所有市场数据、基准指数数据仅供参考，数据来源包括公开市场信息，本报告对数据准确性不作任何明示或暗示的保证。</p>
       </div>
     </div>
+
+<!-- ═══ ⑧ 最新持仓 ═══ -->
+<div class="section" id="s8">
+  <div class="section-title"><div class="num">8</div>最新持仓快照 <span class="st-sub">Live Portfolio Snapshot · 每日更新</span></div>
+  <p style="color:#475569; font-size:0.82rem; margin-bottom:24px;">
+    以下为鹰歌V99实盘持仓的结构性描述（<strong style="color:#94a3b8;">每交易日自动更新</strong>）。完整持仓含个股成本价、市值及盈亏，需验证身份后查看。
+  </p>
+
+  <!-- 仓位结构概览 -->
+  <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px;">
+    <div style="background:#0f1623; border:1px solid #1e293b; border-radius:12px; padding:20px; text-align:center;">
+      <div style="font-size:1.9rem; font-weight:700; color:#f0c040;" id="snap-macro-score">59</div>
+      <div style="font-size:0.78rem; color:#475569; margin-top:6px;">宏观评分 / 100</div>
+      <div style="font-size:0.72rem; color:#64748b; margin-top:4px;">七成仓位</div>
+    </div>
+    <div style="background:#0f1623; border:1px solid #1e293b; border-radius:12px; padding:20px; text-align:center;">
+      <div style="font-size:1.9rem; font-weight:700; color:#22c55e;" id="snap-invested">70.4%</div>
+      <div style="font-size:0.78rem; color:#475569; margin-top:6px;">已投入仓位</div>
+      <div style="font-size:0.72rem; color:#64748b; margin-top:4px;" id="snap-cash-label">现金 29.6%</div>
+    </div>
+    <div style="background:#0f1623; border:1px solid #1e293b; border-radius:12px; padding:20px; text-align:center;">
+      <div style="font-size:1.9rem; font-weight:700; color:#38bdf8;" id="snap-mf-ratio">70%</div>
+      <div style="font-size:0.78rem; color:#475569; margin-top:6px;">多因子占仓位</div>
+      <div style="font-size:0.72rem; color:#64748b; margin-top:4px;">6只精选个股</div>
+    </div>
+    <div style="background:#0f1623; border:1px solid #1e293b; border-radius:12px; padding:20px; text-align:center;">
+      <div style="font-size:1.9rem; font-weight:700; color:#a78bfa;" id="snap-mo-ratio">30%</div>
+      <div style="font-size:0.78rem; color:#475569; margin-top:6px;">动量轮动占仓位</div>
+      <div style="font-size:0.72rem; color:#64748b; margin-top:4px;">4只商品ETF</div>
+    </div>
+  </div>
+
+  <!-- 行业构成 -->
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:28px;">
+    <!-- 多因子个股行业 -->
+    <div style="background:#0b1220; border:1px solid #1e293b; border-radius:12px; padding:20px;">
+      <div style="font-size:0.85rem; font-weight:600; color:#38bdf8; margin-bottom:14px;">🎯 多因子持仓 · 行业构成</div>
+      <div style="display:flex; flex-direction:column; gap:8px;" id="snap-mf-sectors">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="color:#94a3b8; font-size:0.82rem;">🥇 贵金属矿业</span>
+          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#f0c040;">WPM · AEM（33%）</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="color:#94a3b8; font-size:0.82rem;">🤖 人工智能/科技</span>
+          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#38bdf8;">PLTR · STX（33%）</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="color:#94a3b8; font-size:0.82rem;">⛽ 能源/天然气</span>
+          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#22c55e;">LNG（17%）</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="color:#94a3b8; font-size:0.82rem;">🚗 新能源汽车（港）</span>
+          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#fb923c;">0175.HK（17%）</span>
+        </div>
+      </div>
+    </div>
+    <!-- 动量ETF行业 -->
+    <div style="background:#0b1220; border:1px solid #1e293b; border-radius:12px; padding:20px;">
+      <div style="font-size:0.85rem; font-weight:600; color:#a78bfa; margin-bottom:14px;">🔄 动量轮动 · ETF构成</div>
+      <div style="display:flex; flex-direction:column; gap:8px;" id="snap-mo-sectors">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="color:#94a3b8; font-size:0.82rem;">🛢️ 原油</span>
+          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#f0c040;">USO（25%）</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="color:#94a3b8; font-size:0.82rem;">📦 大宗商品综合</span>
+          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#38bdf8;">GSG（25%）</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="color:#94a3b8; font-size:0.82rem;">🥈 白银</span>
+          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#94a3b8;">SLV（25%）</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="color:#94a3b8; font-size:0.82rem;">🌐 多元大宗商品</span>
+          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#fb923c;">PDBC（25%）</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 风格标签 -->
+  <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:28px;">
+    <span style="background:#1e3a5f; color:#93c5fd; border:1px solid #1d4ed8; border-radius:20px; padding:5px 14px; font-size:0.78rem;">📊 量化驱动</span>
+    <span style="background:#1a3a2a; color:#86efac; border:1px solid #16a34a; border-radius:20px; padding:5px 14px; font-size:0.78rem;">🌍 多市场覆盖（美股+港股）</span>
+    <span style="background:#3b1f2b; color:#f9a8d4; border:1px solid #db2777; border-radius:20px; padding:5px 14px; font-size:0.78rem;">⚡ 宏观动态调仓</span>
+    <span style="background:#2d2318; color:#fcd34d; border:1px solid #d97706; border-radius:20px; padding:5px 14px; font-size:0.78rem;">🏆 高收益-低波动平衡</span>
+    <span style="background:#1e1b3a; color:#c4b5fd; border:1px solid #7c3aed; border-radius:20px; padding:5px 14px; font-size:0.78rem;">🔄 每周多因子 · 每月动量换仓</span>
+  </div>
+
+  <!-- 查看完整持仓按钮 -->
+  <div style="text-align:center;">
+    <div style="background:linear-gradient(135deg,#1e293b,#0f172a); border:1px solid #334155; border-radius:16px; padding:28px 32px; display:inline-block; max-width:480px; width:100%;">
+      <div style="font-size:1rem; color:#e2e8f0; font-weight:600; margin-bottom:8px;">🔐 查看完整持仓明细</div>
+      <div style="font-size:0.8rem; color:#475569; margin-bottom:20px;">含个股/ETF成本价、当前市值、持仓比例、盈亏金额</div>
+      <div style="display:flex; gap:10px; justify-content:center; align-items:center;">
+        <input type="password" id="portfolioPwd" placeholder="输入访问密码" maxlength="30"
+          style="background:#0b1220; border:1px solid #334155; color:#e2e8f0; padding:10px 16px; border-radius:8px; font-size:0.85rem; width:200px; outline:none;"
+          onkeydown="if(event.key==='Enter') checkPortfolioPwd()">
+        <button onclick="checkPortfolioPwd()"
+          style="background:linear-gradient(135deg,#f0c040,#d97706); color:#0f172a; border:none; padding:10px 22px; border-radius:8px; font-size:0.85rem; font-weight:700; cursor:pointer; white-space:nowrap;">
+          进入 →
+        </button>
+      </div>
+      <div id="portfolioPwdErr" style="color:#ef4444; font-size:0.78rem; margin-top:10px; display:none;">密码错误，请重试</div>
+    </div>
+  </div>
+
+  <div style="text-align:center; margin-top:12px; font-size:0.73rem; color:#334155;">
+    最后更新：<span id="snap-update-time">2026-03-28</span> &nbsp;·&nbsp; 持仓每交易日收盘后自动同步
+  </div>
+</div>
+
+<script>
+function checkPortfolioPwd() {
+  const pwd = document.getElementById('portfolioPwd').value;
+  const err = document.getElementById('portfolioPwdErr');
+  // 密码哈希验证（避免明文暴露）
+  const h = [...pwd].reduce((a,c)=>(Math.imul(31,a)+c.charCodeAt(0))|0, 0);
+  if (h === -1617946643) {
+    window.location.href = '/portfolio.html';
+  } else {
+    err.style.display = 'block';
+    document.getElementById('portfolioPwd').value = '';
+    setTimeout(()=>{ err.style.display='none'; }, 3000);
+  }
+}
+</script>
 
     <div class="disc-footer">
       <div class="brand">🦅 鹰歌策略 V99 · Eagle Song Strategy</div>
