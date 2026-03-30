@@ -287,6 +287,9 @@ body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c1
     <div class="kpi-item"><div class="v gold-v">1.48</div><div class="l">卡玛比率</div></div>
   </div>
   <div class="period">历史运行区间：2023-01-01 — 2026-03-27 &nbsp;｜&nbsp; 含手续费摩擦</div>
+  <div style="margin-top:16px; color:#64748b; font-size:0.82rem;">
+    实盘启动：2026-03-28 &nbsp;｜&nbsp; 当前实盘资产：<span style="color:#f0c040; font-weight:600;">$997,634</span> &nbsp;｜&nbsp; 持仓占比：<span style="color:#22c55e;">68.9%</span>
+  </div>
 </div>
 
 <!-- ═══ 导航 ═══ -->
@@ -320,7 +323,7 @@ body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c1
       <div class="flow-box highlight">策略权重分配<br><small style="color:#64748b">趋势60/40 ｜ 震荡30/70</small></div>
       <div class="flow-arrow">→</div>
       <div class="flow-split">
-        <div class="flow-box mom">动量轮动仓位<br><small>每月换仓 Top4 ETF</small></div>
+        <div class="flow-box mom">动量轮动仓位<br><small>每月换仓 Top3 ETF</small></div>
         <div class="flow-box mf">多因子仓位<br><small>每周换仓 Top6 个股</small></div>
       </div>
     </div>
@@ -335,7 +338,7 @@ body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c1
         <div style="color:#58a6ff; margin-bottom:6px;">🌊 动量轮动池</div>
         <div>42只 ETF 全池扫描</div>
         <div>综合动量 = 3M×50%+6M×30%+12M×20%</div>
-        <div>选 Top4，每月末换仓</div>
+        <div>选 Top3，每月末换仓</div>
       </div>
       <div>
         <div style="color:#a78bfa; margin-bottom:6px;">🎯 多因子选股池</div>
@@ -359,7 +362,7 @@ body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c1
     <div class="adv-card blue">
       <div class="icon">🌊</div>
       <h3 style="color:#58a6ff">大类资产动量轮动</h3>
-      <p>从42只横跨股票/债券/商品/加密/房地产的ETF全池中，每月末抓取动量最强的4只，不执着于某一类资产，跟随资金流向。</p>
+      <p>从42只横跨股票/债券/商品/加密/房地产的ETF全池中，每月末抓取动量最强的3只，不执着于某一类资产，跟随资金流向。</p>
     </div>
     <div class="adv-card purple">
       <div class="icon">🎯</div>
@@ -387,6 +390,27 @@ body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c1
 <!-- ═══ ③ 运行表现 ═══ -->
 <div class="section" id="s3">
   <div class="section-title"><div class="num">3</div>历史运行表现 <span class="st-sub">Historical Performance</span></div>
+
+  <div style="background: linear-gradient(135deg, rgba(240,192,64,0.05), rgba(34,197,94,0.03)); border:1px solid rgba(240,192,64,0.2); border-radius:12px; padding:20px; margin-bottom:28px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+      <div style="color:#94a3b8; font-size:0.85rem; font-weight:600;">
+        <span style="color:#f0c040;">📊 回测区间</span>：2023-01-01 — 2026-03-27（3.2年）
+      </div>
+      <div style="color:#94a3b8; font-size:0.85rem; font-weight:600;">
+        <span style="color:#22c55e;">🚀 实盘启动</span>：2026-03-28
+      </div>
+    </div>
+    <div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+      <div style="color:#64748b; font-size:0.82rem;">
+        回测初始资金：<span style="color:#e2e8f0; font-weight:600;">$1,000,000</span> &nbsp;｜&nbsp;
+        回测期末资产：<span style="color:#f0c040; font-weight:600;">$1,813,314</span>
+      </div>
+      <div style="color:#64748b; font-size:0.82rem;">
+        实盘初始资金：<span style="color:#e2e8f0; font-weight:600;">$1,000,000</span> &nbsp;｜&nbsp;
+        当前实盘资产：<span style="color:#22c55e; font-weight:600;">$997,634</span>
+      </div>
+    </div>
+  </div>
 
   <div class="kpi-grid5" style="margin-bottom:28px;">
     <div class="kpi-card"><div class="lbl">累计收益</div><div class="val red">+81.33%</div></div>
@@ -655,8 +679,9 @@ const timingChart = new Chart(document.getElementById('timingChart'), {
       <span class="warn-icon">⚠️</span>
       <h3>历史表现不代表未来收益</h3>
       <p>
-        本报告所展示的所有历史运行数据，均为基于历史市场数据的模拟计算结果，
-        并不代表任何实际账户的真实交易表现，亦不保证未来相同或相近的收益表现。
+        本报告所展示的<strong style="color:#e2e8f0;">回测数据</strong>（2023-01-01 — 2026-03-27）均为基于历史市场数据的模拟计算结果，
+        <strong style="color:#f0c040;">实际实盘</strong>自2026-03-28启动运行，当前资产$997,634。
+        回测结果不代表任何实际账户的真实交易表现，亦不保证未来相同或相近的收益表现。
         投资市场具有高度不确定性，过去的优秀表现不构成对未来收益的任何承诺或保证。
       </p>
     </div>
@@ -695,19 +720,19 @@ const timingChart = new Chart(document.getElementById('timingChart'), {
       <div style="font-size:0.72rem; color:#64748b; margin-top:4px;">七成仓位</div>
     </div>
     <div style="background:#0f1623; border:1px solid #1e293b; border-radius:12px; padding:20px; text-align:center;">
-      <div style="font-size:1.9rem; font-weight:700; color:#22c55e;" id="snap-invested">70.4%</div>
+      <div style="font-size:1.9rem; font-weight:700; color:#22c55e;" id="snap-invested">68.9%</div>
       <div style="font-size:0.78rem; color:#475569; margin-top:6px;">已投入仓位</div>
-      <div style="font-size:0.72rem; color:#64748b; margin-top:4px;" id="snap-cash-label">现金 29.6%</div>
+      <div style="font-size:0.72rem; color:#64748b; margin-top:4px;" id="snap-cash-label">现金 31.1%</div>
     </div>
     <div style="background:#0f1623; border:1px solid #1e293b; border-radius:12px; padding:20px; text-align:center;">
-      <div style="font-size:1.9rem; font-weight:700; color:#38bdf8;" id="snap-mf-ratio">70%</div>
+      <div style="font-size:1.9rem; font-weight:700; color:#38bdf8;" id="snap-mf-ratio">69.6%</div>
       <div style="font-size:0.78rem; color:#475569; margin-top:6px;">多因子占仓位</div>
       <div style="font-size:0.72rem; color:#64748b; margin-top:4px;">6只精选个股</div>
     </div>
     <div style="background:#0f1623; border:1px solid #1e293b; border-radius:12px; padding:20px; text-align:center;">
-      <div style="font-size:1.9rem; font-weight:700; color:#a78bfa;" id="snap-mo-ratio">30%</div>
+      <div style="font-size:1.9rem; font-weight:700; color:#a78bfa;" id="snap-mo-ratio">30.4%</div>
       <div style="font-size:0.78rem; color:#475569; margin-top:6px;">动量轮动占仓位</div>
-      <div style="font-size:0.72rem; color:#64748b; margin-top:4px;">4只商品ETF</div>
+      <div style="font-size:0.72rem; color:#64748b; margin-top:4px;">3只商品ETF</div>
     </div>
   </div>
 
@@ -718,20 +743,28 @@ const timingChart = new Chart(document.getElementById('timingChart'), {
       <div style="font-size:0.85rem; font-weight:600; color:#38bdf8; margin-bottom:14px;">🎯 多因子持仓 · 行业构成</div>
       <div style="display:flex; flex-direction:column; gap:8px;" id="snap-mf-sectors">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span style="color:#94a3b8; font-size:0.82rem;">🥇 贵金属矿业</span>
-          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#f0c040;">33%</span>
+          <span style="color:#94a3b8; font-size:0.82rem;">🖥️ AI服务器（SMCI）</span>
+          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#38bdf8;">21.3%</span>
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span style="color:#94a3b8; font-size:0.82rem;">🤖 人工智能/科技</span>
-          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#38bdf8;">33%</span>
+          <span style="color:#94a3b8; font-size:0.82rem;">🥇 贵金属矿业（APD）</span>
+          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#f0c040;">20.9%</span>
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span style="color:#94a3b8; font-size:0.82rem;">⛽ 能源/天然气</span>
-          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#22c55e;">17%</span>
+          <span style="color:#94a3b8; font-size:0.82rem;">💾 存储芯片（MU）</span>
+          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#a78bfa;">6.7%</span>
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span style="color:#94a3b8; font-size:0.82rem;">🚗 新能源汽车（港）</span>
-          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#fb923c;">17%</span>
+          <span style="color:#94a3b8; font-size:0.82rem;">⛽ 石油（OXY）</span>
+          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#22c55e;">7.1%</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="color:#94a3b8; font-size:0.82rem;">🔥 液化天然气（LNG）</span>
+          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#fb923c;">6.9%</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="color:#94a3b8; font-size:0.82rem;">💽 硬盘存储（STX）</span>
+          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#94a3b8;">6.7%</span>
         </div>
       </div>
     </div>
@@ -740,20 +773,16 @@ const timingChart = new Chart(document.getElementById('timingChart'), {
       <div style="font-size:0.85rem; font-weight:600; color:#a78bfa; margin-bottom:14px;">🔄 动量轮动 · ETF构成</div>
       <div style="display:flex; flex-direction:column; gap:8px;" id="snap-mo-sectors">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span style="color:#94a3b8; font-size:0.82rem;">🛢️ 原油</span>
-          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#f0c040;">25%</span>
+          <span style="color:#94a3b8; font-size:0.82rem;">🛢️ 原油（USO）</span>
+          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#f0c040;">33.3%</span>
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span style="color:#94a3b8; font-size:0.82rem;">📦 大宗商品综合</span>
-          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#38bdf8;">25%</span>
+          <span style="color:#94a3b8; font-size:0.82rem;">📦 大宗商品综合（DJP）</span>
+          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#38bdf8;">33.3%</span>
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span style="color:#94a3b8; font-size:0.82rem;">🥈 白银</span>
-          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#94a3b8;">25%</span>
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span style="color:#94a3b8; font-size:0.82rem;">🌐 多元大宗商品</span>
-          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#fb923c;">25%</span>
+          <span style="color:#94a3b8; font-size:0.82rem;">🌐 多元大宗商品（DBC）</span>
+          <span style="background:#1e293b; padding:2px 10px; border-radius:20px; font-size:0.78rem; color:#fb923c;">33.3%</span>
         </div>
       </div>
     </div>
@@ -787,7 +816,7 @@ const timingChart = new Chart(document.getElementById('timingChart'), {
   </div>
 
   <div style="text-align:center; margin-top:12px; font-size:0.73rem; color:#334155;">
-    最后更新：<span id="snap-update-time">2026-03-28</span> &nbsp;·&nbsp; 持仓每交易日收盘后自动同步
+    最后更新：<span id="snap-update-time">2026-03-31</span> &nbsp;·&nbsp; 持仓每交易日收盘后自动同步
   </div>
 </div>
 
@@ -811,7 +840,8 @@ function checkPortfolioPwd() {
       <div class="brand">🦅 鹰歌策略 V99 · Eagle Song Strategy</div>
       <p>
         本报告版权归策略开发者所有，未经授权不得转载或用于商业用途。<br>
-        策略持续迭代优化，历史数据截至 2026 年 3 月。<br><br>
+        回测数据截至2026年3月27日，实盘于2026年3月28日启动运行。<br>
+        当前实盘资产：$997,634（截至2026-03-31）<br><br>
         <em>投资有风险，入市须谨慎。</em>
       </p>
     </div>
