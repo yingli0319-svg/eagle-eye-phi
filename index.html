@@ -10,6 +10,20 @@
 *{ box-sizing:border-box; margin:0; padding:0; }
 body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c12; color:#e2e8f0; line-height:1.6; }
 
+/* ══ 语言切换按钮 ══ */
+.lang-switch{
+  position:fixed; top:14px; right:20px; z-index:999;
+  display:flex; align-items:center; gap:0;
+  background:rgba(15,22,35,0.95); border:1px solid rgba(240,192,64,0.3);
+  border-radius:50px; padding:4px; backdrop-filter:blur(20px);
+}
+.lang-btn{
+  padding:5px 14px; border-radius:50px; font-size:0.75rem; font-weight:700;
+  cursor:pointer; border:none; transition:all 0.25s; letter-spacing:0.5px;
+  background:transparent; color:#64748b;
+}
+.lang-btn.active{ background:linear-gradient(135deg,#f0c040,#d97706); color:#0f172a; }
+
 /* ══ 封面 ══ */
 .cover{
   min-height:100vh;
@@ -29,8 +43,11 @@ body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c1
   content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
   background: linear-gradient(90deg, transparent, #f0c040, #f0c040aa, transparent);
 }
-.cover .eagle-icon{
-  font-size:5rem; margin-bottom:24px; filter:drop-shadow(0 0 30px rgba(240,192,64,0.4));
+.cover .eagle-img{
+  width:140px; height:140px; margin-bottom:24px;
+  border-radius:50%; object-fit:cover;
+  border:2px solid rgba(240,192,64,0.3);
+  filter:drop-shadow(0 0 30px rgba(240,192,64,0.35));
   animation: floatIcon 4s ease-in-out infinite;
 }
 @keyframes floatIcon{
@@ -106,26 +123,6 @@ body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c1
 .section-title .st-sub{
   font-size:0.8rem; color:#475569; font-weight:400; margin-left:4px; letter-spacing:0;
 }
-
-/* ══ 策略卡片 ══ */
-.adv-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:32px; }
-@media(max-width:768px){ .adv-grid{ grid-template-columns:1fr 1fr; } }
-@media(max-width:480px){ .adv-grid{ grid-template-columns:1fr; } }
-.adv-card{
-  background: linear-gradient(145deg, #0f1623, #111827);
-  border:1px solid #1e293b; border-radius:16px;
-  padding:28px 24px; border-top:3px solid; transition:transform 0.2s, box-shadow 0.2s;
-}
-.adv-card:hover{ transform:translateY(-4px); box-shadow:0 16px 40px rgba(0,0,0,0.4); }
-.adv-card.gold{ border-top-color:#f0c040; }
-.adv-card.blue{ border-top-color:#58a6ff; }
-.adv-card.green{ border-top-color:#22c55e; }
-.adv-card.purple{ border-top-color:#a78bfa; }
-.adv-card.orange{ border-top-color:#fb923c; }
-.adv-card.teal{ border-top-color:#2dd4bf; }
-.adv-card h3{ font-size:1rem; font-weight:700; margin-bottom:12px; color:#e2e8f0; }
-.adv-card p{ color:#64748b; font-size:0.84rem; line-height:1.75; }
-.adv-card .icon{ font-size:2rem; margin-bottom:14px; display:block; }
 
 /* ══ 流程图 ══ */
 .flow{
@@ -254,6 +251,29 @@ body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c1
 .disc-footer p{ font-size:0.75rem; color:#334155; line-height:1.8; }
 .disc-footer .brand{ color:#475569; font-weight:600; font-size:0.8rem; margin-bottom:8px; }
 
+/* ══ 持仓卡片 ══ */
+.portfolio-card{
+  margin-top:36px;
+  background:linear-gradient(135deg, rgba(240,192,64,0.04), rgba(88,166,255,0.02));
+  border:1px solid rgba(240,192,64,0.2); border-radius:16px;
+  padding:28px 32px; text-align:center;
+}
+.portfolio-card .pc-title{ font-size:0.85rem; color:#f0c040; font-weight:700; margin-bottom:6px; }
+.portfolio-card .pc-sub{ font-size:0.75rem; color:#475569; margin-bottom:20px; }
+.portfolio-card .pc-row{ display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap; }
+.portfolio-card input[type="password"]{
+  background:#0b1220; border:1px solid #334155; color:#e2e8f0;
+  padding:10px 16px; border-radius:8px; font-size:0.85rem; width:200px; outline:none;
+}
+.portfolio-card input[type="password"]::placeholder{ color:#475569; }
+.portfolio-card .pc-btn{
+  background:linear-gradient(135deg,#f0c040,#d97706); color:#0f172a;
+  border:none; padding:10px 22px; border-radius:8px; font-size:0.85rem;
+  font-weight:700; cursor:pointer; white-space:nowrap;
+}
+.portfolio-card .pc-err{ color:#ef4444; font-size:0.78rem; margin-top:10px; display:none; }
+.portfolio-card .pc-note{ font-size:0.72rem; color:#334155; margin-top:12px; }
+
 /* ══ 分割线 ══ */
 .page-break{ border:none; border-top:1px solid #1e293b; margin:56px 0; }
 
@@ -265,61 +285,97 @@ body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c1
 .insight-box .insight-title{ color:#f0c040; margin-bottom:14px; font-size:0.95rem; font-weight:700; }
 .insight-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; font-size:0.84rem; color:#64748b; line-height:1.85; }
 @media(max-width:640px){ .insight-grid{ grid-template-columns:1fr; } }
+
+/* ══ i18n: EN mode hides zh, shows en ══ */
+body.lang-en .zh{ display:none !important; }
+body.lang-en .en{ display:'' !important; }
+body:not(.lang-en) .en{ display:none !important; }
+body:not(.lang-en) .zh{ display:''; }
 </style>
 </head>
 <body>
 
+<!-- ═══ 语言切换 ═══ -->
+<div class="lang-switch">
+  <button class="lang-btn active" id="btnZH" onclick="setLang('zh')">中文</button>
+  <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
+</div>
+
 <!-- ═══ 封面 ═══ -->
 <div class="cover">
-  <div class="eagle-icon">🦅</div>
+  <img src="A_majestic_bald_eagle_with_win_2026-03-31T17-00-04.png" class="eagle-img" alt="Eagle" onerror="this.outerHTML='<div style=\'font-size:5rem;margin-bottom:24px;filter:drop-shadow(0 0 30px rgba(240,192,64,0.4));animation:floatIcon 4s ease-in-out infinite;\'>🦅</div>'">
   <div class="badge">Quantitative Investment Strategy · Research Report</div>
   <h1>鹰歌策略 V99</h1>
   <div class="subtitle">
-    <strong>宏观仓位管理</strong> &nbsp;×&nbsp; <strong>动量轮动</strong> &nbsp;×&nbsp; <strong>多因子选股</strong><br>
-    <span style="font-size:0.82rem; color:#64748b; letter-spacing:0.04em;">本策略为全自动运行，摒除所有主观因素</span><br>
-    Eagle Song Strategy — Professional Research Edition
+    <span class="zh"><strong>宏观仓位管理</strong> &nbsp;×&nbsp; <strong>动量轮动</strong> &nbsp;×&nbsp; <strong>多因子选股</strong><br>
+    <span style="font-size:0.82rem; color:#64748b; letter-spacing:0.04em;">本策略为全自动运行，摒除所有主观因素</span></span>
+    <span class="en"><strong>Macro Position Management</strong> &nbsp;×&nbsp; <strong>Momentum Rotation</strong> &nbsp;×&nbsp; <strong>Multi-Factor Stock Selection</strong><br>
+    <span style="font-size:0.82rem; color:#64748b;">Fully automated — zero subjective discretion</span></span>
+    <br><span style="font-size:0.88rem; color:#64748b;">Eagle Song Strategy — Professional Research Edition</span>
   </div>
   <div class="kpi-row">
-    <div class="kpi-item"><div class="v">+116.04%</div><div class="l">累计收益</div></div>
-    <div class="kpi-item"><div class="v">+27.05%</div><div class="l">年化收益</div></div>
-    <div class="kpi-item"><div class="v grn-v">-22.54%</div><div class="l">最大回撤</div></div>
-    <div class="kpi-item"><div class="v blue-v">1.11</div><div class="l">夏普比率</div></div>
-    <div class="kpi-item"><div class="v gold-v">1.20</div><div class="l">卡玛比率</div></div>
+    <div class="kpi-item"><div class="v">+116.04%</div><div class="l zh">累计收益</div><div class="l en">Total Return</div></div>
+    <div class="kpi-item"><div class="v">+27.05%</div><div class="l zh">年化收益</div><div class="l en">Ann. Return</div></div>
+    <div class="kpi-item"><div class="v grn-v">-22.54%</div><div class="l zh">最大回撤</div><div class="l en">Max Drawdown</div></div>
+    <div class="kpi-item"><div class="v blue-v">1.11</div><div class="l zh">夏普比率</div><div class="l en">Sharpe Ratio</div></div>
+    <div class="kpi-item"><div class="v gold-v">1.20</div><div class="l zh">卡玛比率</div><div class="l en">Calmar Ratio</div></div>
   </div>
-  <div class="period">历史回测区间：2023-01-01 — 2026-03-23 &nbsp;｜&nbsp; v5.1 多因子算法 &nbsp;｜&nbsp; 含手续费摩擦</div>
+  <div class="period zh">历史回测区间：2023-01-01 — 2026-03-23 &nbsp;｜&nbsp; v5.1 多因子算法 &nbsp;｜&nbsp; 含手续费摩擦</div>
+  <div class="period en">Backtest Period: Jan 1, 2023 — Mar 23, 2026 &nbsp;|&nbsp; Multi-Factor v5.1 &nbsp;|&nbsp; Includes Transaction Costs</div>
 </div>
 
 <!-- ═══ 导航 ═══ -->
 <nav class="toc">
-  <span class="toc-brand">🦅 鹰歌V99</span>
-  <a href="#s1">① 策略概述</a>
-  <a href="#s3">② 历史表现</a>
-  <a href="#s4b">③ 稳健性分析</a>
-  <a href="#s6">④ 风险控制</a>
-  <a href="#s7">⑤ 调仓择时</a>
-  <a href="#s-summary">⑥ 策略总结</a>
-  <a href="#s8">⑦ 现有持仓</a>
-  <a href="#s8-disc">⑧ 风险提示</a>
+  <span class="toc-brand">🦅 <span class="zh">鹰歌V99</span><span class="en">Eagle Song V99</span></span>
+  <a href="#s1"><span class="zh">① 策略概述</span><span class="en">① Overview</span></a>
+  <a href="#s3"><span class="zh">② 历史表现</span><span class="en">② Performance</span></a>
+  <a href="#s4b"><span class="zh">③ 稳健性分析</span><span class="en">③ Robustness</span></a>
+  <a href="#s6"><span class="zh">④ 风险控制</span><span class="en">④ Risk Mgmt</span></a>
+  <a href="#s7"><span class="zh">⑤ 调仓择时</span><span class="en">⑤ Timing</span></a>
+  <a href="#s-summary"><span class="zh">⑥ 策略总结</span><span class="en">⑥ Summary</span></a>
+  <a href="#s8-disc"><span class="zh">⑦ 风险提示</span><span class="en">⑦ Disclaimer</span></a>
 </nav>
 
 <div class="container">
 
 <!-- ═══ ① 策略概述 ═══ -->
 <div class="section" id="s1">
-  <div class="section-title"><div class="num">1</div>策略概述 <span class="st-sub">Strategy Overview</span></div>
+  <div class="section-title">
+    <div class="num">1</div>
+    <span class="zh">策略概述 <span class="st-sub">Strategy Overview</span></span>
+    <span class="en">Strategy Overview</span>
+  </div>
 
   <div class="flow">
-  <div style="color:#475569; font-size:0.82rem; margin-bottom:18px; line-height:1.7;">▌ 三层决策流程（宏观先行 → 动态仓位 → 双策略执行）</div>
+    <div style="color:#475569; font-size:0.82rem; margin-bottom:18px; line-height:1.7;">
+      <span class="zh">▌ 三层决策流程（宏观先行 → 动态仓位 → 双策略执行）</span>
+      <span class="en">▌ Three-Layer Decision Framework: Macro First → Dynamic Allocation → Dual-Strategy Execution</span>
+    </div>
     <div class="flow-row">
-      <div class="flow-box highlight">宏观评分器<br><small style="color:#64748b">多维度宏观指标</small></div>
+      <div class="flow-box highlight">
+        <span class="zh">宏观评分器<br><small style="color:#64748b">多维度宏观指标</small></span>
+        <span class="en">Macro Scorer<br><small style="color:#64748b">Multi-dimensional indicators</small></span>
+      </div>
       <div class="flow-arrow">→</div>
-      <div class="flow-box highlight">总仓位比例<br><small style="color:#64748b">动态区间管理</small></div>
+      <div class="flow-box highlight">
+        <span class="zh">总仓位比例<br><small style="color:#64748b">动态区间管理</small></span>
+        <span class="en">Portfolio Exposure<br><small style="color:#64748b">Dynamic range mgmt</small></span>
+      </div>
       <div class="flow-arrow">→</div>
-      <div class="flow-box highlight">策略权重分配<br><small style="color:#64748b">市况自适应调整</small></div>
+      <div class="flow-box highlight">
+        <span class="zh">策略权重分配<br><small style="color:#64748b">市况自适应调整</small></span>
+        <span class="en">Strategy Weights<br><small style="color:#64748b">Market-adaptive</small></span>
+      </div>
       <div class="flow-arrow">→</div>
       <div class="flow-split">
-        <div class="flow-box mom">动量轮动仓位<br><small>大类资产 ETF 轮动</small></div>
-        <div class="flow-box mf">多因子仓位<br><small>港美双市场个股精选</small></div>
+        <div class="flow-box mom">
+          <span class="zh">动量轮动仓位<br><small>大类资产 ETF 轮动</small></span>
+          <span class="en">Momentum Rotation<br><small>Multi-asset ETF rotation</small></span>
+        </div>
+        <div class="flow-box mf">
+          <span class="zh">多因子仓位<br><small>港美双市场个股精选</small></span>
+          <span class="en">Multi-Factor Sleeve<br><small>US &amp; HK stock selection</small></span>
+        </div>
       </div>
     </div>
   </div>
@@ -327,148 +383,173 @@ body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c1
 
 <!-- ═══ ② 历史运行表现 ═══ -->
 <div class="section" id="s3">
-  <div class="section-title"><div class="num">2</div>历史运行表现 <span class="st-sub">Historical Performance</span></div>
+  <div class="section-title">
+    <div class="num">2</div>
+    <span class="zh">历史运行表现 <span class="st-sub">Historical Performance</span></span>
+    <span class="en">Historical Performance</span>
+  </div>
 
   <div style="background: linear-gradient(135deg, rgba(240,192,64,0.05), rgba(34,197,94,0.03)); border:1px solid rgba(240,192,64,0.2); border-radius:12px; padding:20px; margin-bottom:28px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-      <div style="color:#94a3b8; font-size:0.85rem; font-weight:600;">
-        <span style="color:#f0c040;">📊 运行期间</span>：2023-01-01 — 2026-03-23（3.2年）
-      </div>
+    <div style="color:#94a3b8; font-size:0.85rem; font-weight:600;">
+      <span style="color:#f0c040;">📊</span>
+      <span class="zh"> 运行期间：2023-01-01 — 2026-03-23（3.2年）</span>
+      <span class="en"> Period: Jan 1, 2023 — Mar 23, 2026 (3.2 Years)</span>
     </div>
   </div>
 
   <div class="kpi-grid5" style="margin-bottom:28px;">
-    <div class="kpi-card"><div class="lbl">累计收益</div><div class="val red">+116.04%</div></div>
-    <div class="kpi-card"><div class="lbl">年化收益</div><div class="val red">+27.05%</div></div>
-    <div class="kpi-card"><div class="lbl">最大回撤</div><div class="val grn">-22.54%</div></div>
-    <div class="kpi-card"><div class="lbl">夏普比率</div><div class="val blue">1.11</div></div>
-    <div class="kpi-card"><div class="lbl">卡玛比率</div><div class="val purple">1.20</div></div>
+    <div class="kpi-card"><div class="lbl zh">累计收益</div><div class="lbl en">Total Return</div><div class="val red">+116.04%</div></div>
+    <div class="kpi-card"><div class="lbl zh">年化收益</div><div class="lbl en">Ann. Return</div><div class="val red">+27.05%</div></div>
+    <div class="kpi-card"><div class="lbl zh">最大回撤</div><div class="lbl en">Max Drawdown</div><div class="val grn">-22.54%</div></div>
+    <div class="kpi-card"><div class="lbl zh">夏普比率</div><div class="lbl en">Sharpe Ratio</div><div class="val blue">1.11</div></div>
+    <div class="kpi-card"><div class="lbl zh">卡玛比率</div><div class="lbl en">Calmar Ratio</div><div class="val purple">1.20</div></div>
   </div>
 
   <div class="chart-wrap">
     <canvas id="navChart"></canvas>
   </div>
   <div style="margin-top:8px; text-align:center; font-size:0.75rem; color:#334155;">
-    净值曲线（周采样）｜ 基准线 = 1.0，含手续费
+    <span class="zh">净值曲线（周采样）｜ 基准线 = 1.0，含手续费</span>
+    <span class="en">NAV Curve (weekly) | Baseline = 1.0, includes transaction costs</span>
   </div>
 
   <div class="chart-wrap sm" style="margin-top:28px;">
     <canvas id="ddChart"></canvas>
   </div>
   <div style="margin-top:8px; text-align:center; font-size:0.75rem; color:#334155;">
-    回撤曲线 | 最大回撤 -22.54%
+    <span class="zh">回撤曲线 | 最大回撤 -22.54%</span>
+    <span class="en">Drawdown Curve | Max Drawdown -22.54%</span>
   </div>
 </div>
 
 <!-- ═══ ③ 稳健性蛛网图 ═══ -->
 <div class="section" id="s4b">
-  <div class="section-title"><div class="num">3</div>全市况稳健性分析 <span class="st-sub">All-Weather Robustness Radar</span></div>
+  <div class="section-title">
+    <div class="num">3</div>
+    <span class="zh">全市况稳健性分析 <span class="st-sub">All-Weather Robustness Radar</span></span>
+    <span class="en">All-Weather Robustness Analysis</span>
+  </div>
   <p style="color:#475569; font-size:0.82rem; margin-bottom:24px;">
-    评估鹰歌V99在 <strong style="color:#e2e8f0">震荡市 / 单边上涨 / 单边下跌 / 高波动</strong> 四种市况下的表现稳健性，满分100分
+    <span class="zh">评估鹰歌V99在 <strong style="color:#e2e8f0">震荡市 / 单边上涨 / 单边下跌 / 高波动</strong> 四种市况下的表现稳健性，满分100分</span>
+    <span class="en">Evaluating Eagle Song V99 across four market regimes: <strong style="color:#e2e8f0">Trending Up / Trending Down / Range-Bound / High Volatility</strong>. Scored out of 100.</span>
   </p>
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:start;">
     <div style="position:relative; height:420px;">
       <canvas id="radarChart"></canvas>
     </div>
     <div>
-      <div style="font-size:0.84rem; color:#475569; margin-bottom:16px; font-weight:600; color:#94a3b8;">评分维度说明</div>
+      <div style="font-size:0.84rem; color:#94a3b8; margin-bottom:16px; font-weight:600;">
+        <span class="zh">评分维度说明</span><span class="en">Dimension Breakdown</span>
+      </div>
       <div style="display:flex; flex-direction:column; gap:10px; font-size:0.82rem;">
         <div style="background:#0f1623; border:1px solid #1e293b; border-radius:10px; padding:14px 16px;">
-          <div style="color:#e2e8f0; font-weight:600; margin-bottom:4px;">📈 单边上涨市 &nbsp;<span style="color:#f0c040">鹰歌 85</span></div>
-          <div style="color:#64748b; line-height:1.7;">年化收益+27.05%，3.2年累计+116.04%，牛市捕获率领跑全场；2024/2025连续两年双位数正收益</div>
+          <div style="color:#e2e8f0; font-weight:600; margin-bottom:4px;">📈 <span class="zh">单边上涨市 &nbsp;<span style="color:#f0c040">鹰歌 85</span></span><span class="en">Bull Market &nbsp;<span style="color:#f0c040">Score: 85</span></span></div>
+          <div style="color:#64748b; line-height:1.7;"><span class="zh">年化收益+27.05%，3.2年累计+116.04%，牛市捕获率领跑全场；2024/2025连续两年双位数正收益</span><span class="en">Ann. return +27.05%, 3.2yr cumulative +116.04%; back-to-back double-digit gains in 2024/2025.</span></div>
         </div>
         <div style="background:#0f1623; border:1px solid #1e293b; border-radius:10px; padding:14px 16px;">
-          <div style="color:#e2e8f0; font-weight:600; margin-bottom:4px;">📉 单边下跌市 &nbsp;<span style="color:#f0c040">鹰歌 88</span></div>
-          <div style="color:#64748b; line-height:1.7;">最大回撤-22.54%，宏观评分低分期主动缩仓，下行控制显著优于大多数指数基金；较同期QQQ最大回撤更优</div>
+          <div style="color:#e2e8f0; font-weight:600; margin-bottom:4px;">📉 <span class="zh">单边下跌市 &nbsp;<span style="color:#f0c040">鹰歌 88</span></span><span class="en">Bear Market &nbsp;<span style="color:#f0c040">Score: 88</span></span></div>
+          <div style="color:#64748b; line-height:1.7;"><span class="zh">最大回撤-22.54%，宏观评分低分期主动缩仓，下行控制显著优于大多数指数基金</span><span class="en">Max drawdown -22.54%; macro scorer proactively reduces exposure, outperforming most index funds in downturns.</span></div>
         </div>
         <div style="background:#0f1623; border:1px solid #1e293b; border-radius:10px; padding:14px 16px;">
-          <div style="color:#e2e8f0; font-weight:600; margin-bottom:4px;">↔️ 震荡横盘市 &nbsp;<span style="color:#f0c040">鹰歌 80</span></div>
-          <div style="color:#64748b; line-height:1.7;">多因子70%压舱+动量30%灵活切换，区间震荡行情中依然保持正收益，2023年+18.6%、2024年+16.9%验证此能力</div>
+          <div style="color:#e2e8f0; font-weight:600; margin-bottom:4px;">↔️ <span class="zh">震荡横盘市 &nbsp;<span style="color:#f0c040">鹰歌 80</span></span><span class="en">Range-Bound &nbsp;<span style="color:#f0c040">Score: 80</span></span></div>
+          <div style="color:#64748b; line-height:1.7;"><span class="zh">多因子70%压舱+动量30%灵活切换，区间震荡行情中依然保持正收益，2023年+18.6%、2024年+16.9%验证此能力</span><span class="en">Multi-factor 70% as anchor + momentum 30% flexibility; positive returns even in range markets: 2023 +18.6%, 2024 +16.9%.</span></div>
         </div>
         <div style="background:#0f1623; border:1px solid #1e293b; border-radius:10px; padding:14px 16px;">
-          <div style="color:#e2e8f0; font-weight:600; margin-bottom:4px;">⚡ 高波动市 &nbsp;<span style="color:#f0c040">鹰歌 88</span></div>
-          <div style="color:#64748b; line-height:1.7;">宏观评分三维度（VIX+利率曲线+DXY）实时监控极端行情，VIX飙升时主动缩仓，高波动期最大回撤仅-22.54%</div>
+          <div style="color:#e2e8f0; font-weight:600; margin-bottom:4px;">⚡ <span class="zh">高波动市 &nbsp;<span style="color:#f0c040">鹰歌 88</span></span><span class="en">High Volatility &nbsp;<span style="color:#f0c040">Score: 88</span></span></div>
+          <div style="color:#64748b; line-height:1.7;"><span class="zh">宏观评分三维度（VIX+利率曲线+DXY）实时监控极端行情，VIX飙升时主动缩仓</span><span class="en">Three-dimensional macro monitor (VIX + yield curve + DXY) with auto de-risking when VIX spikes.</span></div>
         </div>
         <div style="background:#0f1623; border:1px solid #1e293b; border-radius:10px; padding:14px 16px;">
-          <div style="color:#e2e8f0; font-weight:600; margin-bottom:4px;">🔄 持续稳定性 &nbsp;<span style="color:#f0c040">鹰歌 90</span></div>
-          <div style="color:#64748b; line-height:1.7;">2023/2024/2025三年均正收益，最差年份+16.9%（2024），最佳年份+51.4%（2025）；连续正收益无跨年亏损</div>
+          <div style="color:#e2e8f0; font-weight:600; margin-bottom:4px;">🔄 <span class="zh">持续稳定性 &nbsp;<span style="color:#f0c040">鹰歌 90</span></span><span class="en">Consistency &nbsp;<span style="color:#f0c040">Score: 90</span></span></div>
+          <div style="color:#64748b; line-height:1.7;"><span class="zh">2023/2024/2025三年均正收益，最差年份+16.9%（2024），最佳年份+51.4%（2025）；连续正收益无跨年亏损</span><span class="en">Positive returns all three years (2023/2024/2025); worst year +16.9% (2024), best +51.4% (2025). No cross-year loss.</span></div>
         </div>
         <div style="background:#0f1623; border:1px solid #1e293b; border-radius:10px; padding:14px 16px;">
-          <div style="color:#e2e8f0; font-weight:600; margin-bottom:4px;">🎯 风险调整收益 &nbsp;<span style="color:#f0c040">鹰歌 95</span></div>
-          <div style="color:#64748b; line-height:1.7;">夏普比率1.11（超越1.0黄金线）、卡玛比率1.20，每单位风险对应的回报表现优异，收益回撤比远优于纯指数策略</div>
+          <div style="color:#e2e8f0; font-weight:600; margin-bottom:4px;">🎯 <span class="zh">风险调整收益 &nbsp;<span style="color:#f0c040">鹰歌 95</span></span><span class="en">Risk-Adj. Return &nbsp;<span style="color:#f0c040">Score: 95</span></span></div>
+          <div style="color:#64748b; line-height:1.7;"><span class="zh">夏普比率1.11（超越1.0黄金线）、卡玛比率1.20，每单位风险对应的回报表现优异</span><span class="en">Sharpe 1.11 (above the 1.0 gold standard), Calmar 1.20 — exceptional return per unit of risk.</span></div>
         </div>
       </div>
     </div>
   </div>
-    <div class="insight-box" style="margin-top:24px;">
-    <div class="insight-title">&#128330;&#65039; 六维稳健性解读</div>
+  <div class="insight-box" style="margin-top:24px;">
+    <div class="insight-title">
+      <span class="zh">🔊 六维稳健性解读</span>
+      <span class="en">🔊 Six-Dimension Robustness Breakdown</span>
+    </div>
     <div style="font-size:0.84rem; color:#64748b; line-height:1.85;">
-      <div style="margin-bottom:10px;">&#129413; <strong style="color:#f0c040">上涨市(85)</strong>：年化+27.05%，3年累计+116.04%，2024/2025连续正收益，牛市捕获能力强</div>
-      <div style="margin-bottom:10px;">&#128737;&#65039; <strong style="color:#f0c040">下跌市(88)</strong>：最大回撤 <strong style="color:#22c55e">-22.54%</strong>，宏观评分系统主动缩仓，熊市防御显著好于指数</div>
-      <div style="margin-bottom:10px;">&#8596;&#65039; <strong style="color:#f0c040">震荡市(80)</strong>：技术面选股适应震荡环境，2023年+18.6%、2024年+16.9%，年年正收益</div>
-      <div style="margin-bottom:10px;">&#9889; <strong style="color:#f0c040">高波动市(88)</strong>：宏观三维度监控，极端行情主动避险，高波动期回撤控制优于多数策略</div>
-      <div style="margin-bottom:10px;">&#128260; <strong style="color:#f0c040">持续稳定性(90)</strong>：2023/2024/2025三年均正收益，最差+16.9%，最佳+51.4%，无跨年亏损</div>
-      <div>&#127919; <strong style="color:#f0c040">风险调整收益(95)</strong>：夏普比率1.11，卡玛比率1.20，每单位风险对应回报优异</div>
+      <div style="margin-bottom:10px;">🦅 <strong style="color:#f0c040"><span class="zh">上涨市(85)</span><span class="en">Bull(85)</span></strong>：<span class="zh">年化+27.05%，3年累计+116.04%，2024/2025连续正收益，牛市捕获能力强</span><span class="en">Ann. +27.05%, 3yr cumulative +116.04%, consecutive positive years in 2024/2025.</span></div>
+      <div style="margin-bottom:10px;">🛡️ <strong style="color:#f0c040"><span class="zh">下跌市(88)</span><span class="en">Bear(88)</span></strong>：<span class="zh">最大回撤 <strong style="color:#22c55e">-22.54%</strong>，宏观评分系统主动缩仓，熊市防御显著好于指数</span><span class="en">Max drawdown <strong style="color:#22c55e">-22.54%</strong>; active de-risking provides strong bear market defense.</span></div>
+      <div style="margin-bottom:10px;">↔️ <strong style="color:#f0c040"><span class="zh">震荡市(80)</span><span class="en">Range(80)</span></strong>：<span class="zh">技术面选股适应震荡环境，2023年+18.6%、2024年+16.9%，年年正收益</span><span class="en">Technical stock selection adapts to range-bound environments; positive every year.</span></div>
+      <div style="margin-bottom:10px;">⚡ <strong style="color:#f0c040"><span class="zh">高波动市(88)</span><span class="en">High Vol(88)</span></strong>：<span class="zh">宏观三维度监控，极端行情主动避险，高波动期回撤控制优于多数策略</span><span class="en">3D macro monitoring; proactive risk reduction during extreme volatility episodes.</span></div>
+      <div style="margin-bottom:10px;">🔄 <strong style="color:#f0c040"><span class="zh">持续稳定性(90)</span><span class="en">Consistency(90)</span></strong>：<span class="zh">2023/2024/2025三年均正收益，最差+16.9%，最佳+51.4%，无跨年亏损</span><span class="en">3 consecutive positive years; worst +16.9%, best +51.4%. Zero cross-year loss.</span></div>
+      <div>🎯 <strong style="color:#f0c040"><span class="zh">风险调整收益(95)</span><span class="en">Risk-Adj(95)</span></strong>：<span class="zh">夏普比率1.11，卡玛比率1.20，每单位风险对应回报优异</span><span class="en">Sharpe 1.11, Calmar 1.20 — top-tier risk-adjusted performance.</span></div>
     </div>
   </div>
 </div>
 
 <!-- ═══ ④ 风控分析 ═══ -->
 <div class="section" id="s6">
-  <div class="section-title"><div class="num">4</div>风险控制分析 <span class="st-sub">Risk Management</span></div>
+  <div class="section-title">
+    <div class="num">4</div>
+    <span class="zh">风险控制分析 <span class="st-sub">Risk Management</span></span>
+    <span class="en">Risk Management</span>
+  </div>
   <div class="risk-grid">
     <div class="risk-card">
-      <h3>📊 风险指标汇总</h3>
-      <div class="risk-item"><span>最大回撤</span><span class="rv">-22.54%</span></div>
-      <div class="risk-item"><span>夏普比率（无风险利率4%）</span><span class="rv">1.11</span></div>
-      <div class="risk-item"><span>卡玛比率（年化/最大回撤）</span><span class="rv">1.20</span></div>
-      <div class="risk-item"><span>多因子调仓次数</span><span class="rv">164 次</span></div>
-      <div class="risk-item"><span>动量调仓次数</span><span class="rv">38 次</span></div>
-      <div class="risk-item"><span>运行期限</span><span class="rv">3.2 年</span></div>
+      <h3>📊 <span class="zh">风险指标汇总</span><span class="en">Risk Metrics Summary</span></h3>
+      <div class="risk-item"><span class="zh">最大回撤</span><span class="en">Max Drawdown</span><span class="rv">-22.54%</span></div>
+      <div class="risk-item"><span class="zh">夏普比率（无风险利率4%）</span><span class="en">Sharpe Ratio (Rf = 4%)</span><span class="rv">1.11</span></div>
+      <div class="risk-item"><span class="zh">卡玛比率（年化/最大回撤）</span><span class="en">Calmar Ratio (Ann./MDD)</span><span class="rv">1.20</span></div>
+      <div class="risk-item"><span class="zh">多因子调仓次数</span><span class="en">Multi-Factor Rebalances</span><span class="rv">164 <span class="zh">次</span><span class="en">times</span></span></div>
+      <div class="risk-item"><span class="zh">动量调仓次数</span><span class="en">Momentum Rebalances</span><span class="rv">38 <span class="zh">次</span><span class="en">times</span></span></div>
+      <div class="risk-item"><span class="zh">运行期限</span><span class="en">Duration</span><span class="rv">3.2 <span class="zh">年</span><span class="en">yrs</span></span></div>
     </div>
     <div class="risk-card">
-      <h3>🛡️ 风控机制</h3>
-      <div class="risk-item"><span>宏观预警降仓</span><span class="rv">最低0%空仓</span></div>
-      <div class="risk-item"><span>技术面过滤（均线）</span><span class="rv">空头排列得0均线分</span></div>
-      <div class="risk-item"><span>技术面过滤（动量）</span><span class="rv">负动量拉低总分</span></div>
-      <div class="risk-item"><span>动量反转保护</span><span class="rv">月末全量替换弱势ETF</span></div>
+      <h3>🛡️ <span class="zh">风控机制</span><span class="en">Risk Controls</span></h3>
+      <div class="risk-item"><span class="zh">宏观预警降仓</span><span class="en">Macro-triggered de-risking</span><span class="rv"><span class="zh">最低0%空仓</span><span class="en">Down to 0%</span></span></div>
+      <div class="risk-item"><span class="zh">技术面过滤（均线）</span><span class="en">MA filter (bearish = 0 pts)</span><span class="rv"><span class="zh">空头排列得0均线分</span><span class="en">Bear alignment: 0 MA pts</span></span></div>
+      <div class="risk-item"><span class="zh">技术面过滤（动量）</span><span class="en">Momentum filter</span><span class="rv"><span class="zh">负动量拉低总分</span><span class="en">Negative mom. penalises</span></span></div>
+      <div class="risk-item"><span class="zh">动量反转保护</span><span class="en">Momentum reversal guard</span><span class="rv"><span class="zh">月末全量替换弱势ETF</span><span class="en">Monthly full ETF refresh</span></span></div>
     </div>
   </div>
 
-  <!-- 风险分析文字-->
   <div class="insight-box" style="margin-top:20px;">
-    <div class="insight-title">📈 回撤深度分析</div>
+    <div class="insight-title">📈 <span class="zh">回撤深度分析</span><span class="en">Drawdown Deep-Dive</span></div>
     <div style="font-size:0.84rem; color:#64748b; line-height:2.0;">
-      本策略最大回撤 <strong style="color:#e2e8f0">-22.54%</strong>，宏观评分系统在VIX飙升时自动降低总仓位至七成仓（70%），有效压缩了最大跌幅。
-      回测期间（2023-2026），策略年化收益+27.05%，夏普1.11，卡玛1.20，下行风险控制与收益表现均衡。
+      <span class="zh">本策略最大回撤 <strong style="color:#e2e8f0">-22.54%</strong>，宏观评分系统在VIX飙升时自动降低总仓位至七成仓（70%），有效压缩了最大跌幅。
+      回测期间（2023-2026），策略年化收益+27.05%，夏普1.11，卡玛1.20，下行风险控制与收益表现均衡。</span>
+      <span class="en">The strategy's maximum drawdown is <strong style="color:#e2e8f0">-22.54%</strong>. When VIX spikes, the macro scorer automatically reduces total exposure to 70%, effectively capping peak-to-trough losses.
+      Over the 2023–2026 backtest period: annualized return +27.05%, Sharpe 1.11, Calmar 1.20 — a well-balanced risk/return profile.</span>
     </div>
   </div>
 </div>
 
 <!-- ═══ ⑤ 调仓择时分析 ═══ -->
 <div class="section" id="s7">
-  <div class="section-title"><div class="num">5</div>调仓择时有效性 <span class="st-sub">Timing Effectiveness Analysis</span></div>
+  <div class="section-title">
+    <div class="num">5</div>
+    <span class="zh">调仓择时有效性 <span class="st-sub">Timing Effectiveness Analysis</span></span>
+    <span class="en">Rebalancing Timing Effectiveness</span>
+  </div>
   <p style="color:#475569; font-size:0.84rem; margin-bottom:24px;">
-    金色曲线（鹰歌V99）与标普500（蓝色）走势对比，橙色竖线为月末宏观评分调仓点。
-    宏观高分 → 满仓冲；宏观低分 → 缩仓守。
+    <span class="zh">金色曲线（鹰歌V99）与标普500（蓝色）走势对比，橙色竖线为月末宏观评分调仓点。宏观高分 → 满仓冲；宏观低分 → 缩仓守。</span>
+    <span class="en">Gold line (Eagle Song V99) vs. S&amp;P 500 (blue). Orange vertical lines mark month-end macro rebalancing dates. High macro score → full exposure; low score → reduce exposure.</span>
   </p>
   <div class="chart-wrap" style="height:360px;">
     <canvas id="timingChart"></canvas>
   </div>
   <div class="insight-box" style="margin-top:20px;">
-    <div class="insight-title">📌 择时关键节点</div>
+    <div class="insight-title">📌 <span class="zh">择时关键节点</span><span class="en">Key Timing Milestones</span></div>
     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; font-size:0.82rem; color:#64748b; line-height:1.8;">
       <div>
-        <div style="color:#e2e8f0; font-weight:600; margin-bottom:4px;">2023年初：半仓防守</div>
-        <div>宏观50分→50%仓位，规避2023Q1市场震荡，保留弹药。</div>
+        <div style="color:#e2e8f0; font-weight:600; margin-bottom:4px;"><span class="zh">2023年初：半仓防守</span><span class="en">Early 2023: Half-Position Defense</span></div>
+        <div><span class="zh">宏观50分→50%仓位，规避2023Q1市场震荡，保留弹药。</span><span class="en">Macro score 50 → 50% exposure. Avoided Q1 2023 volatility while preserving dry powder.</span></div>
       </div>
       <div>
-        <div style="color:#e2e8f0; font-weight:600; margin-bottom:4px;">2024年：满仓加速</div>
-        <div>宏观77~90分→100%满仓，动量选到加密牛市标的，资产显著提升。</div>
+        <div style="color:#e2e8f0; font-weight:600; margin-bottom:4px;"><span class="zh">2024年：满仓加速</span><span class="en">2024: Full Throttle</span></div>
+        <div><span class="zh">宏观77~90分→100%满仓，动量选到加密牛市标的，资产显著提升。</span><span class="en">Macro 77–90 → 100% invested. Momentum rotated into crypto-cycle beneficiaries; NAV surged.</span></div>
       </div>
       <div>
-        <div style="color:#e2e8f0; font-weight:600; margin-bottom:4px;">2025Q4~2026Q1</div>
-        <div>宏观高分满仓，硬盘存储赛道爆发，净值持续突破新高。</div>
+        <div style="color:#e2e8f0; font-weight:600; margin-bottom:4px;"><span class="zh">2025Q4~2026Q1</span><span class="en">Q4 2025 – Q1 2026</span></div>
+        <div><span class="zh">宏观高分满仓，硬盘存储赛道爆发，净值持续突破新高。</span><span class="en">High macro score, full position. HDD/storage sector breakout drove NAV to new highs.</span></div>
       </div>
     </div>
   </div>
@@ -479,11 +560,16 @@ body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c1
 <!-- ═══ ⑥ 策略总结 ═══ -->
 <div class="container">
 <div class="section" id="s-summary">
-  <div class="section-title"><div class="num">6</div>策略总结 <span class="st-sub">Strategy Summary</span></div>
+  <div class="section-title">
+    <div class="num">6</div>
+    <span class="zh">策略总结 <span class="st-sub">Strategy Summary</span></span>
+    <span class="en">Strategy Summary</span>
+  </div>
   <div class="insight-box">
-    <div class="insight-title">🦅 综合评价</div>
+    <div class="insight-title">🦅 <span class="zh">综合评价</span><span class="en">Overall Assessment</span></div>
     <div style="font-size:1.05rem; color:#94a3b8; line-height:2.0; text-align:center; padding:16px 0;">
-      深耕港美股与ETF，3.2年实现<strong style="color:#e74c3c;">116%</strong>累计收益，年化<strong style="color:#e74c3c;">27%</strong>；以<strong style="color:#22c55e;">22.7%</strong>回撤控制，达成卡玛<strong style="color:#f0c040;">1.20</strong>、夏普<strong style="color:#58a6ff;">1.11</strong>的顶级风险收益比，跻身全球同类前5%。
+      <span class="zh">深耕港美股与ETF，3.2年实现<strong style="color:#e74c3c;">116%</strong>累计收益，年化<strong style="color:#e74c3c;">27%</strong>；以<strong style="color:#22c55e;">22.7%</strong>回撤控制，达成卡玛<strong style="color:#f0c040;">1.20</strong>、夏普<strong style="color:#58a6ff;">1.11</strong>的顶级风险收益比，跻身全球同类前5%。</span>
+      <span class="en">Covering US and Hong Kong equities plus global ETFs, the strategy delivered a <strong style="color:#e74c3c;">116%</strong> cumulative return (+<strong style="color:#e74c3c;">27%</strong> annualized) over 3.2 years, while limiting max drawdown to <strong style="color:#22c55e;">22.7%</strong>. With a Calmar of <strong style="color:#f0c040;">1.20</strong> and Sharpe of <strong style="color:#58a6ff;">1.11</strong>, it ranks among the top 5% of global systematic strategies.</span>
     </div>
   </div>
 </div>
@@ -498,10 +584,6 @@ const rebalDates  = ["2023-02-28", "2023-03-06", "2023-04-03", "2023-05-01", "20
 
 const spyDates    = ["2023-01-08 00:00:00", "2023-01-15 00:00:00", "2023-01-22 00:00:00", "2023-01-29 00:00:00", "2023-02-05 00:00:00", "2023-02-12 00:00:00", "2023-02-19 00:00:00", "2023-02-26 00:00:00", "2023-03-05 00:00:00", "2023-03-12 00:00:00", "2023-03-19 00:00:00", "2023-03-26 00:00:00", "2023-04-02 00:00:00", "2023-04-09 00:00:00", "2023-04-16 00:00:00", "2023-04-23 00:00:00", "2023-04-30 00:00:00", "2023-05-07 00:00:00", "2023-05-14 00:00:00", "2023-05-21 00:00:00", "2023-05-28 00:00:00", "2023-06-04 00:00:00", "2023-06-11 00:00:00", "2023-06-18 00:00:00", "2023-06-25 00:00:00", "2023-07-02 00:00:00", "2023-07-09 00:00:00", "2023-07-16 00:00:00", "2023-07-23 00:00:00", "2023-07-30 00:00:00", "2023-08-06 00:00:00", "2023-08-13 00:00:00", "2023-08-20 00:00:00", "2023-08-27 00:00:00", "2023-09-03 00:00:00", "2023-09-10 00:00:00", "2023-09-17 00:00:00", "2023-09-24 00:00:00", "2023-10-01 00:00:00", "2023-10-08 00:00:00", "2023-10-15 00:00:00", "2023-10-22 00:00:00", "2023-10-29 00:00:00", "2023-11-05 00:00:00", "2023-11-12 00:00:00", "2023-11-19 00:00:00", "2023-11-26 00:00:00", "2023-12-03 00:00:00", "2023-12-10 00:00:00", "2023-12-17 00:00:00", "2023-12-24 00:00:00", "2023-12-31 00:00:00", "2024-01-07 00:00:00", "2024-01-14 00:00:00", "2024-01-21 00:00:00", "2024-01-28 00:00:00", "2024-02-04 00:00:00", "2024-02-11 00:00:00", "2024-02-18 00:00:00", "2024-02-25 00:00:00", "2024-03-03 00:00:00", "2024-03-10 00:00:00", "2024-03-17 00:00:00", "2024-03-24 00:00:00", "2024-03-31 00:00:00", "2024-04-07 00:00:00", "2024-04-14 00:00:00", "2024-04-21 00:00:00", "2024-04-28 00:00:00", "2024-05-05 00:00:00", "2024-05-12 00:00:00", "2024-05-19 00:00:00", "2024-05-26 00:00:00", "2024-06-02 00:00:00", "2024-06-09 00:00:00", "2024-06-16 00:00:00", "2024-06-23 00:00:00", "2024-06-30 00:00:00", "2024-07-07 00:00:00", "2024-07-14 00:00:00", "2024-07-21 00:00:00", "2024-07-28 00:00:00", "2024-08-04 00:00:00", "2024-08-11 00:00:00", "2024-08-18 00:00:00", "2024-08-25 00:00:00", "2024-09-01 00:00:00", "2024-09-08 00:00:00", "2024-09-15 00:00:00", "2024-09-22 00:00:00", "2024-09-29 00:00:00", "2024-10-06 00:00:00", "2024-10-13 00:00:00", "2024-10-20 00:00:00", "2024-10-27 00:00:00", "2024-11-03 00:00:00", "2024-11-10 00:00:00", "2024-11-17 00:00:00", "2024-11-24 00:00:00", "2024-12-01 00:00:00", "2024-12-08 00:00:00", "2024-12-15 00:00:00", "2024-12-22 00:00:00", "2024-12-29 00:00:00", "2025-01-05 00:00:00", "2025-01-12 00:00:00", "2025-01-19 00:00:00", "2025-01-26 00:00:00", "2025-02-02 00:00:00", "2025-02-09 00:00:00", "2025-02-16 00:00:00", "2025-02-23 00:00:00", "2025-03-02 00:00:00", "2025-03-09 00:00:00", "2025-03-16 00:00:00", "2025-03-23 00:00:00", "2025-03-30 00:00:00", "2025-04-06 00:00:00", "2025-04-13 00:00:00", "2025-04-20 00:00:00", "2025-04-27 00:00:00", "2025-05-04 00:00:00", "2025-05-11 00:00:00", "2025-05-18 00:00:00", "2025-05-25 00:00:00", "2025-06-01 00:00:00", "2025-06-08 00:00:00", "2025-06-15 00:00:00", "2025-06-22 00:00:00", "2025-06-29 00:00:00", "2025-07-06 00:00:00", "2025-07-13 00:00:00", "2025-07-20 00:00:00", "2025-07-27 00:00:00", "2025-08-03 00:00:00", "2025-08-10 00:00:00", "2025-08-17 00:00:00", "2025-08-24 00:00:00", "2025-08-31 00:00:00", "2025-09-07 00:00:00", "2025-09-14 00:00:00", "2025-09-21 00:00:00", "2025-09-28 00:00:00", "2025-10-05 00:00:00", "2025-10-12 00:00:00", "2025-10-19 00:00:00", "2025-10-26 00:00:00", "2025-11-02 00:00:00", "2025-11-09 00:00:00", "2025-11-16 00:00:00", "2025-11-23 00:00:00", "2025-11-30 00:00:00", "2025-12-07 00:00:00", "2025-12-14 00:00:00", "2025-12-21 00:00:00", "2025-12-28 00:00:00", "2026-01-04 00:00:00", "2026-01-11 00:00:00", "2026-01-18 00:00:00", "2026-01-25 00:00:00", "2026-02-01 00:00:00", "2026-02-08 00:00:00", "2026-02-15 00:00:00", "2026-02-22 00:00:00", "2026-03-01 00:00:00", "2026-03-08 00:00:00", "2026-03-15 00:00:00", "2026-03-22 00:00:00", "2026-03-29 00:00:00"];
 const spyValues   = [1.0, 1.0269, 1.0201, 1.0454, 1.0625, 1.0514, 1.0494, 1.0214, 1.0415, 0.9944, 1.0088, 1.0237, 1.0589, 1.0584, 1.0669, 1.0662, 1.0759, 1.0673, 1.0646, 1.0828, 1.0864, 1.1069, 1.112, 1.1409, 1.1247, 1.1509, 1.1386, 1.1664, 1.174, 1.1863, 1.16, 1.157, 1.1333, 1.1423, 1.1714, 1.1567, 1.1552, 1.1214, 1.1138, 1.1191, 1.1242, 1.0974, 1.07, 1.1325, 1.148, 1.1745, 1.1862, 1.1961, 1.199, 1.2277, 1.239, 1.2434, 1.2241, 1.247, 1.262, 1.275, 1.2932, 1.3111, 1.3067, 1.3285, 1.3416, 1.3386, 1.3378, 1.3677, 1.3726, 1.3604, 1.3405, 1.2993, 1.3337, 1.3417, 1.3667, 1.3893, 1.3893, 1.3839, 1.4013, 1.4243, 1.4334, 1.4327, 1.4601, 1.4742, 1.4452, 1.4333, 1.4029, 1.4031, 1.4592, 1.4798, 1.4839, 1.4225, 1.4795, 1.5005, 1.509, 1.513, 1.5305, 1.5437, 1.529, 1.5079, 1.5796, 1.5467, 1.5725, 1.5911, 1.605, 1.5955, 1.5663, 1.5765, 1.5684, 1.538, 1.5833, 1.6108, 1.5945, 1.5917, 1.6154, 1.5895, 1.5743, 1.5259, 1.4912, 1.4988, 1.4767, 1.3428, 1.4189, 1.3989, 1.4633, 1.5062, 1.4997, 1.5791, 1.539, 1.5663, 1.5922, 1.5865, 1.584, 1.6389, 1.6667, 1.6622, 1.6727, 1.6981, 1.6571, 1.6983, 1.715, 1.72, 1.7193, 1.7251, 1.7522, 1.7739, 1.7689, 1.7886, 1.7453, 1.7757, 1.8101, 1.823, 1.7933, 1.7959, 1.7614, 1.8265, 1.8327, 1.8222, 1.8244, 1.8505, 1.8313, 1.8605, 1.8541, 1.8476, 1.8549, 1.8513, 1.8275, 1.8481, 1.8389, 1.8024, 1.7753, 1.7433, 1.7044];
-const qqqValues   = [1.0, 1.0453, 1.0516, 1.1022, 1.1391, 1.115, 1.1204, 1.0858, 1.1149, 1.0735, 1.136, 1.1584, 1.1958, 1.1851, 1.187, 1.1797, 1.2019, 1.2031, 1.2111, 1.2538, 1.2981, 1.3214, 1.3209, 1.3709, 1.3527, 1.3783, 1.3665, 1.4144, 1.4015, 1.4308, 1.3881, 1.3665, 1.3362, 1.3582, 1.4088, 1.3901, 1.3835, 1.3373, 1.3387, 1.3627, 1.3649, 1.325, 1.2903, 1.374, 1.4139, 1.4424, 1.4554, 1.457, 1.4653, 1.5146, 1.529, 1.534, 1.4862, 1.5342, 1.5777, 1.5876, 1.607, 1.6372, 1.6129, 1.6362, 1.6692, 1.6445, 1.6254, 1.6743, 1.6654, 1.6522, 1.6439, 1.5553, 1.6166, 1.6334, 1.6581, 1.6945, 1.7177, 1.6906, 1.7365, 1.7974, 1.8011, 1.7999, 1.864, 1.859, 1.7854, 1.7393, 1.6859, 1.6921, 1.7846, 1.8033, 1.7893, 1.6857, 1.7858, 1.8125, 1.8312, 1.8334, 1.8561, 1.8603, 1.8635, 1.8338, 1.9343, 1.8682, 1.9029, 1.9177, 1.9807, 1.9959, 1.9513, 1.9691, 1.9541, 1.9112, 1.966, 1.9958, 1.9681, 1.9705, 2.0279, 1.9824, 1.9149, 1.8532, 1.8075, 1.8119, 1.7697, 1.5951, 1.7148, 1.676, 1.7834, 1.8448, 1.8415, 1.9681, 1.9218, 1.959, 1.9998, 1.9887, 1.9882, 2.0707, 2.1014, 2.0938, 2.1205, 2.1398, 2.0926, 2.1707, 2.1812, 2.1609, 2.155, 2.1764, 2.2164, 2.2644, 2.2542, 2.2815, 2.2297, 2.2843, 2.3341, 2.3794, 2.3063, 2.303, 2.2319, 2.3423, 2.3658, 2.321, 2.334, 2.3629, 2.3221, 2.3733, 2.3529, 2.3584, 2.3552, 2.3089, 2.2797, 2.3058, 2.3, 2.2714, 2.2486, 2.2044, 2.1307];
-const arkkValues  = [1.0, 1.1473, 1.1635, 1.2875, 1.366, 1.248, 1.3344, 1.2254, 1.2898, 1.1482, 1.233, 1.2027, 1.2859, 1.2295, 1.2365, 1.1996, 1.145, 1.1919, 1.2011, 1.2337, 1.2464, 1.3267, 1.3551, 1.4125, 1.3433, 1.4071, 1.394, 1.5483, 1.5279, 1.576, 1.4466, 1.3628, 1.2872, 1.306, 1.3905, 1.404, 1.3841, 1.2478, 1.2751, 1.2603, 1.2141, 1.1581, 1.0961, 1.2999, 1.2771, 1.4047, 1.4426, 1.5567, 1.5808, 1.6429, 1.7039, 1.6834, 1.5718, 1.523, 1.4876, 1.476, 1.4998, 1.594, 1.6178, 1.5561, 1.6438, 1.6313, 1.5641, 1.5882, 1.6097, 1.5146, 1.495, 1.35, 1.4166, 1.4616, 1.3796, 1.4609, 1.4265, 1.3645, 1.4079, 1.4101, 1.3925, 1.4127, 1.477, 1.504, 1.4988, 1.4715, 1.3246, 1.3327, 1.4172, 1.4863, 1.4407, 1.3368, 1.4709, 1.5075, 1.539, 1.4963, 1.4992, 1.5438, 1.5323, 1.4992, 1.738, 1.7184, 1.8068, 1.8637, 2.0218, 1.9714, 1.9093, 1.9051, 1.9228, 1.8473, 1.9161, 2.0035, 2.0209, 2.0173, 2.1543, 1.935, 1.7885, 1.6859, 1.5811, 1.6554, 1.5654, 1.3481, 1.4751, 1.4503, 1.6393, 1.6682, 1.6506, 1.8762, 1.8023, 1.8119, 1.9649, 1.999, 2.1771, 2.2449, 2.2851, 2.3236, 2.4953, 2.4683, 2.2873, 2.403, 2.4754, 2.4596, 2.4095, 2.4227, 2.5255, 2.7309, 2.6711, 2.8389, 2.7811, 2.7721, 2.8714, 2.8601, 2.5956, 2.4725, 2.3577, 2.5612, 2.6329, 2.584, 2.5811, 2.5618, 2.5172, 2.5808, 2.6255, 2.594, 2.4066, 2.2632, 2.2581, 2.2979, 2.3436, 2.3272, 2.2581, 2.2227, 2.0774];
-const gldValues   = [1.0, 1.0291, 1.0321, 1.0317, 0.9986, 0.998, 0.9859, 0.9691, 0.993, 1.0009, 1.0579, 1.0572, 1.0547, 1.0736, 1.0728, 1.0607, 1.0638, 1.0792, 1.0754, 1.0572, 1.0415, 1.0423, 1.048, 1.0456, 1.0258, 1.0263, 1.0284, 1.0444, 1.0488, 1.0469, 1.0373, 1.0224, 1.0093, 1.0225, 1.0368, 1.0252, 1.0267, 1.0283, 0.987, 0.9769, 1.0295, 1.0569, 1.0716, 1.0638, 1.0334, 1.0573, 1.068, 1.1053, 1.0687, 1.0765, 1.0953, 1.1005, 1.09, 1.0921, 1.0819, 1.0766, 1.0858, 1.08, 1.0727, 1.0858, 1.1104, 1.1607, 1.1497, 1.1534, 1.1843, 1.2385, 1.2486, 1.2724, 1.247, 1.226, 1.2591, 1.2875, 1.243, 1.2394, 1.2181, 1.2419, 1.2364, 1.2378, 1.2718, 1.2844, 1.2764, 1.2701, 1.2972, 1.2927, 1.3355, 1.3357, 1.3315, 1.3277, 1.374, 1.3943, 1.4105, 1.4104, 1.4131, 1.4465, 1.4583, 1.4534, 1.4274, 1.362, 1.4383, 1.4138, 1.3986, 1.4063, 1.3937, 1.3897, 1.4017, 1.4289, 1.435, 1.4717, 1.4885, 1.5192, 1.533, 1.5586, 1.5156, 1.545, 1.5845, 1.6032, 1.6353, 1.6103, 1.7151, 1.7622, 1.7542, 1.7154, 1.7664, 1.6939, 1.7831, 1.7477, 1.7568, 1.8208, 1.7853, 1.734, 1.7681, 1.7796, 1.7753, 1.7696, 1.7795, 1.8021, 1.7698, 1.7879, 1.831, 1.9058, 1.9309, 1.9526, 1.9961, 2.0588, 2.1249, 2.2393, 2.1733, 2.1192, 2.1203, 2.1643, 2.1546, 2.2329, 2.2246, 2.2764, 2.297, 2.3991, 2.2928, 2.386, 2.4252, 2.6366, 2.5615, 2.622, 2.6632, 2.6977, 2.7848, 2.7259, 2.6529, 2.3797, 2.3873];
-const qqqDates    = ["2023-01-08 00:00:00", "2023-01-15 00:00:00", "2023-01-22 00:00:00", "2023-01-29 00:00:00", "2023-02-05 00:00:00", "2023-02-12 00:00:00", "2023-02-19 00:00:00", "2023-02-26 00:00:00", "2023-03-05 00:00:00", "2023-03-12 00:00:00", "2023-03-19 00:00:00", "2023-03-26 00:00:00", "2023-04-02 00:00:00", "2023-04-09 00:00:00", "2023-04-16 00:00:00", "2023-04-23 00:00:00", "2023-04-30 00:00:00", "2023-05-07 00:00:00", "2023-05-14 00:00:00", "2023-05-21 00:00:00", "2023-05-28 00:00:00", "2023-06-04 00:00:00", "2023-06-11 00:00:00", "2023-06-18 00:00:00", "2023-06-25 00:00:00", "2023-07-02 00:00:00", "2023-07-09 00:00:00", "2023-07-16 00:00:00", "2023-07-23 00:00:00", "2023-07-30 00:00:00", "2023-08-06 00:00:00", "2023-08-13 00:00:00", "2023-08-20 00:00:00", "2023-08-27 00:00:00", "2023-09-03 00:00:00", "2023-09-10 00:00:00", "2023-09-17 00:00:00", "2023-09-24 00:00:00", "2023-10-01 00:00:00", "2023-10-08 00:00:00", "2023-10-15 00:00:00", "2023-10-22 00:00:00", "2023-10-29 00:00:00", "2023-11-05 00:00:00", "2023-11-12 00:00:00", "2023-11-19 00:00:00", "2023-11-26 00:00:00", "2023-12-03 00:00:00", "2023-12-10 00:00:00", "2023-12-17 00:00:00", "2023-12-24 00:00:00", "2023-12-31 00:00:00", "2024-01-07 00:00:00", "2024-01-14 00:00:00", "2024-01-21 00:00:00", "2024-01-28 00:00:00", "2024-02-04 00:00:00", "2024-02-11 00:00:00", "2024-02-18 00:00:00", "2024-02-25 00:00:00", "2024-03-03 00:00:00", "2024-03-10 00:00:00", "2024-03-17 00:00:00", "2024-03-24 00:00:00", "2024-03-31 00:00:00", "2024-04-07 00:00:00", "2024-04-14 00:00:00", "2024-04-21 00:00:00", "2024-04-28 00:00:00", "2024-05-05 00:00:00", "2024-05-12 00:00:00", "2024-05-19 00:00:00", "2024-05-26 00:00:00", "2024-06-02 00:00:00", "2024-06-09 00:00:00", "2024-06-16 00:00:00", "2024-06-23 00:00:00", "2024-06-30 00:00:00", "2024-07-07 00:00:00", "2024-07-14 00:00:00", "2024-07-21 00:00:00", "2024-07-28 00:00:00", "2024-08-04 00:00:00", "2024-08-11 00:00:00", "2024-08-18 00:00:00", "2024-08-25 00:00:00", "2024-09-01 00:00:00", "2024-09-08 00:00:00", "2024-09-15 00:00:00", "2024-09-22 00:00:00", "2024-09-29 00:00:00", "2024-10-06 00:00:00", "2024-10-13 00:00:00", "2024-10-20 00:00:00", "2024-10-27 00:00:00", "2024-11-03 00:00:00", "2024-11-10 00:00:00", "2024-11-17 00:00:00", "2024-11-24 00:00:00", "2024-12-01 00:00:00", "2024-12-08 00:00:00", "2024-12-15 00:00:00", "2024-12-22 00:00:00", "2024-12-29 00:00:00", "2025-01-05 00:00:00", "2025-01-12 00:00:00", "2025-01-19 00:00:00", "2025-01-26 00:00:00", "2025-02-02 00:00:00", "2025-02-09 00:00:00", "2025-02-16 00:00:00", "2025-02-23 00:00:00", "2025-03-02 00:00:00", "2025-03-09 00:00:00", "2025-03-16 00:00:00", "2025-03-23 00:00:00", "2025-03-30 00:00:00", "2025-04-06 00:00:00", "2025-04-13 00:00:00", "2025-04-20 00:00:00", "2025-04-27 00:00:00", "2025-05-04 00:00:00", "2025-05-11 00:00:00", "2025-05-18 00:00:00", "2025-05-25 00:00:00", "2025-06-01 00:00:00", "2025-06-08 00:00:00", "2025-06-15 00:00:00", "2025-06-22 00:00:00", "2025-06-29 00:00:00", "2025-07-06 00:00:00", "2025-07-13 00:00:00", "2025-07-20 00:00:00", "2025-07-27 00:00:00", "2025-08-03 00:00:00", "2025-08-10 00:00:00", "2025-08-17 00:00:00", "2025-08-24 00:00:00", "2025-08-31 00:00:00", "2025-09-07 00:00:00", "2025-09-14 00:00:00", "2025-09-21 00:00:00", "2025-09-28 00:00:00", "2025-10-05 00:00:00", "2025-10-12 00:00:00", "2025-10-19 00:00:00", "2025-10-26 00:00:00", "2025-11-02 00:00:00", "2025-11-09 00:00:00", "2025-11-16 00:00:00", "2025-11-23 00:00:00", "2025-11-30 00:00:00", "2025-12-07 00:00:00", "2025-12-14 00:00:00", "2025-12-21 00:00:00", "2025-12-28 00:00:00", "2026-01-04 00:00:00", "2026-01-11 00:00:00", "2026-01-18 00:00:00", "2026-01-25 00:00:00", "2026-02-01 00:00:00", "2026-02-08 00:00:00", "2026-02-15 00:00:00", "2026-02-22 00:00:00", "2026-03-01 00:00:00", "2026-03-08 00:00:00", "2026-03-15 00:00:00", "2026-03-22 00:00:00", "2026-03-29 00:00:00"];
 
 // ── 净值曲线（仅鹰歌V99）
 new Chart(document.getElementById('navChart'), {
@@ -509,14 +591,14 @@ new Chart(document.getElementById('navChart'), {
   data: {
     labels: eagleDates,
     datasets: [
-      { label:'🦅 鹰歌V99', data: eagleValues, borderColor:'#f0c040', backgroundColor:'rgba(240,192,64,0.08)', borderWidth:2.5, pointRadius:0, fill:true, tension:0.3 },
+      { label:'🦅 Eagle Song V99', data: eagleValues, borderColor:'#f0c040', backgroundColor:'rgba(240,192,64,0.08)', borderWidth:2.5, pointRadius:0, fill:true, tension:0.3 },
     ]
   },
   options: {
     responsive:true, maintainAspectRatio:false,
     plugins:{
       legend:{ display:false },
-      tooltip:{ callbacks:{ label: ctx => '净值: ' + ctx.raw.toFixed(4) + '  收益率: ' + ((ctx.raw-1)*100).toFixed(1) + '%' } }
+      tooltip:{ callbacks:{ label: ctx => 'NAV: ' + ctx.raw.toFixed(4) + '  Return: ' + ((ctx.raw-1)*100).toFixed(1) + '%' } }
     },
     scales:{
       x:{ ticks:{ color:'#64748b', maxTicksLimit:12 }, grid:{ color:'#0f1623' } },
@@ -530,7 +612,7 @@ new Chart(document.getElementById('ddChart'), {
   type:'line',
   data:{
     labels: eagleDates,
-    datasets:[{ label:'回撤%', data:ddValues, borderColor:'#27ae60', backgroundColor:'rgba(39,174,96,0.12)', borderWidth:1.5, pointRadius:0, fill:true, tension:0.2 }]
+    datasets:[{ label:'Drawdown%', data:ddValues, borderColor:'#27ae60', backgroundColor:'rgba(39,174,96,0.12)', borderWidth:1.5, pointRadius:0, fill:true, tension:0.2 }]
   },
   options:{
     responsive:true, maintainAspectRatio:false,
@@ -542,17 +624,14 @@ new Chart(document.getElementById('ddChart'), {
   }
 });
 
-
-
-// ── 蛛网图：全市况稳健性
-// 维度：[单边上涨, 单边下跌, 震荡横盘, 高波动, 持续稳定性, 风险调整收益]
+// ── 蛛网图
 new Chart(document.getElementById('radarChart'), {
   type:'radar',
   data:{
-    labels:['📈 单边上涨市','📉 单边下跌市','↔️ 震荡横盘市','⚡ 高波动市','🔄 持续稳定性','🎯 风险调整收益'],
+    labels:['Bull Market','Bear Market','Range-Bound','High Volatility','Consistency','Risk-Adj. Return'],
     datasets:[
       {
-        label:'🦅 鹰歌V99',
+        label:'🦅 Eagle Song V99',
         data:[85, 88, 80, 88, 90, 95],
         borderColor:'#f0c040', backgroundColor:'rgba(240,192,64,0.15)',
         borderWidth:2.5, pointBackgroundColor:'#f0c040', pointRadius:4
@@ -577,21 +656,20 @@ new Chart(document.getElementById('radarChart'), {
   }
 });
 
-// ── 择时分析图：鹰歌 vs SPY + 调仓竖线
+// ── 择时分析图
 const timingChart = new Chart(document.getElementById('timingChart'), {
   type:'line',
   data:{
     labels: eagleDates,
     datasets:[
-      { label:'🦅 鹰歌V99', data:eagleValues, borderColor:'#f0c040', backgroundColor:'rgba(240,192,64,0.05)', borderWidth:2.5, pointRadius:0, fill:true, tension:0.3 },
-      { label:'SPY 标普500', data:spyValues, borderColor:'#58a6ff', borderWidth:1.5, pointRadius:0, fill:false, tension:0.2 },
+      { label:'🦅 Eagle Song V99', data:eagleValues, borderColor:'#f0c040', backgroundColor:'rgba(240,192,64,0.05)', borderWidth:2.5, pointRadius:0, fill:true, tension:0.3 },
+      { label:'SPY S&P500', data:spyValues, borderColor:'#58a6ff', borderWidth:1.5, pointRadius:0, fill:false, tension:0.2 },
     ]
   },
   options:{
     responsive:true, maintainAspectRatio:false,
     plugins:{
       legend:{ labels:{ color:'#64748b', boxWidth:16 } },
-      annotation:{ annotations:{} },
       tooltip:{ callbacks:{ label: ctx => ctx.dataset.label + ': ' + ((ctx.raw-1)*100+100).toFixed(1)+'%' } }
     },
     scales:{
@@ -600,70 +678,92 @@ const timingChart = new Chart(document.getElementById('timingChart'), {
     }
   }
 });
+
+// ══ 语言切换 ══
+function setLang(lang) {
+  if (lang === 'en') {
+    document.body.classList.add('lang-en');
+    document.getElementById('btnEN').classList.add('active');
+    document.getElementById('btnZH').classList.remove('active');
+    document.documentElement.lang = 'en';
+  } else {
+    document.body.classList.remove('lang-en');
+    document.getElementById('btnZH').classList.add('active');
+    document.getElementById('btnEN').classList.remove('active');
+    document.documentElement.lang = 'zh-CN';
+  }
+}
 </script>
-<!-- ═══ ⑧ 风险提示 & 免责声明 ═══ -->
+
+<!-- ═══ ⑦ 风险提示 & 免责声明 ═══ -->
 <div class="disclaimer-section" id="s8-disc">
   <div class="disclaimer-inner">
 
     <div class="disclaimer-title">
-      <div class="disc-badge">Risk Disclosure & Disclaimer</div>
-      <h2>风险提示与免责声明</h2>
-      <p>请在使用本报告前仔细阅读以下重要声明</p>
+      <div class="disc-badge">Risk Disclosure &amp; Disclaimer</div>
+      <h2><span class="zh">风险提示与免责声明</span><span class="en">Risk Disclosure &amp; Disclaimer</span></h2>
+      <p><span class="zh">请在使用本报告前仔细阅读以下重要声明</span><span class="en">Please read the following important disclosures carefully before using this report.</span></p>
     </div>
 
     <div class="disc-main">
       <span class="warn-icon">⚠️</span>
-      <h3>历史表现不代表未来收益</h3>
+      <h3><span class="zh">历史表现不代表未来收益</span><span class="en">Past Performance Does Not Guarantee Future Results</span></h3>
       <p>
-        本报告所展示的<strong style="color:#e2e8f0;">回测数据</strong>（2023-01-01 — 2026-03-23）均为基于历史市场数据的模拟计算结果，
+        <span class="zh">本报告所展示的<strong style="color:#e2e8f0;">回测数据</strong>（2023-01-01 — 2026-03-23）均为基于历史市场数据的模拟计算结果，
         所有内容不代表任何实际账户的真实交易表现，亦不保证未来相同或相近的收益表现。
-        投资市场具有高度不确定性，过去的优秀表现不构成对未来收益的任何承诺或保证。
+        投资市场具有高度不确定性，过去的优秀表现不构成对未来收益的任何承诺或保证。</span>
+        <span class="en">All <strong style="color:#e2e8f0;">backtest data</strong> shown (Jan 1, 2023 — Mar 23, 2026) are simulated results based on historical market data. They do not represent actual trading performance of any account, nor do they guarantee similar future results. Financial markets are inherently uncertain; strong historical performance is not a promise of future gains.</span>
       </p>
     </div>
 
     <div class="disc-grid">
       <div class="disc-card orange-l">
-        <h4>⚡ 非投资建议</h4>
-        <p>本报告仅供策略研究与学术参考，所有内容不构成任何形式的投资建议、投资要约或投资邀请。任何投资决策均应由投资者独立作出，并自行承担相应风险。</p>
+        <h4>⚡ <span class="zh">非投资建议</span><span class="en">Not Investment Advice</span></h4>
+        <p><span class="zh">本报告仅供策略研究与学术参考，所有内容不构成任何形式的投资建议、投资要约或投资邀请。任何投资决策均应由投资者独立作出，并自行承担相应风险。</span><span class="en">This report is for research and informational purposes only. Nothing herein constitutes investment advice, an offer, or a solicitation to invest. All investment decisions should be made independently by the investor, who bears full responsibility for associated risks.</span></p>
       </div>
       <div class="disc-card red-l">
-        <h4>📉 市场风险</h4>
-        <p>投资涉及本金损失风险。股票市场、商品市场及外汇市场均可能出现剧烈波动，投资者可能面临损失全部或部分本金的风险，请在充分了解风险的前提下审慎投资。</p>
+        <h4>📉 <span class="zh">市场风险</span><span class="en">Market Risk</span></h4>
+        <p><span class="zh">投资涉及本金损失风险。股票市场、商品市场及外汇市场均可能出现剧烈波动，投资者可能面临损失全部或部分本金的风险，请在充分了解风险的前提下审慎投资。</span><span class="en">Investing involves the risk of loss of principal. Equity, commodity, and currency markets can experience severe volatility. Investors may lose all or part of their invested capital. Please invest prudently with a thorough understanding of the risks involved.</span></p>
       </div>
       <div class="disc-card blue-l">
-        <h4>🔬 模型局限性</h4>
-        <p>量化模型基于历史规律构建，无法预测未来市场结构性变化、政策突变、黑天鹅事件等极端情形。模型表现可能因市场环境改变而显著下降。</p>
+        <h4>🔬 <span class="zh">模型局限性</span><span class="en">Model Limitations</span></h4>
+        <p><span class="zh">量化模型基于历史规律构建，无法预测未来市场结构性变化、政策突变、黑天鹅事件等极端情形。模型表现可能因市场环境改变而显著下降。</span><span class="en">Quantitative models are built on historical patterns and cannot anticipate future structural shifts, policy changes, or black-swan events. Model performance may deteriorate materially if market conditions change.</span></p>
       </div>
       <div class="disc-card purple-l">
-        <h4>📋 数据免责</h4>
-        <p>报告中所引用的所有市场数据、基准指数数据仅供参考，数据来源包括公开市场信息，本报告对数据准确性不作任何明示或暗示的保证。</p>
+        <h4>📋 <span class="zh">数据免责</span><span class="en">Data Disclaimer</span></h4>
+        <p><span class="zh">报告中所引用的所有市场数据、基准指数数据仅供参考，数据来源包括公开市场信息，本报告对数据准确性不作任何明示或暗示的保证。</span><span class="en">All market and benchmark data cited are for reference only. Sources include publicly available market information. No express or implied warranty is made regarding the accuracy of such data.</span></p>
       </div>
     </div>
 
-<!-- ═══ ⑦ 现有持仓 ═══ -->
-<div class="section" id="s8">
-  <div class="section-title"><div class="num">7</div>现有持仓 <span class="st-sub">Current Portfolio</span></div>
-
-  <!-- 查看完整持仓按钮 -->
-  <div style="text-align:center;">
-    <div style="background:linear-gradient(135deg,#1e293b,#0f172a); border:1px solid #334155; border-radius:16px; padding:28px 32px; display:inline-block; max-width:480px; width:100%;">
-      <div style="font-size:1rem; color:#e2e8f0; font-weight:600; margin-bottom:8px;">🔐 查看完整持仓明细</div>
-      <div style="font-size:0.8rem; color:#475569; margin-bottom:20px;">含个股/ETF成本价、当前市值、持仓比例、盈亏金额</div>
-      <div style="display:flex; gap:10px; justify-content:center; align-items:center;">
-        <input type="password" id="portfolioPwd" placeholder="输入访问密码" maxlength="30"
-          style="background:#0b1220; border:1px solid #334155; color:#e2e8f0; padding:10px 16px; border-radius:8px; font-size:0.85rem; width:200px; outline:none;"
+    <!-- 持仓密码卡片 -->
+    <div class="portfolio-card">
+      <div class="pc-title">🔐 <span class="zh">查看完整持仓明细</span><span class="en">Access Full Portfolio Details</span></div>
+      <div class="pc-sub"><span class="zh">含个股/ETF成本价、当前市值、持仓比例、盈亏金额</span><span class="en">Includes cost basis, current market value, allocation, and P&amp;L</span></div>
+      <div class="pc-row">
+        <input type="password" id="portfolioPwd"
+          placeholder="Password"
+          maxlength="30"
           onkeydown="if(event.key==='Enter') checkPortfolioPwd()">
-        <button onclick="checkPortfolioPwd()"
-          style="background:linear-gradient(135deg,#f0c040,#d97706); color:#0f172a; border:none; padding:10px 22px; border-radius:8px; font-size:0.85rem; font-weight:700; cursor:pointer; white-space:nowrap;">
-          进入 →
+        <button class="pc-btn" onclick="checkPortfolioPwd()">
+          <span class="zh">进入 →</span><span class="en">Enter →</span>
         </button>
       </div>
-      <div id="portfolioPwdErr" style="color:#ef4444; font-size:0.78rem; margin-top:10px; display:none;">密码错误，请重试</div>
+      <div id="portfolioPwdErr" class="pc-err"><span class="zh">密码错误，请重试</span><span class="en">Incorrect password, please try again.</span></div>
+      <div class="pc-note"><span class="zh">建仓基准日：2026-03-27 &nbsp;·&nbsp; 按当日中间价（High+Low）/2 建仓</span><span class="en">Position date: Mar 27, 2026 &nbsp;·&nbsp; Entry at mid-price (High+Low)/2</span></div>
     </div>
-  </div>
 
-  <div style="text-align:center; margin-top:12px; font-size:0.73rem; color:#334155;">
-    建仓基准日：<span>2026-03-27</span> &nbsp;·&nbsp; 按当日中间价（High+Low）/2 建仓
+    <div class="disc-footer">
+      <div class="brand">🦅 <span class="zh">鹰歌策略 V99 · Eagle Song Strategy</span><span class="en">Eagle Song Strategy V99</span></div>
+      <p>
+        <span class="zh">本报告版权归策略开发者所有，未经授权不得转载或用于商业用途。<br>
+        回测数据截至2026年3月23日。<br><br>
+        <em>投资有风险，入市须谨慎。</em></span>
+        <span class="en">All rights reserved. Unauthorized reproduction or commercial use is prohibited.<br>
+        Backtest data as of March 23, 2026.<br><br>
+        <em>Investing involves risk. Please invest with caution.</em></span>
+      </p>
+    </div>
+
   </div>
 </div>
 
@@ -671,7 +771,6 @@ const timingChart = new Chart(document.getElementById('timingChart'), {
 function checkPortfolioPwd() {
   const pwd = document.getElementById('portfolioPwd').value;
   const err = document.getElementById('portfolioPwdErr');
-  // 密码哈希验证（避免明文暴露）
   const h = [...pwd].reduce((a,c)=>(Math.imul(31,a)+c.charCodeAt(0))|0, 0);
   if (h === -1617946643) {
     window.location.href = '/portfolio.html';
@@ -683,18 +782,5 @@ function checkPortfolioPwd() {
 }
 </script>
 
-    <div class="disc-footer">
-      <div class="brand">🦅 鹰歌策略 V99 · Eagle Song Strategy</div>
-      <p>
-        本报告版权归策略开发者所有，未经授权不得转载或用于商业用途。<br>
-        回测数据截至2026年3月23日。<br><br>
-        <em>投资有风险，入市须谨慎。</em>
-      </p>
-    </div>
-
-  </div>
-</div>
-
 </body>
 </html>
-
