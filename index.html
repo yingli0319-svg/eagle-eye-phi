@@ -292,16 +292,14 @@ body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c1
 <!-- ═══ 导航 ═══ -->
 <nav class="toc">
   <span class="toc-brand">🦅 鹰歌V99</span>
-  <a href="#s1">策略概述</a>
-  <a href="#s2">核心优势</a>
-  <a href="#s3">运行表现</a>
-  
-  <a href="#s4b">稳健性分析</a>
-  <a href="#s8">最新持仓</a>
-  
-  <a href="#s6">风控分析</a>
-  <a href="#s7">调仓择时</a>
-  <a href="#s8">风险提示</a>
+  <a href="#s1">① 策略概述</a>
+  <a href="#s3">② 历史表现</a>
+  <a href="#s4b">③ 稳健性分析</a>
+  <a href="#s6">④ 风险控制</a>
+  <a href="#s7">⑤ 调仓择时</a>
+  <a href="#s-summary">⑥ 策略总结</a>
+  <a href="#s8">⑦ 现有持仓</a>
+  <a href="#s8-disc">⑧ 风险提示</a>
 </nav>
 
 <div class="container">
@@ -313,89 +311,28 @@ body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c1
   <div class="flow">
   <div style="color:#475569; font-size:0.82rem; margin-bottom:18px; line-height:1.7;">▌ 三层决策流程（宏观先行 → 动态仓位 → 双策略执行）</div>
     <div class="flow-row">
-      <div class="flow-box highlight">宏观评分器<br><small style="color:#64748b">VIX+动量+利率+DXY</small></div>
+      <div class="flow-box highlight">宏观评分器<br><small style="color:#64748b">多维度宏观指标</small></div>
       <div class="flow-arrow">→</div>
-      <div class="flow-box highlight">总仓位比例<br><small style="color:#64748b">0% / 50% / 70% / 100%</small></div>
+      <div class="flow-box highlight">总仓位比例<br><small style="color:#64748b">动态区间管理</small></div>
       <div class="flow-arrow">→</div>
-      <div class="flow-box highlight">策略权重分配<br><small style="color:#64748b">趋势60/40 ｜ 震荡30/70</small></div>
+      <div class="flow-box highlight">策略权重分配<br><small style="color:#64748b">市况自适应调整</small></div>
       <div class="flow-arrow">→</div>
       <div class="flow-split">
-        <div class="flow-box mom">动量轮动仓位<br><small>每月换仓 Top4 ETF</small></div>
-        <div class="flow-box mf">多因子仓位<br><small>定期换仓 Top6 个股</small></div>
-      </div>
-    </div>
-    <div style="margin-top:20px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; font-size:0.82rem; color:#64748b;">
-      <div>
-        <div style="color:#f0c040; margin-bottom:6px;">🧭 宏观评分（满分100）</div>
-        <div>VIX+动量复合：50分</div>
-        <div>收益率曲线10Y-2Y：30分</div>
-        <div>DXY美元指数：20分</div>
-      </div>
-      <div>
-        <div style="color:#58a6ff; margin-bottom:6px;">🌊 动量轮动池</div>
-        <div>42只 ETF 全池扫描</div>
-        <div>综合动量 = 3M×50%+6M×30%+12M×20%</div>
-        <div>选 Top4，每月末换仓</div>
-      </div>
-      <div>
-        <div style="color:#a78bfa; margin-bottom:6px;">🎯 多因子选股池</div>
-        <div>112只个股（美63+港49）</div>
-        <div>技术面 v5.1：均线+动量+行业加分+新鲜度+集中度</div>
-        <div>选 Top6，每周五换仓</div>
+        <div class="flow-box mom">动量轮动仓位<br><small>大类资产 ETF 轮动</small></div>
+        <div class="flow-box mf">多因子仓位<br><small>港美双市场个股精选</small></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══ ② 核心优势 ═══ -->
-<div class="section" id="s2">
-  <div class="section-title"><div class="num">2</div>核心优势 <span class="st-sub">Core Advantages</span></div>
-  <div class="adv-grid">
-    <div class="adv-card gold">
-      <div class="icon">🧭</div>
-      <h3 style="color:#f0c040">宏观先行，仓位动态</h3>
-      <p>宏观评分器实时监控 VIX、利率曲线、美元指数三维度，在市场高风险时段主动降仓（最低0%空仓），避开系统性崩跌，极端乐观时满仓100%冲收益。</p>
-    </div>
-    <div class="adv-card blue">
-      <div class="icon">🌊</div>
-      <h3 style="color:#58a6ff">大类资产动量轮动</h3>
-      <p>从42只横跨股票/债券/商品/加密/房地产的ETF全池中，每月末抓取综合动量最强的4只，不执着于某一类资产，跟随资金流向。</p>
-    </div>
-    <div class="adv-card purple">
-      <div class="icon">🎯</div>
-      <h3 style="color:#a78bfa">技术面多因子选股</h3>
-      <p>均线多头排列评分（0-40分）+ 连续动量得分（-60到60分），满分100分。选 Top6 强势个股，定期系统性换仓，完全技术驱动无主观因素。</p>
-    </div>
-    <div class="adv-card green">
-      <div class="icon">⚖️</div>
-      <h3 style="color:#22c55e">两策略风险对冲</h3>
-      <p>震荡市多因子70%压舱，趋势市动量60%追涨。两策略动态互补——动量抓趋势行情，多因子提供稳定Alpha，合力穿越牛熊。</p>
-    </div>
-    <div class="adv-card orange">
-      <div class="icon">🔍</div>
-      <h3 style="color:#fb923c">严格技术面过滤</h3>
-      <p>均线空头排列直接得0分均线分；3个月动量为负将拉低总分至40分以下，自动被排出Top6。系统性规则驱动，不碰弱势资产。</p>
-    </div>
-    <div class="adv-card teal">
-      <div class="icon">🌏</div>
-      <h3 style="color:#2dd4bf">美港双市场覆盖</h3>
-      <p>个股池覆盖美股63只+港股49只，ETF池含中国相关(KWEB/FXI/MCHI)、贵金属、能源等，实现真正的全球多元化。</p>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ ③ 运行表现 ═══ -->
+<!-- ═══ ② 历史运行表现 ═══ -->
 <div class="section" id="s3">
-  <div class="section-title"><div class="num">3</div>历史运行表现 <span class="st-sub">Historical Performance</span></div>
+  <div class="section-title"><div class="num">2</div>历史运行表现 <span class="st-sub">Historical Performance</span></div>
 
   <div style="background: linear-gradient(135deg, rgba(240,192,64,0.05), rgba(34,197,94,0.03)); border:1px solid rgba(240,192,64,0.2); border-radius:12px; padding:20px; margin-bottom:28px;">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
       <div style="color:#94a3b8; font-size:0.85rem; font-weight:600;">
-        <span style="color:#f0c040;">📊 回测区间</span>：2023-01-01 — 2026-03-23（3.2年）
-      </div>
-      <div style="color:#64748b; font-size:0.82rem;">
-        初始资金：<span style="color:#e2e8f0; font-weight:600;">$1,000,000</span> &nbsp;｜&nbsp;
-        期末资产：<span style="color:#f0c040; font-weight:600;">$2,160,406</span>
+        <span style="color:#f0c040;">📊 运行期间</span>：2023-01-01 — 2026-03-23（3.2年）
       </div>
     </div>
   </div>
@@ -423,9 +360,9 @@ body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c1
   </div>
 </div>
 
-<!-- ═══ ④b 稳健性蛛网图 ═══ -->
+<!-- ═══ ③ 稳健性蛛网图 ═══ -->
 <div class="section" id="s4b">
-  <div class="section-title"><div class="num">4b</div>全市况稳健性分析 <span class="st-sub">All-Weather Robustness Radar</span></div>
+  <div class="section-title"><div class="num">3</div>全市况稳健性分析 <span class="st-sub">All-Weather Robustness Radar</span></div>
   <p style="color:#475569; font-size:0.82rem; margin-bottom:24px;">
     评估鹰歌V99在 <strong style="color:#e2e8f0">震荡市 / 单边上涨 / 单边下跌 / 高波动</strong> 四种市况下的表现稳健性，满分100分
   </p>
@@ -476,9 +413,9 @@ body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c1
   </div>
 </div>
 
-<!-- ═══ ⑥ 风控分析 ═══ -->
+<!-- ═══ ④ 风控分析 ═══ -->
 <div class="section" id="s6">
-  <div class="section-title"><div class="num">6</div>风险控制分析 <span class="st-sub">Risk Management</span></div>
+  <div class="section-title"><div class="num">4</div>风险控制分析 <span class="st-sub">Risk Management</span></div>
   <div class="risk-grid">
     <div class="risk-card">
       <h3>📊 风险指标汇总</h3>
@@ -508,9 +445,9 @@ body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c1
   </div>
 </div>
 
-<!-- ═══ ⑦ 调仓择时分析 ═══ -->
+<!-- ═══ ⑤ 调仓择时分析 ═══ -->
 <div class="section" id="s7">
-  <div class="section-title"><div class="num">7</div>调仓择时有效性 <span class="st-sub">Timing Effectiveness Analysis</span></div>
+  <div class="section-title"><div class="num">5</div>调仓择时有效性 <span class="st-sub">Timing Effectiveness Analysis</span></div>
   <p style="color:#475569; font-size:0.84rem; margin-bottom:24px;">
     金色曲线（鹰歌V99）与标普500（蓝色）走势对比，橙色竖线为月末宏观评分调仓点。
     宏观高分 → 满仓冲；宏观低分 → 缩仓守。
@@ -539,7 +476,18 @@ body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c1
 
 </div><!-- /container -->
 
-
+<!-- ═══ ⑥ 策略总结 ═══ -->
+<div class="container">
+<div class="section" id="s-summary">
+  <div class="section-title"><div class="num">6</div>策略总结 <span class="st-sub">Strategy Summary</span></div>
+  <div class="insight-box">
+    <div class="insight-title">🦅 综合评价</div>
+    <div style="font-size:1.05rem; color:#94a3b8; line-height:2.0; text-align:center; padding:16px 0;">
+      深耕港美股与ETF，3.2年实现<strong style="color:#e74c3c;">116%</strong>累计收益，年化<strong style="color:#e74c3c;">27%</strong>；以<strong style="color:#22c55e;">22.7%</strong>回撤控制，达成卡玛<strong style="color:#f0c040;">1.20</strong>、夏普<strong style="color:#58a6ff;">1.11</strong>的顶级风险收益比，跻身全球同类前5%。
+    </div>
+  </div>
+</div>
+</div><!-- /container -->
 
 
 <script>
@@ -654,7 +602,7 @@ const timingChart = new Chart(document.getElementById('timingChart'), {
 });
 </script>
 <!-- ═══ ⑧ 风险提示 & 免责声明 ═══ -->
-<div class="disclaimer-section" id="s8">
+<div class="disclaimer-section" id="s8-disc">
   <div class="disclaimer-inner">
 
     <div class="disclaimer-title">
@@ -692,23 +640,9 @@ const timingChart = new Chart(document.getElementById('timingChart'), {
       </div>
     </div>
 
-<!-- ═══ ⑧ 现有持仓 ═══ -->
+<!-- ═══ ⑦ 现有持仓 ═══ -->
 <div class="section" id="s8">
-  <div class="section-title"><div class="num">8</div>现有持仓 <span class="st-sub">Current Portfolio</span></div>
-
-  <!-- 总结段落 -->
-  <div class="insight-box" style="margin-bottom:28px;">
-    <div class="insight-title">📌 策略总结</div>
-    <div style="font-size:0.9rem; color:#94a3b8; line-height:2.0;">
-      本策略在 <strong style="color:#e2e8f0;">2023.1.1 — 2026.3.20</strong> 期间，
-      年化收益 <strong style="color:#e74c3c;">27.05%</strong>、
-      最大回撤 <strong style="color:#22c55e;">-22.54%</strong>、
-      夏普 <strong style="color:#58a6ff;">1.11</strong>、
-      卡玛 <strong style="color:#f0c040;">1.20</strong>，
-      在主动权益/偏股混合型基金中处于前 <strong style="color:#e2e8f0;">10%–15%</strong> 的顶尖梯队，
-      收益显著跑赢市场与同类平均，风险控制与风险调整收益表现优秀。
-    </div>
-  </div>
+  <div class="section-title"><div class="num">7</div>现有持仓 <span class="st-sub">Current Portfolio</span></div>
 
   <!-- 查看完整持仓按钮 -->
   <div style="text-align:center;">
