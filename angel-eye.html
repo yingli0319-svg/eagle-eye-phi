@@ -971,7 +971,7 @@ function showSearchResult(stock) {
 }
 
 // ═══ 分析页面 ═══
-function showAnalysis(code, market, name, price, change, changePercent) {
+async function showAnalysis(code, market, name, price, change, changePercent) {
   const isUp = parseFloat(change) >= 0;
   
   // 填充股票信息
@@ -983,7 +983,66 @@ function showAnalysis(code, market, name, price, change, changePercent) {
   priceEl.querySelector('.price').textContent = price;
   priceEl.querySelector('.change').textContent = `${isUp ? '+' : ''}${changePercent}%`;
   
-  // 生成模拟评分
+  // 切换页面
+  document.getElementById('homePage').style.display = 'none';
+  document.getElementById('analysisPage').classList.add('active');
+  document.getElementById('analysisPage').style.display = 'block';
+  
+  // 显示加载状态
+  document.getElementById('totalScore').textContent = '...';
+  
+  try {
+    // 调用后端API获取真实分析数据
+    const response = await fetch(`/api/analyze?code=${encodeURIComponent(code)}`);
+    const data = await response.json();
+    
+    if (data.error) {
+      console.error('API Error:', data.error);
+      // 使用模拟数据作为后备
+      useMockData(price);
+      return;
+    }
+    
+    // 更新价格（使用API返回的最新价格）
+    priceEl.querySelector('.price').textContent = data.price.toFixed(2);
+    const apiChange = data.change;
+    const apiIsUp = apiChange >= 0;
+    priceEl.className = `stock-header-price ${apiIsUp ? 'up' : 'down'}`;
+    priceEl.querySelector('.change').textContent = `${apiIsUp ? '+' : ''}${apiChange.toFixed(2)}%`;
+    
+    // 更新评分
+    const analysis = data.analysis;
+    document.getElementById('totalScore').textContent = analysis.score;
+    document.getElementById('trendScore').textContent = analysis.trend.score;
+    document.getElementById('momentumScore').textContent = analysis.momentum.score;
+    document.getElementById('volatilityScore').textContent = analysis.volatility.score;
+    
+    // 设置评分颜色
+    setScoreColor('totalScore', analysis.score);
+    setScoreColor('trendScore', analysis.trend.score);
+    setScoreColor('momentumScore', analysis.momentum.score);
+    setScoreColor('volatilityScore', analysis.volatility.score);
+    
+    // 更新技术信号
+    document.getElementById('maSignal').innerHTML = generateMASignal(analysis);
+    document.getElementById('macdSignal').innerHTML = generateMACDSignal(analysis);
+    document.getElementById('rsiSignal').innerHTML = generateRSISignal(analysis);
+    document.getElementById('bollSignal').innerHTML = generateBollSignal(analysis);
+    document.getElementById('tradeSignal').innerHTML = generateTradeSignal(analysis.signal);
+    
+    // 更新支撑阻力位
+    document.getElementById('supportPrice').textContent = analysis.support.toFixed(2);
+    document.getElementById('resistPrice').textContent = analysis.resistance.toFixed(2);
+    
+  } catch (error) {
+    console.error('Fetch Error:', error);
+    // API调用失败时使用模拟数据
+    useMockData(price);
+  }
+}
+
+// 使用模拟数据（API失败时）
+function useMockData(price) {
   const totalScore = Math.floor(Math.random() * 30) + 60;
   const trendScore = Math.floor(Math.random() * 30) + 60;
   const momentumScore = Math.floor(Math.random() * 30) + 60;
@@ -994,13 +1053,11 @@ function showAnalysis(code, market, name, price, change, changePercent) {
   document.getElementById('momentumScore').textContent = momentumScore;
   document.getElementById('volatilityScore').textContent = volatilityScore;
   
-  // 设置评分颜色
   setScoreColor('totalScore', totalScore);
   setScoreColor('trendScore', trendScore);
   setScoreColor('momentumScore', momentumScore);
   setScoreColor('volatilityScore', volatilityScore);
   
-  // 生成技术信号
   const signals = generateSignals();
   document.getElementById('maSignal').innerHTML = signals.ma;
   document.getElementById('macdSignal').innerHTML = signals.macd;
@@ -1008,15 +1065,103 @@ function showAnalysis(code, market, name, price, change, changePercent) {
   document.getElementById('bollSignal').innerHTML = signals.boll;
   document.getElementById('tradeSignal').innerHTML = signals.trade;
   
-  // 支撑阻力位
   const basePrice = parseFloat(price);
   document.getElementById('supportPrice').textContent = (basePrice * 0.95).toFixed(2);
   document.getElementById('resistPrice').textContent = (basePrice * 1.05).toFixed(2);
+}
+
+// 生成均线信号
+function generateMASignal(analysis) {
+  const ma5 = analysis.ma5;
+  const ma10 = analysis.ma10;
+  const ma20 = analysis.ma20;
+  const ma60 = analysis.ma60;
+  const price = analysis.price || ma5;
   
-    // 切换页面
-  document.getElementById('homePage').style.display = 'none';
-  document.getElementById('analysisPage').classList.add('active');
-  document.getElementById('analysisPage').style.display = 'block';
+  let signal = '中性';
+  let color = '#94a3b8';
+  
+  if (price > ma5 && ma5 > ma10 && ma10 > ma20) {
+    signal = '多头排列';
+    color = '#ef4444';
+  } else if (price < ma5 && ma5 < ma10 && ma10 < ma20) {
+    signal = '空头排列';
+    color = '#22c55e';
+  }
+  
+  return `<span style="color:${color};font-weight:600;">${signal}</span>`;
+}
+
+// 生成MACD信号
+function generateMACDSignal(analysis) {
+  const macd = analysis.macd;
+  const signal = analysis.signal_line;
+  
+  let text = '观望';
+  let color = '#94a3b8';
+  
+  if (macd > signal && macd > 0) {
+    text = '金叉看涨';
+    color = '#ef4444';
+  } else if (macd < signal && macd < 0) {
+    text = '死叉看跌';
+    color = '#22c55e';
+  }
+  
+  return `<span style="color:${color};font-weight:600;">${text}</span>`;
+}
+
+// 生成RSI信号
+function generateRSISignal(analysis) {
+  const rsi = analysis.rsi;
+  
+  let text = '中性';
+  let color = '#94a3b8';
+  
+  if (rsi > 70) {
+    text = '超买';
+    color = '#ef4444';
+  } else if (rsi < 30) {
+    text = '超卖';
+    color = '#22c55e';
+  } else if (rsi > 50) {
+    text = '偏强';
+    color = '#ef4444';
+  } else {
+    text = '偏弱';
+    color = '#22c55e';
+  }
+  
+  return `<span style="color:${color};font-weight:600;">${text}</span>`;
+}
+
+// 生成布林带信号
+function generateBollSignal(analysis) {
+  const price = analysis.price || analysis.ma20;
+  const upper = analysis.upper_band;
+  const lower = analysis.lower_band;
+  
+  let text = '中轨附近';
+  let color = '#94a3b8';
+  
+  if (price > upper * 0.98) {
+    text = '触及上轨';
+    color = '#ef4444';
+  } else if (price < lower * 1.02) {
+    text = '触及下轨';
+    color = '#22c55e';
+  }
+  
+  return `<span style="color:${color};font-weight:600;">${text}</span>`;
+}
+
+// 生成交易信号
+function generateTradeSignal(signal) {
+  let color = '#94a3b8';
+  if (signal === '买入') color = '#ef4444';
+  if (signal === '卖出') color = '#22c55e';
+  
+  return `<span style="color:${color};font-weight:700;font-size:1.1rem;">${signal}</span>`;
   window.scrollTo(0, 0);
 }
 
