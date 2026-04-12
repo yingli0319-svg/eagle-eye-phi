@@ -998,8 +998,7 @@ async function showAnalysis(code, market, name, price, change, changePercent) {
     
     if (data.error) {
       console.error('API Error:', data.error);
-      // 使用模拟数据作为后备
-      useMockData(price);
+      showError('数据获取失败: ' + data.error);
       return;
     }
     
@@ -1036,38 +1035,27 @@ async function showAnalysis(code, market, name, price, change, changePercent) {
     
   } catch (error) {
     console.error('Fetch Error:', error);
-    // API调用失败时使用模拟数据
-    useMockData(price);
+    // API调用失败时显示错误信息
+    showError('数据获取失败，请稍后重试');
   }
 }
 
-// 使用模拟数据（API失败时）
-function useMockData(price) {
-  const totalScore = Math.floor(Math.random() * 30) + 60;
-  const trendScore = Math.floor(Math.random() * 30) + 60;
-  const momentumScore = Math.floor(Math.random() * 30) + 60;
-  const volatilityScore = Math.floor(Math.random() * 30) + 60;
+// 显示错误信息
+function showError(message) {
+  document.getElementById('totalScore').textContent = '--';
+  document.getElementById('trendScore').textContent = '--';
+  document.getElementById('momentumScore').textContent = '--';
+  document.getElementById('volatilityScore').textContent = '--';
   
-  document.getElementById('totalScore').textContent = totalScore;
-  document.getElementById('trendScore').textContent = trendScore;
-  document.getElementById('momentumScore').textContent = momentumScore;
-  document.getElementById('volatilityScore').textContent = volatilityScore;
+  const errorHtml = `<span style="color:#94a3b8;font-weight:600;">${message}</span>`;
+  document.getElementById('maSignal').innerHTML = errorHtml;
+  document.getElementById('macdSignal').innerHTML = errorHtml;
+  document.getElementById('rsiSignal').innerHTML = errorHtml;
+  document.getElementById('bollSignal').innerHTML = errorHtml;
+  document.getElementById('tradeSignal').innerHTML = errorHtml;
   
-  setScoreColor('totalScore', totalScore);
-  setScoreColor('trendScore', trendScore);
-  setScoreColor('momentumScore', momentumScore);
-  setScoreColor('volatilityScore', volatilityScore);
-  
-  const signals = generateSignals();
-  document.getElementById('maSignal').innerHTML = signals.ma;
-  document.getElementById('macdSignal').innerHTML = signals.macd;
-  document.getElementById('rsiSignal').innerHTML = signals.rsi;
-  document.getElementById('bollSignal').innerHTML = signals.boll;
-  document.getElementById('tradeSignal').innerHTML = signals.trade;
-  
-  const basePrice = parseFloat(price);
-  document.getElementById('supportPrice').textContent = (basePrice * 0.95).toFixed(2);
-  document.getElementById('resistPrice').textContent = (basePrice * 1.05).toFixed(2);
+  document.getElementById('supportPrice').textContent = '--';
+  document.getElementById('resistPrice').textContent = '--';
 }
 
 // 生成均线信号
@@ -1173,31 +1161,7 @@ function setScoreColor(id, score) {
   else el.classList.add('negative');
 }
 
-function generateSignals() {
-  const signals = ['bullish', 'bearish', 'neutral'];
-  const signalNames = {
-    'bullish': '<span class="signal-tag buy">看涨</span>',
-    'bearish': '<span class="signal-tag sell">看跌</span>',
-    'neutral': '<span class="signal-tag hold">观望</span>'
-  };
-  
-  const ma = signals[Math.floor(Math.random() * 3)];
-  const macd = signals[Math.floor(Math.random() * 3)];
-  const rsi = signals[Math.floor(Math.random() * 3)];
-  const boll = signals[Math.floor(Math.random() * 3)];
-  
-  // 综合信号
-  const tradeSignal = ma === 'bullish' && macd === 'bullish' ? 'buy' : 
-                      ma === 'bearish' && macd === 'bearish' ? 'sell' : 'hold';
-  
-  return {
-    ma: signalNames[ma],
-    macd: signalNames[macd],
-    rsi: signalNames[rsi],
-    boll: signalNames[boll],
-    trade: signalNames[tradeSignal === 'buy' ? 'bullish' : tradeSignal === 'sell' ? 'bearish' : 'neutral']
-  };
-}
+
 
 function backToHome() {
   document.getElementById('analysisPage').classList.remove('active');
