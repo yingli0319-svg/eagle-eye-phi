@@ -661,11 +661,7 @@ body {
     </div>
   </div>
 
-  <!-- 热门股票 -->
-  <div class="card">
-    <div class="card-title">热门股票</div>
-    <div class="hot-list" id="hotStocks"></div>
-  </div>
+
 
   <!-- 搜索历史 -->
   <div class="card" id="historyCard" style="display: none;">
@@ -849,19 +845,8 @@ body {
 let currentMarket = '港股';
 let searchHistory = JSON.parse(localStorage.getItem('angelEyeHistory') || '[]');
 
-// 热门股票数据
-const hotStocksData = [
-  { name: '腾讯控股', code: '00700', market: '港股', price: '412.60', change: 2.35 },
-  { name: '阿里巴巴', code: '09988', market: '港股', price: '88.45', change: -0.82 },
-  { name: '贵州茅台', code: '600519', market: 'A股', price: '1688.00', change: 1.25 },
-  { name: '宁德时代', code: '300750', market: 'A股', price: '198.50', change: -1.15 },
-  { name: '苹果', code: 'AAPL', market: '美股', price: '198.45', change: 0.95 },
-  { name: '英伟达', code: 'NVDA', market: '美股', price: '892.10', change: 3.25 },
-];
-
 // ═══ 初始化 ═══
 document.addEventListener('DOMContentLoaded', function() {
-  renderHotStocks();
   renderHistory();
 });
 
@@ -894,61 +879,39 @@ function selectMarket(market, code) {
 // ═══ 搜索功能 ═══
 function searchStock() {
   const input = document.getElementById('searchInput');
-  const code = input.value.trim();
+  let code = input.value.trim();
   
   if (!code) {
     alert('请输入股票代码');
     return;
   }
   
+  // 港股代码自动补零到5位
+  if (currentMarket === '港股' && /^\d+$/.test(code)) {
+    code = code.padStart(5, '0');
+  }
+  
   // 显示加载
   document.getElementById('loadingContainer').classList.add('active');
   document.getElementById('searchResults').classList.remove('active');
   
-  // 模拟搜索延迟
-  setTimeout(() => {
-    document.getElementById('loadingContainer').classList.remove('active');
-    
-    // 生成模拟搜索结果
-    const result = generateMockResult(code, currentMarket);
-    showSearchResult(result);
-    addToHistory(result);
-  }, 800);
-}
-
-function generateMockResult(code, market) {
-  // 模拟股票数据生成
-  const basePrice = market === '美股' ? Math.random() * 500 + 50 : Math.random() * 500 + 10;
-  const change = (Math.random() - 0.5) * 10;
+  // 直接显示搜索结果（不生成模拟数据）
+  document.getElementById('loadingContainer').classList.remove('active');
   
-  return {
-    name: getStockName(code, market),
+  const result = {
+    name: code,
     code: code,
-    market: market,
-    price: basePrice.toFixed(2),
-    change: change.toFixed(2),
-    changePercent: (change / basePrice * 100).toFixed(2)
+    market: currentMarket,
+    price: '0.00',
+    change: '0.00',
+    changePercent: '0.00'
   };
+  showSearchResult(result);
 }
 
-function getStockName(code, market) {
-  // 简单的名称映射
-  const nameMap = {
-    '00700': '腾讯控股',
-    '09988': '阿里巴巴',
-    '03690': '美团',
-    '01810': '小米集团',
-    '600519': '贵州茅台',
-    '300750': '宁德时代',
-    '000858': '五粮液',
-    'AAPL': '苹果公司',
-    'NVDA': '英伟达',
-    'TSLA': '特斯拉',
-    'MSFT': '微软',
-    'GOOGL': '谷歌',
-  };
-  return nameMap[code] || `${market}股票 ${code}`;
-}
+
+
+
 
 function showSearchResult(stock) {
   const container = document.getElementById('searchResultList');
@@ -1172,20 +1135,7 @@ function backToHome() {
   window.scrollTo(0, 0);
 }
 
-// ═══ 热门股票 ═══
-function renderHotStocks() {
-  const container = document.getElementById('hotStocks');
-  container.innerHTML = hotStocksData.map(stock => {
-    const isUp = stock.change >= 0;
-    return `
-      <div class="hot-item" onclick="showAnalysis('${stock.code}', '${stock.market}', '${stock.name}', '${stock.price}', '${stock.change}', '${stock.change}')">
-        <div class="hot-name">${stock.name}</div>
-        <div class="hot-code">${stock.code}</div>
-        <div class="hot-market ${isUp ? 'up' : 'down'}">${isUp ? '+' : ''}${stock.change}%</div>
-      </div>
-    `;
-  }).join('');
-}
+
 
 // ═══ 历史记录 ═══
 function renderHistory() {
