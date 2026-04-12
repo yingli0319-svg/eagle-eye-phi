@@ -1009,9 +1009,10 @@ function showAnalysis(code, market, name, price, change, changePercent) {
   document.getElementById('supportPrice').textContent = (basePrice * 0.95).toFixed(2);
   document.getElementById('resistPrice').textContent = (basePrice * 1.05).toFixed(2);
   
-  // 切换页面
+    // 切换页面
   document.getElementById('homePage').style.display = 'none';
   document.getElementById('analysisPage').classList.add('active');
+  document.getElementById('analysisPage').style.display = 'block';
   window.scrollTo(0, 0);
 }
 
@@ -1051,7 +1052,9 @@ function generateSignals() {
 
 function backToHome() {
   document.getElementById('analysisPage').classList.remove('active');
+  document.getElementById('analysisPage').style.display = 'none';
   document.getElementById('disclaimerPage').classList.remove('active');
+  document.getElementById('disclaimerPage').style.display = 'none';
   document.getElementById('homePage').style.display = 'block';
   window.scrollTo(0, 0);
 }
@@ -1115,6 +1118,7 @@ function quickSearch(code, market) {
 function showDisclaimer() {
   document.getElementById('homePage').style.display = 'none';
   document.getElementById('disclaimerPage').classList.add('active');
+  document.getElementById('disclaimerPage').style.display = 'block';
   window.scrollTo(0, 0);
 }
 </script>
