@@ -296,41 +296,6 @@ body {
 .stock-price.down .current-price { color: #22c55e; }
 .stock-price.down .price-change { color: #22c55e; }
 
-/* ══ 热门股票 ══ */
-.hot-list {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-.hot-item {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid #1e293b;
-  border-radius: 12px;
-  padding: 16px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.hot-item:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(240, 192, 64, 0.3);
-}
-.hot-name {
-  font-weight: 600;
-  color: #e2e8f0;
-  margin-bottom: 4px;
-}
-.hot-code {
-  font-size: 0.8rem;
-  color: #64748b;
-  margin-bottom: 8px;
-}
-.hot-market {
-  font-size: 0.9rem;
-  font-weight: 700;
-}
-.hot-market.up { color: #e74c3c; }
-.hot-market.down { color: #22c55e; }
-
 /* ══ 历史记录 ══ */
 .history-list {
   display: flex;
@@ -595,7 +560,6 @@ body {
   .search-box-container { flex-wrap: wrap; }
   .market-selector { min-width: 80px; }
   .search-input { min-width: 0; }
-  .hot-list { grid-template-columns: 1fr; }
   .score-grid { grid-template-columns: repeat(2, 1fr); }
   .logo-title { font-size: 1.5rem; }
 }
@@ -611,8 +575,7 @@ body {
   </div>
   <nav class="header-nav">
     <a href="/">首页</a>
-    <a href="/index.html">鹰歌策略</a>
-    <a href="/commodity.html">大宗商品</a>
+    <a href="/angel-eye.html">天使鹰眼</a>
   </nav>
 </header>
 
