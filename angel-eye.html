@@ -404,9 +404,11 @@ body {
 
 /* ══ 分析结果页面 ══ */
 .analysis-page {
-  display: none;
+  display: none !important;
 }
-.analysis-page.active { display: block; }
+.analysis-page.active { 
+  display: block !important;
+}
 .back-btn {
   display: inline-flex;
   align-items: center;
@@ -540,12 +542,14 @@ body {
 
 /* 免责声明页面 */
 .disclaimer-page {
-  display: none;
+  display: none !important;
   max-width: 800px;
   margin: 0 auto;
   padding: 24px 20px 60px;
 }
-.disclaimer-page.active { display: block; }
+.disclaimer-page.active { 
+  display: block !important;
+}
 .disclaimer-title {
   text-align: center;
   margin-bottom: 32px;
