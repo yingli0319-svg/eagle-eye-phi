@@ -1,15 +1,6 @@
 {
-  "buildCommand": "",
   "outputDirectory": ".",
   "rewrites": [
     { "source": "/api/analyze", "destination": "/api/analyze.js" }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
-      ]
-    }
   ]
 }
