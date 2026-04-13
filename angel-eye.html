@@ -842,148 +842,176 @@ function selectMarket(market, code) {
 }
 
 // ═══ 搜索功能 ═══
-function searchStock() {
+async function searchStock() {
   const input = document.getElementById('searchInput');
-  let code = input.value.trim();
-  
-  if (!code) {
+  const rawCode = input.value.trim();
+
+  if (!rawCode) {
     alert('请输入股票代码');
     return;
   }
-  
-  // 港股代码自动补零到5位
-  if (currentMarket === '港股' && /^\d+$/.test(code)) {
-    code = code.padStart(5, '0');
+
+  // 港股：不管用户输入 700/0700/00700，统一补到5位传给API
+  let code = rawCode;
+  if (currentMarket === '港股' && /^\d+$/.test(rawCode)) {
+    code = String(parseInt(rawCode, 10)).padStart(5, '0');
   }
-  
-  // 显示加载
+
+  // 显示加载中
   document.getElementById('loadingContainer').classList.add('active');
   document.getElementById('searchResults').classList.remove('active');
-  
-  // 直接显示搜索结果（不生成模拟数据）
-  document.getElementById('loadingContainer').classList.remove('active');
-  
-  const result = {
-    name: code,
-    code: code,
-    market: currentMarket,
-    price: '0.00',
-    change: '0.00',
-    changePercent: '0.00'
-  };
-  showSearchResult(result);
+
+  try {
+    // 把 market 一并传给 API，让后端不需要猜市场
+    const resp = await fetch(`/api/analyze?code=${encodeURIComponent(code)}&market=${encodeURIComponent(currentMarket)}`);
+    const data = await resp.json();
+
+    document.getElementById('loadingContainer').classList.remove('active');
+
+    if (data.error) {
+      showSearchError(data.error);
+      return;
+    }
+
+    // 用 API 返回的真实价格/名称渲染搜索结果卡片
+    const isUp = data.change >= 0;
+    showSearchResult({
+      code:          data.code,
+      name:          data.name,
+      market:        data.market,
+      price:         data.price.toFixed(2),
+      change:        data.change.toFixed(2),
+      changePercent: data.change.toFixed(2),
+      _raw:          data   // 缓存完整数据，点击时无需再次请求
+    });
+
+  } catch (e) {
+    document.getElementById('loadingContainer').classList.remove('active');
+    showSearchError('网络错误，请稍后重试');
+  }
+}
+
+function showSearchError(msg) {
+  const container = document.getElementById('searchResultList');
+  container.innerHTML = `<div style="padding:20px;text-align:center;color:#94a3b8;">${msg}</div>`;
+  document.getElementById('searchResults').classList.add('active');
 }
 
 
 
 
 
+// 缓存最近一次 API 返回的完整数据，点击结果时直接复用
+let _cachedApiResult = null;
+
 function showSearchResult(stock) {
   const container = document.getElementById('searchResultList');
   const isUp = parseFloat(stock.change) >= 0;
-  
+
+  // 缓存完整原始数据
+  if (stock._raw) _cachedApiResult = stock._raw;
+
   container.innerHTML = `
-    <div class="stock-item" onclick="showAnalysis('${stock.code}', '${stock.market}', '${stock.name}', '${stock.price}', '${stock.change}', '${stock.changePercent}')">
+    <div class="stock-item" onclick="showAnalysisFromCache()">
       <div class="stock-info">
         <div class="stock-name">${stock.name}</div>
         <div class="stock-code">${stock.code} · ${stock.market}</div>
       </div>
       <div class="stock-price ${isUp ? 'up' : 'down'}">
         <div class="current-price">${stock.price}</div>
-        <div class="price-change">${isUp ? '+' : ''}${stock.changePercent}%</div>
+        <div class="price-change">${isUp ? '+' : ''}${parseFloat(stock.change).toFixed(2)}%</div>
       </div>
     </div>
   `;
-  
+
   document.getElementById('searchResults').classList.add('active');
 }
 
 // ═══ 分析页面 ═══
-async function showAnalysis(code, market, name, price, change, changePercent) {
-  const isUp = parseFloat(change) >= 0;
-  
-  // 填充股票信息
-  document.getElementById('stockName').textContent = name;
-  document.getElementById('stockCode').textContent = `${code} · ${market}`;
-  
-  const priceEl = document.getElementById('stockPrice');
-  priceEl.className = `stock-header-price ${isUp ? 'up' : 'down'}`;
-  priceEl.querySelector('.price').textContent = price;
-  priceEl.querySelector('.change').textContent = `${isUp ? '+' : ''}${changePercent}%`;
-  
-  // 切换页面
+
+// 从缓存直接显示（搜索后点击结果）
+function showAnalysisFromCache() {
+  if (!_cachedApiResult) return;
+  renderAnalysisPage(_cachedApiResult);
+}
+
+// 从历史记录点击，需要重新请求
+async function showAnalysis(code, market) {
+  // 先切换到分析页并显示加载
   document.getElementById('homePage').style.display = 'none';
   document.getElementById('analysisPage').classList.add('active');
   document.getElementById('analysisPage').style.display = 'block';
-  
-  // 显示加载状态
   document.getElementById('totalScore').textContent = '...';
-  
+  window.scrollTo(0, 0);
+
   try {
-    // 调用后端API获取真实分析数据
-    const response = await fetch(`/api/analyze?code=${encodeURIComponent(code)}`);
-    const data = await response.json();
-    
-    if (data.error) {
-      console.error('API Error:', data.error);
-      showError('数据获取失败: ' + data.error);
-      return;
-    }
-    
-    // 更新价格（使用API返回的最新价格）
-    priceEl.querySelector('.price').textContent = data.price.toFixed(2);
-    const apiChange = data.change;
-    const apiIsUp = apiChange >= 0;
-    priceEl.className = `stock-header-price ${apiIsUp ? 'up' : 'down'}`;
-    priceEl.querySelector('.change').textContent = `${apiIsUp ? '+' : ''}${apiChange.toFixed(2)}%`;
-    
-    // 更新评分
-    const analysis = data.analysis;
-    document.getElementById('totalScore').textContent = analysis.score;
-    document.getElementById('trendScore').textContent = analysis.trend.score;
-    document.getElementById('momentumScore').textContent = analysis.momentum.score;
-    document.getElementById('volatilityScore').textContent = analysis.volatility.score;
-    
-    // 设置评分颜色
-    setScoreColor('totalScore', analysis.score);
-    setScoreColor('trendScore', analysis.trend.score);
-    setScoreColor('momentumScore', analysis.momentum.score);
-    setScoreColor('volatilityScore', analysis.volatility.score);
-    
-    // 更新技术信号
-    document.getElementById('maSignal').innerHTML = generateMASignal(analysis);
-    document.getElementById('macdSignal').innerHTML = generateMACDSignal(analysis);
-    document.getElementById('rsiSignal').innerHTML = generateRSISignal(analysis);
-    document.getElementById('bollSignal').innerHTML = generateBollSignal(analysis);
-    document.getElementById('tradeSignal').innerHTML = generateTradeSignal(analysis.signal);
-    
-    // 更新支撑阻力位
-    document.getElementById('supportPrice').textContent = analysis.support.toFixed(2);
-    document.getElementById('resistPrice').textContent = analysis.resistance.toFixed(2);
-    
-  } catch (error) {
-    console.error('Fetch Error:', error);
-    // API调用失败时显示错误信息
-    showError('数据获取失败，请稍后重试');
+    const resp = await fetch(`/api/analyze?code=${encodeURIComponent(code)}&market=${encodeURIComponent(market)}`);
+    const data = await resp.json();
+    if (data.error) { showError('数据获取失败: ' + data.error); return; }
+    renderAnalysisPage(data);
+  } catch (e) {
+    showError('网络错误，请稍后重试');
   }
+}
+
+// 渲染分析页（通用，供两个入口调用）
+function renderAnalysisPage(data) {
+  const analysis = data.analysis;
+  const isUp = data.change >= 0;
+
+  // 更新股票头部
+  document.getElementById('stockName').textContent = data.name;
+  document.getElementById('stockCode').textContent = `${data.code} · ${data.market}`;
+
+  const priceEl = document.getElementById('stockPrice');
+  priceEl.className = `stock-header-price ${isUp ? 'up' : 'down'}`;
+  priceEl.querySelector('.price').textContent = data.price.toFixed(2);
+  priceEl.querySelector('.change').textContent = `${isUp ? '+' : ''}${data.change.toFixed(2)}%`;
+
+  // 切换到分析页
+  document.getElementById('homePage').style.display = 'none';
+  document.getElementById('analysisPage').classList.add('active');
+  document.getElementById('analysisPage').style.display = 'block';
+  window.scrollTo(0, 0);
+
+  // 评分
+  document.getElementById('totalScore').textContent      = analysis.score;
+  document.getElementById('trendScore').textContent      = analysis.trend.score;
+  document.getElementById('momentumScore').textContent   = analysis.momentum.score;
+  document.getElementById('volatilityScore').textContent = analysis.volatility.score;
+  setScoreColor('totalScore',      analysis.score);
+  setScoreColor('trendScore',      analysis.trend.score);
+  setScoreColor('momentumScore',   analysis.momentum.score);
+  setScoreColor('volatilityScore', analysis.volatility.score);
+
+  // 技术信号
+  document.getElementById('maSignal').innerHTML    = generateMASignal(analysis);
+  document.getElementById('macdSignal').innerHTML  = generateMACDSignal(analysis);
+  document.getElementById('rsiSignal').innerHTML   = generateRSISignal(analysis);
+  document.getElementById('bollSignal').innerHTML  = generateBollSignal(analysis);
+  document.getElementById('tradeSignal').innerHTML = generateTradeSignal(analysis.signal);
+
+  // 支撑/阻力
+  document.getElementById('supportPrice').textContent = analysis.support.toFixed(2);
+  document.getElementById('resistPrice').textContent  = analysis.resistance.toFixed(2);
+
+  // 写入搜索历史
+  addToHistory({ code: data.code, name: data.name, market: data.market });
 }
 
 // 显示错误信息
 function showError(message) {
-  document.getElementById('totalScore').textContent = '--';
-  document.getElementById('trendScore').textContent = '--';
-  document.getElementById('momentumScore').textContent = '--';
+  document.getElementById('totalScore').textContent      = '--';
+  document.getElementById('trendScore').textContent      = '--';
+  document.getElementById('momentumScore').textContent   = '--';
   document.getElementById('volatilityScore').textContent = '--';
-  
+
   const errorHtml = `<span style="color:#94a3b8;font-weight:600;">${message}</span>`;
-  document.getElementById('maSignal').innerHTML = errorHtml;
-  document.getElementById('macdSignal').innerHTML = errorHtml;
-  document.getElementById('rsiSignal').innerHTML = errorHtml;
-  document.getElementById('bollSignal').innerHTML = errorHtml;
-  document.getElementById('tradeSignal').innerHTML = errorHtml;
-  
+  ['maSignal','macdSignal','rsiSignal','bollSignal','tradeSignal'].forEach(id => {
+    document.getElementById(id).innerHTML = errorHtml;
+  });
   document.getElementById('supportPrice').textContent = '--';
-  document.getElementById('resistPrice').textContent = '--';
+  document.getElementById('resistPrice').textContent  = '--';
 }
 
 // 生成均线信号
@@ -1124,7 +1152,7 @@ function renderHistory() {
   
   card.style.display = 'block';
   container.innerHTML = searchHistory.slice(0, 10).map(item => `
-    <div class="history-item" onclick="quickSearch('${item.code}', '${item.market}')">${item.name}</div>
+    <div class="history-item" onclick="showAnalysis('${item.code}', '${item.market}')">${item.name || item.code}</div>
   `).join('');
 }
 
@@ -1144,12 +1172,6 @@ function clearHistory() {
   searchHistory = [];
   localStorage.removeItem('angelEyeHistory');
   renderHistory();
-}
-
-function quickSearch(code, market) {
-  selectMarket(market, market === '港股' ? 'HK' : market === 'A股' ? 'SH' : 'US');
-  document.getElementById('searchInput').value = code;
-  searchStock();
 }
 
 // ═══ 免责声明 ═══
