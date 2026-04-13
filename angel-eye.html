@@ -832,8 +832,11 @@ function selectMarket(market, code) {
     opt.classList.remove('active');
     opt.querySelector('.market-check').style.display = 'none';
   });
-  event.currentTarget.classList.add('active');
-  event.currentTarget.querySelector('.market-check').style.display = 'inline';
+  const active = document.querySelector(`.market-option[data-market="${market}"]`);
+  if (active) {
+    active.classList.add('active');
+    active.querySelector('.market-check').style.display = 'inline';
+  }
   
   hideMarketPicker();
 }
@@ -985,21 +988,22 @@ function showError(message) {
 
 // 生成均线信号
 function generateMASignal(analysis) {
-  const ma5 = analysis.ma5;
+  const ma5  = analysis.ma5;
   const ma10 = analysis.ma10;
   const ma20 = analysis.ma20;
-  const ma60 = analysis.ma60;
-  const price = analysis.price || ma5;
+  const price = analysis.latest_price;  // API 返回的最新价
   
   let signal = '中性';
   let color = '#94a3b8';
   
-  if (price > ma5 && ma5 > ma10 && ma10 > ma20) {
-    signal = '多头排列';
-    color = '#ef4444';
-  } else if (price < ma5 && ma5 < ma10 && ma10 < ma20) {
-    signal = '空头排列';
-    color = '#22c55e';
+  if (price && ma5 && ma10 && ma20) {
+    if (price > ma5 && ma5 > ma10 && ma10 > ma20) {
+      signal = '多头排列';
+      color = '#ef4444';
+    } else if (price < ma5 && ma5 < ma10 && ma10 < ma20) {
+      signal = '空头排列';
+      color = '#22c55e';
+    }
   }
   
   return `<span style="color:${color};font-weight:600;">${signal}</span>`;
@@ -1007,18 +1011,26 @@ function generateMASignal(analysis) {
 
 // 生成MACD信号
 function generateMACDSignal(analysis) {
-  const macd = analysis.macd;
-  const signal = analysis.signal_line;
+  const dif = analysis.macd_dif;
+  const dea = analysis.macd_dea;
   
   let text = '观望';
   let color = '#94a3b8';
   
-  if (macd > signal && macd > 0) {
-    text = '金叉看涨';
-    color = '#ef4444';
-  } else if (macd < signal && macd < 0) {
-    text = '死叉看跌';
-    color = '#22c55e';
+  if (dif != null && dea != null) {
+    if (dif > dea && dif > 0) {
+      text = '金叉看涨';
+      color = '#ef4444';
+    } else if (dif < dea && dif < 0) {
+      text = '死叉看跌';
+      color = '#22c55e';
+    } else if (dif > dea) {
+      text = '金叉（零轴下）';
+      color = '#fb923c';
+    } else {
+      text = '死叉（零轴上）';
+      color = '#94a3b8';
+    }
   }
   
   return `<span style="color:${color};font-weight:600;">${text}</span>`;
@@ -1032,16 +1044,16 @@ function generateRSISignal(analysis) {
   let color = '#94a3b8';
   
   if (rsi > 70) {
-    text = '超买';
+    text = `超买 (${rsi})`;
     color = '#ef4444';
   } else if (rsi < 30) {
-    text = '超卖';
+    text = `超卖 (${rsi})`;
     color = '#22c55e';
   } else if (rsi > 50) {
-    text = '偏强';
+    text = `偏强 (${rsi})`;
     color = '#ef4444';
   } else {
-    text = '偏弱';
+    text = `偏弱 (${rsi})`;
     color = '#22c55e';
   }
   
@@ -1050,19 +1062,21 @@ function generateRSISignal(analysis) {
 
 // 生成布林带信号
 function generateBollSignal(analysis) {
-  const price = analysis.price || analysis.ma20;
+  const price = analysis.latest_price;  // API 返回的最新价
   const upper = analysis.upper_band;
   const lower = analysis.lower_band;
   
   let text = '中轨附近';
   let color = '#94a3b8';
   
-  if (price > upper * 0.98) {
-    text = '触及上轨';
-    color = '#ef4444';
-  } else if (price < lower * 1.02) {
-    text = '触及下轨';
-    color = '#22c55e';
+  if (price != null && upper != null && lower != null) {
+    if (price >= upper * 0.98) {
+      text = '触及上轨';
+      color = '#ef4444';
+    } else if (price <= lower * 1.02) {
+      text = '触及下轨';
+      color = '#22c55e';
+    }
   }
   
   return `<span style="color:${color};font-weight:600;">${text}</span>`;
@@ -1075,7 +1089,6 @@ function generateTradeSignal(signal) {
   if (signal === '卖出') color = '#22c55e';
   
   return `<span style="color:${color};font-weight:700;font-size:1.1rem;">${signal}</span>`;
-  window.scrollTo(0, 0);
 }
 
 function setScoreColor(id, score) {
