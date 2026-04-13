@@ -1,19 +1,13 @@
 {
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/analyze.py" },
-    { "source": "/:path*/", "destination": "/index.html" }
+    { "source": "/api/analyze", "destination": "/api/analyze.js" }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "no-cache" }
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
       ]
     }
-  ],
-  "functions": {
-    "api/analyze.py": {
-      "maxDuration": 30
-    }
-  }
+  ]
 }
