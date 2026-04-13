@@ -39,15 +39,22 @@ export default async function handler(req, res) {
 }
 
 function detectMarket(code) {
-  if (/^\d{1,5}$/.test(code)) return '港股';
+  // A股必须是严格6位数字，优先判断，否则会被港股规则吃掉
   if (/^\d{6}$/.test(code)) return 'A股';
+  // 港股：1~5位纯数字
+  if (/^\d{1,5}$/.test(code)) return '港股';
+  // 美股：纯字母
   if (/^[A-Za-z]+$/.test(code)) return '美股';
   return '未知';
 }
 
 function toYFTicker(code, market) {
   const c = code.toUpperCase();
-  if (market === '港股') return c.padStart(4, '0') + '.HK';
+  if (market === '港股') {
+    // 去掉前导零后补到4位，例如 00700/0700/700 → 0700.HK
+    const num = parseInt(c, 10).toString();
+    return num.padStart(4, '0') + '.HK';
+  }
   if (market === 'A股') return c.startsWith('6') ? c + '.SS' : c + '.SZ';
   return c;
 }
@@ -104,7 +111,7 @@ async function fetchYahoo(ticker, code, market) {
 async function fetchEastMoney(code, market) {
   try {
     let secid;
-    if (market === '港股') secid = `116.${code.padStart(5,'0')}`;
+    if (market === '港股') secid = `116.${parseInt(code, 10).toString().padStart(5,'0')}`;
     else if (code.startsWith('6')) secid = `1.${code}`;
     else secid = `0.${code}`;
 
@@ -153,82 +160,100 @@ function calcTA(cs, hs, ls) {
     return slice.length < w ? null : slice.reduce((a, b) => a + b, 0) / w;
   };
 
-  const ma5 = ma(cs, 5);
+  const ma5  = ma(cs, 5);
   const ma10 = ma(cs, 10);
   const ma20 = ma(cs, 20);
   const ma60 = ma(cs, Math.min(60, n));
 
   // RSI(14)
-  const diffs = cs.slice(1).map((v, i) => v - cs[i]);
-  const gains = diffs.slice(-14).map(d => d > 0 ? d : 0);
+  const diffs  = cs.slice(1).map((v, i) => v - cs[i]);
+  const gains  = diffs.slice(-14).map(d => d > 0 ? d : 0);
   const losses = diffs.slice(-14).map(d => d < 0 ? -d : 0);
   const avgGain = gains.reduce((a, b) => a + b, 0) / 14;
   const avgLoss = losses.reduce((a, b) => a + b, 0) / 14;
   const rsi = avgLoss === 0 ? 100 : round(100 - 100 / (1 + avgGain / avgLoss), 1);
 
-  // MACD(12,26,9)
-  const ema = (arr, span) => {
+  // MACD(12,26,9) — 标准算法：DIF = EMA12 - EMA26，DEA = EMA9(DIF)
+  const calcEMA = (arr, span) => {
     const k = 2 / (span + 1);
     return arr.reduce((prev, cur) => prev === null ? cur : prev * (1 - k) + cur * k, null);
   };
-  const ema12 = cs.slice(-40).reduce((p, c) => p === null ? c : p * (1 - 2/13) + c * 2/13, null);
-  const ema26 = cs.slice(-40).reduce((p, c) => p === null ? c : p * (1 - 2/27) + c * 2/27, null);
-  const macdVal = ema12 - ema26;
+  const ema12 = calcEMA(cs.slice(-40), 12);
+  const ema26 = calcEMA(cs.slice(-40), 26);
+  const macdDIF = ema12 - ema26;
+
+  // DEA（Signal line）：对最近几个 DIF 值做 EMA9
+  // 用整段历史重新推导逐日DIF，再算EMA9(DIF)
+  const difSeries = [];
+  let e12 = null, e26 = null;
+  for (const p of cs) {
+    e12 = e12 === null ? p : e12 * (1 - 2/13) + p * 2/13;
+    e26 = e26 === null ? p : e26 * (1 - 2/27) + p * 2/27;
+    difSeries.push(e12 - e26);
+  }
+  const macdDEA = calcEMA(difSeries.slice(-20), 9);
+  const macdHist = round((macdDIF - macdDEA) * 2, 4); // MACD柱 = (DIF-DEA)*2
 
   // 布林带(20)
   const slice20 = cs.slice(-20);
-  const bMa = slice20.reduce((a, b) => a + b, 0) / slice20.length;
-  const std = Math.sqrt(slice20.reduce((s, v) => s + (v - bMa) ** 2, 0) / slice20.length);
+  const bMa  = slice20.reduce((a, b) => a + b, 0) / slice20.length;
+  const std   = Math.sqrt(slice20.reduce((s, v) => s + (v - bMa) ** 2, 0) / slice20.length);
   const upper = bMa + 2 * std;
   const lower = bMa - 2 * std;
 
   const latest = cs[n - 1];
 
-  // 评分
+  // 趋势评分
   let trendScore = 50;
-  if (ma5 && latest > ma5) trendScore += 10;
+  if (ma5  && latest > ma5)  trendScore += 10;
   if (ma10 && latest > ma10) trendScore += 10;
   if (ma20 && latest > ma20) trendScore += 10;
   if (ma60 && latest > ma60) trendScore += 10;
-  if (ma5 && ma10 && ma5 > ma10) trendScore += 5;
+  if (ma5  && ma10 && ma5  > ma10) trendScore += 5;
   if (ma10 && ma20 && ma10 > ma20) trendScore += 5;
   trendScore = Math.min(100, Math.max(0, trendScore));
 
+  // 动量评分
   let momScore = 50;
   if (rsi > 50) momScore += 15;
   if (rsi > 70) momScore += 10;
-  if (macdVal > 0) momScore += 10;
+  if (macdDIF > 0)  momScore += 10;
+  if (macdDIF > macdDEA) momScore += 5;
   momScore = Math.min(100, Math.max(0, momScore));
 
-  const bPos = upper === lower ? 50 : Math.round((latest - lower) / (upper - lower) * 100);
+  // 波动评分（布林带位置）
+  const bPos     = upper === lower ? 50 : Math.round((latest - lower) / (upper - lower) * 100);
   const volScore = Math.min(100, Math.max(0, bPos));
 
   const totalScore = Math.round((trendScore + momScore + volScore) / 3);
 
-  // 信号
+  // 综合信号
   let bull = 0, bear = 0;
   if (trendScore > 60) bull++; else if (trendScore < 40) bear++;
-  if (momScore > 60) bull++; else if (momScore < 40) bear++;
-  if (macdVal > 0) bull++; else bear++;
+  if (momScore   > 60) bull++; else if (momScore   < 40) bear++;
+  if (macdDIF > macdDEA) bull++; else bear++;
   if (rsi > 50) bull++; else bear++;
   const signal = bull >= 3 ? '买入' : bear >= 3 ? '卖出' : '观望';
 
   const label = s => s >= 80 ? '优秀' : s >= 60 ? '良好' : s >= 40 ? '中性' : s >= 20 ? '偏弱' : '弱势';
 
   return {
-    score: totalScore,
-    trend: { score: trendScore, label: label(trendScore) },
-    momentum: { score: momScore, label: label(momScore) },
-    volatility: { score: volScore, label: label(volScore) },
+    score:      totalScore,
+    trend:      { score: trendScore, label: label(trendScore) },
+    momentum:   { score: momScore,   label: label(momScore)   },
+    volatility: { score: volScore,   label: label(volScore)   },
     signal,
-    support: round(lower, 2),
+    latest_price: round(latest, 2),  // 供前端均线/布林带判断使用
+    support:    round(lower, 2),
     resistance: round(upper, 2),
     rsi,
-    macd: round(macdVal, 2),
-    ma5: ma5 ? round(ma5, 2) : null,
-    ma10: ma10 ? round(ma10, 2) : null,
-    ma20: ma20 ? round(ma20, 2) : null,
-    ma60: ma60 ? round(ma60, 2) : null,
+    macd_dif:   round(macdDIF, 4),
+    macd_dea:   round(macdDEA, 4),
+    macd_hist:  macdHist,
+    ma5:        ma5  ? round(ma5,  2) : null,
+    ma10:       ma10 ? round(ma10, 2) : null,
+    ma20:       ma20 ? round(ma20, 2) : null,
+    ma60:       ma60 ? round(ma60, 2) : null,
     upper_band: round(upper, 2),
     lower_band: round(lower, 2)
   };
