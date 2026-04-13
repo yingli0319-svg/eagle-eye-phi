@@ -95,6 +95,8 @@ body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c1
   padding:0 60px; display:flex; gap:4px; flex-wrap:wrap; align-items:center;
   position:sticky; top:0; z-index:100; backdrop-filter:blur(20px);
   min-height:56px;
+  /* 右边留空间，避免被 lang-switch 固定按钮遮住 */
+  padding-right:120px;
 }
 .toc a{
   color:#64748b; text-decoration:none; font-size:0.82rem; font-weight:500;
@@ -103,6 +105,18 @@ body{ font-family:'Inter','Segoe UI',-apple-system,sans-serif; background:#080c1
 }
 .toc a:hover{ color:#f0c040; border-bottom-color:rgba(240,192,64,0.5); }
 .toc .toc-brand{ color:#f0c040; font-weight:800; font-size:1rem; margin-right:auto; letter-spacing:-0.5px; }
+/* 手机端：精简导航，天使鹰眼高亮显示 */
+@media(max-width:768px){
+  .toc{ padding:0 12px; gap:0; }
+  .toc a[href="/angel-eye.html"]{
+    color:#f0c040;
+    background:rgba(240,192,64,0.1);
+    border:1px solid rgba(240,192,64,0.3);
+    border-radius:6px;
+    padding:6px 12px;
+    margin-left:4px;
+  }
+}
 
 /* ══ 内容区 ══ */
 .container{ max-width:1200px; margin:0 auto; padding:60px 28px; }
