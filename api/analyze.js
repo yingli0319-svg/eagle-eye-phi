@@ -1,35 +1,42 @@
-// 天使鹰眼 - 股票技术分析API
+// 天使鹰眼 - 股票技术分析 API
 // Vercel Serverless Function (Node.js)
-// 多源数据：Yahoo Finance v8 API + 东方财富
+// 数据源：Yahoo Finance v8 API（主）+ 东方财富（备用，港股/A股）
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
 
-  const code = (req.query.code || '').trim();
-  if (!code) {
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
+  const rawCode = (req.query.code || '').trim();
+  // 前端明确传来的市场：港股 / A股 / 美股
+  const marketParam = (req.query.market || '').trim();
+
+  if (!rawCode) {
     return res.status(400).json({ error: '请提供股票代码' });
   }
 
   try {
-    const market = detectMarket(code);
+    // 以前端选择的市场为准；若未传则自动检测（兜底）
+    const market = marketParam || autoDetectMarket(rawCode);
+
+    // 将用户输入的代码标准化
+    const code = normalizeCode(rawCode, market);
+
+    // 生成 Yahoo Finance ticker
     const ticker = toYFTicker(code, market);
 
-    // 第一源：Yahoo Finance v8 API
+    // 优先 Yahoo Finance
     let result = await fetchYahoo(ticker, code, market);
-    
-    // 第二源：东方财富（港股/A股备用）
+
+    // 备用：东方财富（港股/A股）
     if (!result && (market === '港股' || market === 'A股')) {
       result = await fetchEastMoney(code, market);
     }
 
     if (!result) {
-      return res.status(404).json({ error: '未找到该股票数据，请检查代码是否正确' });
+      return res.status(404).json({ error: '未找到股票数据，请确认代码和市场是否正确' });
     }
 
     return res.status(200).json(result);
@@ -38,56 +45,72 @@ export default async function handler(req, res) {
   }
 }
 
-function detectMarket(code) {
-  // A股必须是严格6位数字，优先判断，否则会被港股规则吃掉
-  if (/^\d{6}$/.test(code)) return 'A股';
-  // 港股：1~5位纯数字
-  if (/^\d{1,5}$/.test(code)) return '港股';
-  // 美股：纯字母
-  if (/^[A-Za-z]+$/.test(code)) return '美股';
+// ─── 市场自动检测（仅兜底用，正常情况前端会传 market） ───
+function autoDetectMarket(code) {
+  if (/^\d{6}$/.test(code)) return 'A股';          // 严格6位 → A股
+  if (/^\d{1,5}$/.test(code)) return '港股';        // 1-5位数字 → 港股
+  if (/^[A-Za-z.]+$/.test(code)) return '美股';     // 纯字母 → 美股
   return '未知';
 }
 
-function toYFTicker(code, market) {
-  const c = code.toUpperCase();
+// ─── 代码标准化 ───
+// 港股：用户可能输入 700 / 0700 / 00700，统一转成 5 位 00700 形式用于东财，4 位用于 Yahoo
+function normalizeCode(code, market) {
   if (market === '港股') {
-    // 去掉前导零后补到4位，例如 00700/0700/700 → 0700.HK
-    const num = parseInt(c, 10).toString();
-    return num.padStart(4, '0') + '.HK';
+    // 去前导零后重新补到 5 位（东财标准）
+    return String(parseInt(code, 10)).padStart(5, '0');
   }
-  if (market === 'A股') return c.startsWith('6') ? c + '.SS' : c + '.SZ';
-  return c;
+  return code.toUpperCase();
 }
 
+// ─── 生成 Yahoo Finance ticker ───
+function toYFTicker(code, market) {
+  if (market === '港股') {
+    // Yahoo 港股用 4 位，如 0700.HK
+    const num = parseInt(code, 10);
+    return String(num).padStart(4, '0') + '.HK';
+  }
+  if (market === 'A股') {
+    return code.startsWith('6') ? code + '.SS' : code + '.SZ';
+  }
+  // 美股直接用代码
+  return code.toUpperCase();
+}
+
+// ─── Yahoo Finance 取数 ───
 async function fetchYahoo(ticker, code, market) {
   try {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=3mo`;
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=6mo`;
     const resp = await fetch(url, {
-      headers: { 'User-Agent': 'Mozilla/5.0' }
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
     });
+    if (!resp.ok) return null;
     const data = await resp.json();
-    
+
     const chart = data?.chart?.result?.[0];
     if (!chart) return null;
 
-    const closes = chart.indicators.quote[0].close;
-    const highs = chart.indicators.quote[0].high;
-    const lows = chart.indicators.quote[0].low;
-    const volumes = chart.indicators.quote[0].volume;
-    const meta = chart.meta;
+    const q = chart.indicators.quote[0];
+    const closes  = q.close;
+    const highs   = q.high;
+    const lows    = q.low;
+    const volumes = q.volume;
+    const meta    = chart.meta;
 
-    // 过滤null值
-    const valid = closes.map((c, i) => ({ c, h: highs[i], l: lows[i], v: volumes[i] }))
-                        .filter(x => x.c !== null);
-    if (valid.length < 10) return null;
+    // 过滤 null 值（停牌日等）
+    const valid = closes
+      .map((c, i) => ({ c, h: highs[i], l: lows[i], v: volumes[i] }))
+      .filter(x => x.c != null && !isNaN(x.c));
+
+    if (valid.length < 20) return null;
 
     const cs = valid.map(x => x.c);
     const hs = valid.map(x => x.h);
     const ls = valid.map(x => x.l);
 
     const latest = cs[cs.length - 1];
-    const prev = cs[cs.length - 2] || latest;
-    const change = ((latest - prev) / prev * 100);
+    const prev   = cs[cs.length - 2] ?? latest;
+    const change = (latest - prev) / prev * 100;
 
     const analysis = calcTA(cs, hs, ls);
     const name = meta.shortName || meta.longName || code;
@@ -96,9 +119,9 @@ async function fetchYahoo(ticker, code, market) {
       code,
       name,
       market,
-      price: round(latest, 2),
-      change: round(change, 2),
-      volume: valid[valid.length - 1].v || 0,
+      price:       round(latest, 3),
+      change:      round(change, 2),
+      volume:      valid[valid.length - 1].v || 0,
       analysis,
       data_source: 'yahoo'
     };
@@ -108,19 +131,28 @@ async function fetchYahoo(ticker, code, market) {
   }
 }
 
+// ─── 东方财富 取数（港股/A股备用） ───
 async function fetchEastMoney(code, market) {
   try {
     let secid;
-    if (market === '港股') secid = `116.${parseInt(code, 10).toString().padStart(5,'0')}`;
-    else if (code.startsWith('6')) secid = `1.${code}`;
-    else secid = `0.${code}`;
+    if (market === '港股') {
+      // 东财港股 secid 格式：116.XXXXX（5位，含前导零）
+      secid = `116.${code}`;
+    } else if (code.startsWith('6')) {
+      secid = `1.${code}`;   // 上交所
+    } else {
+      secid = `0.${code}`;   // 深交所
+    }
 
-    const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56&klt=101&fqt=0&end=20500101&lmt=90`;
-    const resp = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56&klt=101&fqt=0&end=20500101&lmt=130`;
+    const resp = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0' }
+    });
+    if (!resp.ok) return null;
     const data = await resp.json();
 
     const klines = data?.data?.klines;
-    if (!klines || klines.length < 10) return null;
+    if (!klines || klines.length < 20) return null;
 
     const name = data.data.name || code;
     const rows = klines.map(k => {
@@ -133,7 +165,7 @@ async function fetchEastMoney(code, market) {
     const ls = rows.map(x => x.l);
 
     const latest = cs[cs.length - 1];
-    const prev = cs[cs.length - 2] || latest;
+    const prev   = cs[cs.length - 2] ?? latest;
 
     const analysis = calcTA(cs, hs, ls);
 
@@ -141,9 +173,9 @@ async function fetchEastMoney(code, market) {
       code,
       name,
       market,
-      price: round(latest, 2),
-      change: round((latest - prev) / prev * 100, 2),
-      volume: 0,
+      price:       round(latest, 3),
+      change:      round((latest - prev) / prev * 100, 2),
+      volume:      0,
       analysis,
       data_source: 'eastmoney'
     };
@@ -153,57 +185,65 @@ async function fetchEastMoney(code, market) {
   }
 }
 
+// ─── 技术指标计算 ───
 function calcTA(cs, hs, ls) {
   const n = cs.length;
-  const ma = (arr, w) => {
-    const slice = arr.slice(-w);
-    return slice.length < w ? null : slice.reduce((a, b) => a + b, 0) / w;
+
+  // ── 移动均线 ──
+  const sma = (arr, w) => {
+    if (arr.length < w) return null;
+    const s = arr.slice(-w);
+    return s.reduce((a, b) => a + b, 0) / w;
   };
+  const ma5  = sma(cs, 5);
+  const ma10 = sma(cs, 10);
+  const ma20 = sma(cs, 20);
+  const ma60 = n >= 60 ? sma(cs, 60) : sma(cs, n);
 
-  const ma5  = ma(cs, 5);
-  const ma10 = ma(cs, 10);
-  const ma20 = ma(cs, 20);
-  const ma60 = ma(cs, Math.min(60, n));
-
-  // RSI(14)
+  // ── RSI(14) ──
   const diffs  = cs.slice(1).map((v, i) => v - cs[i]);
-  const gains  = diffs.slice(-14).map(d => d > 0 ? d : 0);
-  const losses = diffs.slice(-14).map(d => d < 0 ? -d : 0);
+  const last14 = diffs.slice(-14);
+  const gains  = last14.map(d => d > 0 ? d : 0);
+  const losses = last14.map(d => d < 0 ? -d : 0);
   const avgGain = gains.reduce((a, b) => a + b, 0) / 14;
   const avgLoss = losses.reduce((a, b) => a + b, 0) / 14;
   const rsi = avgLoss === 0 ? 100 : round(100 - 100 / (1 + avgGain / avgLoss), 1);
 
-  // MACD(12,26,9) — 标准算法：DIF = EMA12 - EMA26，DEA = EMA9(DIF)
-  const calcEMA = (arr, span) => {
-    const k = 2 / (span + 1);
-    return arr.reduce((prev, cur) => prev === null ? cur : prev * (1 - k) + cur * k, null);
-  };
-  const ema12 = calcEMA(cs.slice(-40), 12);
-  const ema26 = calcEMA(cs.slice(-40), 26);
-  const macdDIF = ema12 - ema26;
-
-  // DEA（Signal line）：对最近几个 DIF 值做 EMA9
-  // 用整段历史重新推导逐日DIF，再算EMA9(DIF)
+  // ── MACD(12, 26, 9) 标准算法 ──
+  // 用全部历史数据逐日推导 EMA，保证收敛精度
+  const k12 = 2 / 13, k26 = 2 / 27, k9 = 2 / 10;
+  let e12 = cs[0], e26 = cs[0];
   const difSeries = [];
-  let e12 = null, e26 = null;
-  for (const p of cs) {
-    e12 = e12 === null ? p : e12 * (1 - 2/13) + p * 2/13;
-    e26 = e26 === null ? p : e26 * (1 - 2/27) + p * 2/27;
+  for (let i = 0; i < n; i++) {
+    if (i === 0) {
+      e12 = cs[0];
+      e26 = cs[0];
+    } else {
+      e12 = e12 * (1 - k12) + cs[i] * k12;
+      e26 = e26 * (1 - k26) + cs[i] * k26;
+    }
     difSeries.push(e12 - e26);
   }
-  const macdDEA = calcEMA(difSeries.slice(-20), 9);
-  const macdHist = round((macdDIF - macdDEA) * 2, 4); // MACD柱 = (DIF-DEA)*2
+  const macdDIF = difSeries[n - 1];
 
-  // 布林带(20)
+  // DEA = EMA9(DIF 序列)
+  let dea = difSeries[0];
+  for (let i = 1; i < difSeries.length; i++) {
+    dea = dea * (1 - k9) + difSeries[i] * k9;
+  }
+  const macdDEA  = dea;
+  const macdHist = round((macdDIF - macdDEA) * 2, 4);
+
+  // ── 布林带(20, 2σ) ──
   const slice20 = cs.slice(-20);
-  const bMa  = slice20.reduce((a, b) => a + b, 0) / slice20.length;
-  const std   = Math.sqrt(slice20.reduce((s, v) => s + (v - bMa) ** 2, 0) / slice20.length);
+  const bMa  = slice20.reduce((a, b) => a + b, 0) / 20;
+  const std   = Math.sqrt(slice20.reduce((s, v) => s + (v - bMa) ** 2, 0) / 20);
   const upper = bMa + 2 * std;
   const lower = bMa - 2 * std;
 
   const latest = cs[n - 1];
 
-  // 趋势评分
+  // ── 趋势评分 ──
   let trendScore = 50;
   if (ma5  && latest > ma5)  trendScore += 10;
   if (ma10 && latest > ma10) trendScore += 10;
@@ -211,54 +251,61 @@ function calcTA(cs, hs, ls) {
   if (ma60 && latest > ma60) trendScore += 10;
   if (ma5  && ma10 && ma5  > ma10) trendScore += 5;
   if (ma10 && ma20 && ma10 > ma20) trendScore += 5;
-  trendScore = Math.min(100, Math.max(0, trendScore));
+  trendScore = clamp(trendScore, 0, 100);
 
-  // 动量评分
+  // ── 动量评分 ──
   let momScore = 50;
-  if (rsi > 50) momScore += 15;
-  if (rsi > 70) momScore += 10;
-  if (macdDIF > 0)  momScore += 10;
-  if (macdDIF > macdDEA) momScore += 5;
-  momScore = Math.min(100, Math.max(0, momScore));
+  if (rsi > 50)           momScore += 10;
+  if (rsi > 60)           momScore += 5;
+  if (rsi > 70)           momScore += 5;
+  if (macdDIF > 0)        momScore += 10;
+  if (macdDIF > macdDEA)  momScore += 10;
+  if (rsi < 30)           momScore -= 20;
+  if (macdDIF < macdDEA)  momScore -= 5;
+  momScore = clamp(momScore, 0, 100);
 
-  // 波动评分（布林带位置）
+  // ── 波动评分（布林带位置） ──
   const bPos     = upper === lower ? 50 : Math.round((latest - lower) / (upper - lower) * 100);
-  const volScore = Math.min(100, Math.max(0, bPos));
+  const volScore = clamp(bPos, 0, 100);
 
   const totalScore = Math.round((trendScore + momScore + volScore) / 3);
 
-  // 综合信号
+  // ── 综合信号 ──
   let bull = 0, bear = 0;
   if (trendScore > 60) bull++; else if (trendScore < 40) bear++;
   if (momScore   > 60) bull++; else if (momScore   < 40) bear++;
   if (macdDIF > macdDEA) bull++; else bear++;
-  if (rsi > 50) bull++; else bear++;
+  if (rsi > 50) bull++; else if (rsi < 45) bear++;
   const signal = bull >= 3 ? '买入' : bear >= 3 ? '卖出' : '观望';
 
-  const label = s => s >= 80 ? '优秀' : s >= 60 ? '良好' : s >= 40 ? '中性' : s >= 20 ? '偏弱' : '弱势';
+  const label = s => s >= 80 ? '强势' : s >= 60 ? '偏强' : s >= 40 ? '中性' : s >= 20 ? '偏弱' : '弱势';
 
   return {
-    score:      totalScore,
-    trend:      { score: trendScore, label: label(trendScore) },
-    momentum:   { score: momScore,   label: label(momScore)   },
-    volatility: { score: volScore,   label: label(volScore)   },
+    score:        totalScore,
+    trend:        { score: trendScore, label: label(trendScore) },
+    momentum:     { score: momScore,   label: label(momScore)   },
+    volatility:   { score: volScore,   label: label(volScore)   },
     signal,
-    latest_price: round(latest, 2),  // 供前端均线/布林带判断使用
-    support:    round(lower, 2),
-    resistance: round(upper, 2),
+    latest_price: round(latest, 3),
+    support:      round(lower, 3),
+    resistance:   round(upper, 3),
     rsi,
-    macd_dif:   round(macdDIF, 4),
-    macd_dea:   round(macdDEA, 4),
-    macd_hist:  macdHist,
-    ma5:        ma5  ? round(ma5,  2) : null,
-    ma10:       ma10 ? round(ma10, 2) : null,
-    ma20:       ma20 ? round(ma20, 2) : null,
-    ma60:       ma60 ? round(ma60, 2) : null,
-    upper_band: round(upper, 2),
-    lower_band: round(lower, 2)
+    macd_dif:     round(macdDIF, 4),
+    macd_dea:     round(macdDEA, 4),
+    macd_hist:    macdHist,
+    ma5:          ma5  ? round(ma5,  3) : null,
+    ma10:         ma10 ? round(ma10, 3) : null,
+    ma20:         ma20 ? round(ma20, 3) : null,
+    ma60:         ma60 ? round(ma60, 3) : null,
+    upper_band:   round(upper, 3),
+    lower_band:   round(lower, 3)
   };
 }
 
 function round(v, d) {
   return Math.round(v * 10 ** d) / 10 ** d;
+}
+
+function clamp(v, min, max) {
+  return Math.min(max, Math.max(min, v));
 }
