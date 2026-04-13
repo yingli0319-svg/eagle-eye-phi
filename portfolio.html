@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>🦅 鹰歌V99 · 实盘持仓</title>
+<title>Eagle Song V99 - Portfolio</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:#070d18;color:#e2e8f0;font-family:'SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;}
@@ -28,7 +28,7 @@ h1{font-size:1.4rem;font-weight:700;color:#f0c040;margin-bottom:4px;}
 .alloc-label{width:120px;font-size:0.76rem;color:#94a3b8;flex-shrink:0;}
 .alloc-bar-bg{flex:1;height:9px;background:#1e293b;border-radius:5px;overflow:hidden;}
 .alloc-bar-fill{height:100%;border-radius:5px;}
-.alloc-pct{width:44px;font-size:0.76rem;text-align:right;font-weight:600;}
+.alloc-pct{width:44px;font-size:0.76rem;text-right;font-weight:600;}
 .strategy-header{display:flex;align-items:center;gap:12px;margin:26px 0 14px;flex-wrap:wrap;}
 .strategy-badge{padding:4px 12px;border-radius:20px;font-size:0.76rem;font-weight:600;}
 .badge-mf{background:#1e3a5f;color:#93c5fd;border:1px solid #1d4ed8;}
@@ -48,283 +48,268 @@ td{padding:12px 12px;font-size:0.82rem;}
 .weight-bar{height:5px;border-radius:3px;background:linear-gradient(90deg,#f0c040,#d97706);min-width:4px;}
 .weight-bar.mo{background:linear-gradient(90deg,#a78bfa,#7c3aed);}
 .footer-note{text-align:center;color:#334155;font-size:0.7rem;margin-top:32px;padding-top:16px;border-top:1px solid #1e293b;line-height:1.8;}
-@media(max-width:768px){
-  .summary-grid{grid-template-columns:repeat(2,1fr);}
-  .alloc-section{grid-template-columns:1fr;}
-  .strategy-meta{display:none;}
-}
+@media(max-width:768px){.summary-grid{grid-template-columns:repeat(2,1fr);}.alloc-section{grid-template-columns:1fr;}.strategy-meta{display:none;}}
 </style>
 </head>
 <body>
 <div class="top-bar">
-  <div class="logo">🦅 鹰歌V99 · 实盘持仓看板</div>
-  <a href="/" class="back-btn">← 返回主页</a>
-  <div class="update-time">最后更新：2026-04-13 16:32 &nbsp;·&nbsp; 每交易日收盘后自动同步</div>
+  <div class="logo">Eagle Song V99 - Portfolio</div>
+  <a href="/" class="back-btn">&larr; Home</a>
+  <div class="update-time">Updated: 2026-04-13 16:34</div>
 </div>
-
 <div class="container">
-  <h1>实盘持仓明细</h1>
-  <div class="subtitle">Eagle Song Strategy V99 &nbsp;·&nbsp; 双策略：多因子精选 + 动量轮动 &nbsp;·&nbsp; 实盘起点 2026-03-28</div>
+  <h1>Portfolio Holdings</h1>
+  <div class="subtitle">Eagle Song Strategy V99 &nbsp;&middot;&nbsp; Multi-Factor + Momentum &nbsp;&middot;&nbsp; Since 2026-03-27</div>
 
-  <!-- 总资产概览 -->
   <div class="summary-grid">
     <div class="stat-card">
-      <div class="stat-val gold">$1,032,805</div>
-      <div class="stat-label">总资产（估算）</div>
-      <div class="stat-sub">含现金 + 所有持仓</div>
+      <div class="stat-val gold">$1,774,766</div>
+      <div class="stat-label">Total Assets</div>
+      <div class="stat-sub">Initial $1,000,000</div>
     </div>
     <div class="stat-card">
-      <div class="stat-val pos">99.0%</div>
-      <div class="stat-label">已投入仓位</div>
-      <div class="stat-sub">$1,022,100</div>
+      <div class="stat-val pos">+774,766 (+77.48%)</div>
+      <div class="stat-label">Total PnL</div>
+      <div class="stat-sub">Since inception</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val pos">57.3%</div>
+      <div class="stat-label">Invested</div>
+      <div class="stat-sub">$1,017,076</div>
     </div>
     <div class="stat-card">
       <div class="stat-val warn">$10,705</div>
-      <div class="stat-label">现金储备</div>
-      <div class="stat-sub">1.0% 仓位</div>
+      <div class="stat-label">Cash</div>
+      <div class="stat-sub">0.6%</div>
     </div>
     <div class="stat-card">
       <div class="stat-val" style="color:#38bdf8;">59/100</div>
-      <div class="stat-label">宏观评分</div>
-      <div class="stat-sub">七成仓 10170%</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-val" style="color:#22c55e;">10</div>
-      <div class="stat-label">持仓标的数</div>
-      <div class="stat-sub">美股 + 港股 + ETF</div>
+      <div class="stat-label">Macro Score</div>
+      <div class="stat-sub">Position Target 70%</div>
     </div>
   </div>
 
-  <!-- 仓位分配 -->
   <div class="alloc-section">
     <div class="alloc-card">
-      <div class="alloc-title">📊 策略分配（占总资产）</div>
+      <div class="alloc-title">Strategy Allocation</div>
       <div class="alloc-bar-row">
-        <div class="alloc-label">多因子精选</div>
-        <div class="alloc-bar-bg"><div class="alloc-bar-fill" style="width:49%;background:linear-gradient(90deg,#38bdf8,#0ea5e9);"></div></div>
-        <div class="alloc-pct" style="color:#38bdf8;">49%</div>
+        <div class="alloc-label">Multi-Factor</div>
+        <div class="alloc-bar-bg"><div class="alloc-bar-fill" style="width:70%;background:linear-gradient(90deg,#38bdf8,#0ea5e9);"></div></div>
+        <div class="alloc-pct" style="color:#38bdf8;">70.8%</div>
       </div>
       <div class="alloc-bar-row">
-        <div class="alloc-label">动量轮动ETF</div>
-        <div class="alloc-bar-bg"><div class="alloc-bar-fill" style="width:50%;background:linear-gradient(90deg,#a78bfa,#7c3aed);"></div></div>
-        <div class="alloc-pct" style="color:#a78bfa;">50%</div>
+        <div class="alloc-label">Momentum ETF</div>
+        <div class="alloc-bar-bg"><div class="alloc-bar-fill" style="width:28%;background:linear-gradient(90deg,#a78bfa,#7c3aed);"></div></div>
+        <div class="alloc-pct" style="color:#a78bfa;">28.6%</div>
       </div>
       <div class="alloc-bar-row">
-        <div class="alloc-label">现金</div>
-        <div class="alloc-bar-bg"><div class="alloc-bar-fill" style="width:1%;background:linear-gradient(90deg,#475569,#334155);"></div></div>
-        <div class="alloc-pct" style="color:#64748b;">1%</div>
+        <div class="alloc-label">Cash</div>
+        <div class="alloc-bar-bg"><div class="alloc-bar-fill" style="width:0%;background:linear-gradient(90deg,#475569,#334155);"></div></div>
+        <div class="alloc-pct" style="color:#64748b;">0.6%</div>
       </div>
     </div>
     <div class="alloc-card">
-      <div class="alloc-title">⚙️ 策略参数</div>
+      <div class="alloc-title">Strategy Parameters</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;">
         <div style="background:#0b1220;border:1px solid #1e293b;border-radius:8px;padding:12px;text-align:center;">
           <div style="font-size:1.1rem;font-weight:700;color:#38bdf8;">70%</div>
-          <div style="font-size:0.7rem;color:#475569;margin-top:4px;">多因子预算</div>
+          <div style="font-size:0.7rem;color:#475569;margin-top:4px;">MF Budget</div>
         </div>
         <div style="background:#0b1220;border:1px solid #1e293b;border-radius:8px;padding:12px;text-align:center;">
           <div style="font-size:1.1rem;font-weight:700;color:#a78bfa;">30%</div>
-          <div style="font-size:0.7rem;color:#475569;margin-top:4px;">动量预算</div>
+          <div style="font-size:0.7rem;color:#475569;margin-top:4px;">Momentum Budget</div>
         </div>
         <div style="background:#0b1220;border:1px solid #1e293b;border-radius:8px;padding:12px;text-align:center;">
-          <div style="font-size:1.1rem;font-weight:700;color:#22c55e;">10170%</div>
-          <div style="font-size:0.7rem;color:#475569;margin-top:4px;">总仓位目标</div>
+          <div style="font-size:1.1rem;font-weight:700;color:#22c55e;">89%</div>
+          <div style="font-size:0.7rem;color:#475569;margin-top:4px;">Target Position</div>
         </div>
         <div style="background:#0b1220;border:1px solid #1e293b;border-radius:8px;padding:12px;text-align:center;">
           <div style="font-size:1.1rem;font-weight:700;color:#f0c040;">59</div>
-          <div style="font-size:0.7rem;color:#475569;margin-top:4px;">宏观分</div>
+          <div style="font-size:0.7rem;color:#475569;margin-top:4px;">Macro Score</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 多因子持仓 -->
   <div class="strategy-header">
-    <span class="strategy-badge badge-mf">多因子精选</span>
-    <div class="strategy-title">Multi-Factor Selection &nbsp;·&nbsp; 每周一调仓 &nbsp;·&nbsp; Top 6</div>
-    <div class="strategy-meta">$510,456 &nbsp;|&nbsp; 占总资产 49.4%</div>
+    <span class="strategy-badge badge-mf">Multi-Factor</span>
+    <div class="strategy-title">Multi-Factor Selection &nbsp;&middot;&nbsp; Weekly Rebalance &nbsp;&middot;&nbsp; Top 6</div>
+    <div class="strategy-meta">$1,255,766 &nbsp;|&nbsp; 70.8%</div>
   </div>
   <table>
     <thead>
-      <tr>
-        <th>代码 / 名称</th><th>市场</th><th>股数</th><th>成本价</th>
-        <th>当前价</th><th>当前市值</th><th>占总资产</th><th>盈亏</th>
-      </tr>
+      <tr><th>Ticker / Name</th><th>Market</th><th>Shares</th><th>Cost</th><th>Current</th><th>Market Value</th><th>Weight</th><th>PnL</th></tr>
     </thead>
     <tbody>
       <tr>
-        <td class="ticker-cell">HK.2015<div class="ticker-sub">理想汽车-W</div>
-          <span class="sector-tag" style="color:#38bdf8;">🚗 新能源汽车(港)</span></td>
+        <td class="ticker-cell">HK.2015<div class="ticker-sub">HK.2015</div>
+          <span class="sector-tag" style="color:#94a3b8;">📊 </span></td>
         <td style="color:#64748b;font-size:0.78rem;">港股</td>
         <td>9,000</td>
-        <td>HKD 74.20</td>
-        <td style="color:#f0c040;">HKD 73.70</td>
-        <td style="font-weight:600;">$84,712</td>
+        <td>HKD 85,288</td>
+        <td style="color:#f0c040;">HKD 667,800</td>
+        <td style="font-weight:600;">$667,800</td>
         <td>
           <div class="weight-bar-wrap">
-            <div class="weight-bar " style="width:49px;"></div>
-            <span style="color:#94a3b8;font-size:0.78rem;">8.2%</span>
-          </div>
-        </td>
-        <td><span class="neg">$575 (-0.7%)</span></td>
-      </tr>
-      <tr>
-        <td class="ticker-cell">US.GOLD<div class="ticker-sub">Barrick Gold</div>
-          <span class="sector-tag" style="color:#f0c040;">🥇 黄金(美股)</span></td>
-        <td style="color:#64748b;font-size:0.78rem;">美股</td>
-        <td>1,900</td>
-        <td>$43.98</td>
-        <td style="color:#f0c040;">$43.98</td>
-        <td style="font-weight:600;">$83,562</td>
-        <td>
-          <div class="weight-bar-wrap">
-            <div class="weight-bar " style="width:48px;"></div>
-            <span style="color:#94a3b8;font-size:0.78rem;">8.1%</span>
+            <div class="weight-bar " style="width:225px;"></div>
+            <span style="color:#94a3b8;font-size:0.78rem;">37.6%</span>
           </div>
         </td>
         <td><span class="pos">+$0 (+0.0%)</span></td>
       </tr>
       <tr>
-        <td class="ticker-cell">HK.0992<div class="ticker-sub">联想集团</div>
-          <span class="sector-tag" style="color:#a78bfa;">💻 科技(港)</span></td>
+        <td class="ticker-cell">US.GOLD<div class="ticker-sub">US.GOLD</div>
+          <span class="sector-tag" style="color:#94a3b8;">📊 </span></td>
+        <td style="color:#64748b;font-size:0.78rem;">美股</td>
+        <td>1,900</td>
+        <td>$83,562</td>
+        <td style="color:#f0c040;">$830,547</td>
+        <td style="font-weight:600;">$830,547</td>
+        <td>
+          <div class="weight-bar-wrap">
+            <div class="weight-bar " style="width:280px;"></div>
+            <span style="color:#94a3b8;font-size:0.78rem;">46.8%</span>
+          </div>
+        </td>
+        <td><span class="pos">+$746,985 (+893.9%)</span></td>
+      </tr>
+      <tr>
+        <td class="ticker-cell">HK.0992<div class="ticker-sub">HK.0992</div>
+          <span class="sector-tag" style="color:#94a3b8;">📊 </span></td>
         <td style="color:#64748b;font-size:0.78rem;">港股</td>
         <td>66,000</td>
-        <td>HKD 10.11</td>
-        <td style="color:#f0c040;">HKD 10.07</td>
-        <td style="font-weight:600;">$84,883</td>
+        <td>HKD 85,219</td>
+        <td style="color:#f0c040;">HKD 667,260</td>
+        <td style="font-weight:600;">$667,260</td>
         <td>
           <div class="weight-bar-wrap">
-            <div class="weight-bar " style="width:49px;"></div>
-            <span style="color:#94a3b8;font-size:0.78rem;">8.2%</span>
+            <div class="weight-bar " style="width:225px;"></div>
+            <span style="color:#94a3b8;font-size:0.78rem;">37.6%</span>
           </div>
         </td>
-        <td><span class="neg">$337 (-0.4%)</span></td>
+        <td><span class="pos">+$0 (+0.0%)</span></td>
       </tr>
       <tr>
-        <td class="ticker-cell">HK.1211<div class="ticker-sub">比亚迪股份</div>
-          <span class="sector-tag" style="color:#22c55e;">🚗 新能源汽车(港)</span></td>
+        <td class="ticker-cell">HK.1211<div class="ticker-sub">HK.1211</div>
+          <span class="sector-tag" style="color:#94a3b8;">📊 </span></td>
         <td style="color:#64748b;font-size:0.78rem;">港股</td>
         <td>6,300</td>
-        <td>HKD 105.10</td>
-        <td style="color:#f0c040;">HKD 110.30</td>
-        <td style="font-weight:600;">$88,747</td>
+        <td>HKD 84,563</td>
+        <td style="color:#f0c040;">HKD 662,130</td>
+        <td style="font-weight:600;">$662,130</td>
         <td>
           <div class="weight-bar-wrap">
-            <div class="weight-bar " style="width:51px;"></div>
-            <span style="color:#94a3b8;font-size:0.78rem;">8.6%</span>
+            <div class="weight-bar " style="width:223px;"></div>
+            <span style="color:#94a3b8;font-size:0.78rem;">37.3%</span>
           </div>
         </td>
-        <td><span class="pos">+$4,184 (+4.9%)</span></td>
+        <td><span class="pos">+$0 (+0.0%)</span></td>
       </tr>
       <tr>
-        <td class="ticker-cell">US.VST<div class="ticker-sub">Vistra Energy</div>
-          <span class="sector-tag" style="color:#f97316;">⚡ 电力能源(美股)</span></td>
+        <td class="ticker-cell">US.VST<div class="ticker-sub">US.VST</div>
+          <span class="sector-tag" style="color:#94a3b8;">📊 </span></td>
         <td style="color:#64748b;font-size:0.78rem;">美股</td>
         <td>550</td>
-        <td>$154.73</td>
-        <td style="color:#f0c040;">$154.73</td>
+        <td>$85,102</td>
+        <td style="color:#f0c040;">$85,102</td>
         <td style="font-weight:600;">$85,102</td>
         <td>
           <div class="weight-bar-wrap">
-            <div class="weight-bar " style="width:49px;"></div>
-            <span style="color:#94a3b8;font-size:0.78rem;">8.2%</span>
+            <div class="weight-bar " style="width:28px;"></div>
+            <span style="color:#94a3b8;font-size:0.78rem;">4.8%</span>
           </div>
         </td>
         <td><span class="pos">+$0 (+0.0%)</span></td>
       </tr>
       <tr>
-        <td class="ticker-cell">HK.0696<div class="ticker-sub">国网英大</div>
-          <span class="sector-tag" style="color:#fcd34d;">⚡ 电力(港)</span></td>
+        <td class="ticker-cell">HK.0696<div class="ticker-sub">HK.0696</div>
+          <span class="sector-tag" style="color:#94a3b8;">📊 </span></td>
         <td style="color:#64748b;font-size:0.78rem;">港股</td>
         <td>66,000</td>
-        <td>HKD 10.09</td>
-        <td style="color:#f0c040;">HKD 9.90</td>
-        <td style="font-weight:600;">$83,450</td>
+        <td>HKD 85,048</td>
+        <td style="color:#f0c040;">HKD 665,940</td>
+        <td style="font-weight:600;">$665,940</td>
         <td>
           <div class="weight-bar-wrap">
-            <div class="weight-bar " style="width:48px;"></div>
-            <span style="color:#94a3b8;font-size:0.78rem;">8.1%</span>
+            <div class="weight-bar " style="width:225px;"></div>
+            <span style="color:#94a3b8;font-size:0.78rem;">37.5%</span>
           </div>
         </td>
-        <td><span class="neg">$1,597 (-1.9%)</span></td>
+        <td><span class="pos">+$0 (+0.0%)</span></td>
       </tr>
     </tbody>
   </table>
 
-  <!-- 动量轮动 -->
   <div class="strategy-header">
-    <span class="strategy-badge badge-mo">动量轮动</span>
-    <div class="strategy-title">Momentum Rotation ETF &nbsp;·&nbsp; 每月末换仓 &nbsp;·&nbsp; Top 4</div>
-    <div class="strategy-meta">$511,644 &nbsp;|&nbsp; 占总资产 49.5%</div>
+    <span class="strategy-badge badge-mo">Momentum</span>
+    <div class="strategy-title">Momentum Rotation ETF &nbsp;&middot;&nbsp; Monthly Rebalance &nbsp;&middot;&nbsp; Top 4</div>
+    <div class="strategy-meta">$508,295 &nbsp;|&nbsp; 28.6%</div>
   </div>
   <table>
     <thead>
-      <tr>
-        <th>代码 / 名称</th><th>市场</th><th>股数</th><th>成本价</th>
-        <th>当前价</th><th>当前市值</th><th>占总资产</th><th>盈亏</th>
-      </tr>
+      <tr><th>Ticker / Name</th><th>Market</th><th>Shares</th><th>Cost</th><th>Current</th><th>Market Value</th><th>Weight</th><th>PnL</th></tr>
     </thead>
     <tbody>
       <tr>
-        <td class="ticker-cell">HK.7552<div class="ticker-sub">中芯国际</div>
-          <span class="sector-tag" style="color:#ef4444;">🔬 半导体(港)</span></td>
-        <td style="color:#64748b;font-size:0.78rem;">港股</td>
+        <td class="ticker-cell">HK.7552<div class="ticker-sub">HK.7552</div>
+          <span class="sector-tag" style="color:#94a3b8;">📊 </span></td>
+        <td style="color:#64748b;font-size:0.78rem;">美股ETF</td>
         <td>587,500</td>
-        <td>HKD 1.71</td>
-        <td style="color:#f0c040;">HKD 1.76</td>
-        <td style="font-weight:600;">$131,776</td>
+        <td>$128,428</td>
+        <td style="color:#f0c040;">$1,005,800</td>
+        <td style="font-weight:600;">$1,005,800</td>
         <td>
           <div class="weight-bar-wrap">
-            <div class="weight-bar mo" style="width:76px;"></div>
-            <span style="color:#94a3b8;font-size:0.78rem;">12.8%</span>
+            <div class="weight-bar mo" style="width:340px;"></div>
+            <span style="color:#94a3b8;font-size:0.78rem;">56.7%</span>
           </div>
         </td>
-        <td><span class="pos">+$3,349 (+2.6%)</span></td>
+        <td><span class="pos">+$0 (+0.0%)</span></td>
       </tr>
       <tr>
-        <td class="ticker-cell">US.SLV<div class="ticker-sub">iShares Silver Trust</div>
+        <td class="ticker-cell">US.SLV<div class="ticker-sub">iShares Silver</div>
           <span class="sector-tag" style="color:#94a3b8;">🥈 白银ETF</span></td>
         <td style="color:#64748b;font-size:0.78rem;">美股ETF</td>
         <td>1,860</td>
-        <td>$69.08</td>
-        <td style="color:#f0c040;">$69.08</td>
+        <td>$128,489</td>
+        <td style="color:#f0c040;">$128,489</td>
         <td style="font-weight:600;">$128,489</td>
         <td>
           <div class="weight-bar-wrap">
-            <div class="weight-bar mo" style="width:74px;"></div>
-            <span style="color:#94a3b8;font-size:0.78rem;">12.4%</span>
+            <div class="weight-bar mo" style="width:43px;"></div>
+            <span style="color:#94a3b8;font-size:0.78rem;">7.2%</span>
           </div>
         </td>
         <td><span class="pos">+$0 (+0.0%)</span></td>
       </tr>
       <tr>
-        <td class="ticker-cell">US.LQD<div class="ticker-sub">iShares Inv.Grade Corp</div>
-          <span class="sector-tag" style="color:#34d399;">💼 投资级债券ETF</span></td>
-        <td style="color:#64748b;font-size:0.78rem;">美股</td>
+        <td class="ticker-cell">US.LQD<div class="ticker-sub">US.LQD</div>
+          <span class="sector-tag" style="color:#94a3b8;">📊 </span></td>
+        <td style="color:#64748b;font-size:0.78rem;">美股ETF</td>
         <td>1,170</td>
-        <td>$109.20</td>
-        <td style="color:#f0c040;">$109.20</td>
+        <td>$127,764</td>
+        <td style="color:#f0c040;">$127,764</td>
         <td style="font-weight:600;">$127,764</td>
         <td>
           <div class="weight-bar-wrap">
-            <div class="weight-bar mo" style="width:74px;"></div>
-            <span style="color:#94a3b8;font-size:0.78rem;">12.4%</span>
+            <div class="weight-bar mo" style="width:43px;"></div>
+            <span style="color:#94a3b8;font-size:0.78rem;">7.2%</span>
           </div>
         </td>
         <td><span class="pos">+$0 (+0.0%)</span></td>
       </tr>
       <tr>
-        <td class="ticker-cell">US.SHY<div class="ticker-sub">iShares 1-3 Year Treasury</div>
-          <span class="sector-tag" style="color:#60a5fa;">🏦 短债ETF</span></td>
-        <td style="color:#64748b;font-size:0.78rem;">美股</td>
+        <td class="ticker-cell">US.SHY<div class="ticker-sub">US.SHY</div>
+          <span class="sector-tag" style="color:#94a3b8;">📊 </span></td>
+        <td style="color:#64748b;font-size:0.78rem;">美股ETF</td>
         <td>1,500</td>
-        <td>$82.41</td>
-        <td style="color:#f0c040;">$82.41</td>
+        <td>$123,615</td>
+        <td style="color:#f0c040;">$123,615</td>
         <td style="font-weight:600;">$123,615</td>
         <td>
           <div class="weight-bar-wrap">
-            <div class="weight-bar mo" style="width:71px;"></div>
-            <span style="color:#94a3b8;font-size:0.78rem;">12.0%</span>
+            <div class="weight-bar mo" style="width:41px;"></div>
+            <span style="color:#94a3b8;font-size:0.78rem;">7.0%</span>
           </div>
         </td>
         <td><span class="pos">+$0 (+0.0%)</span></td>
@@ -333,8 +318,8 @@ td{padding:12px 12px;font-size:0.82rem;}
   </table>
 
   <div class="footer-note">
-    🦅 鹰歌策略 V99 &nbsp;·&nbsp; 实盘看板自动生成 &nbsp;·&nbsp; 数据更新：2026-04-13 16:32<br>
-    本页仅供参考，不构成投资建议。投资有风险，入市须谨慎。
+    Eagle Song Strategy V99 &nbsp;&middot;&nbsp; Auto-generated &nbsp;&middot;&nbsp; 2026-04-13 16:34<br>
+    For reference only. Investment involves risk.
   </div>
 </div>
 </body>
