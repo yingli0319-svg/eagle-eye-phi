@@ -1,6 +1,6 @@
 // 天使鹰眼 - 股票技术分析 API
 // Vercel Serverless Function (Node.js)
-// 数据源：Yahoo Finance v8 API（主）+ 东方财富（备用，港股/A股）
+// 数据源：Yahoo Finance v8 API + 东方财富（港股/A股并行，取最新）
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -27,19 +27,33 @@ export default async function handler(req, res) {
     // 生成 Yahoo Finance ticker
     const ticker = toYFTicker(code, market);
 
-    // 优先 Yahoo Finance
-    let result = await fetchYahoo(ticker, code, market);
+    let result;
 
-    // 备用：东方财富（港股/A股）
-    if (!result && (market === '港股' || market === 'A股')) {
-      result = await fetchEastMoney(code, market);
+    if (market === '港股' || market === 'A股') {
+      // 港股/A股：并行取 Yahoo + 东财，选数据更新的那个
+      const [yahooResult, emResult] = await Promise.all([
+        fetchYahoo(ticker, code, market),
+        fetchEastMoney(code, market)
+      ]);
+
+      if (yahooResult && emResult) {
+        // 两个都成功，比较最新数据日期，取更新的
+        result = emResult.latest_date >= yahooResult.latest_date ? emResult : yahooResult;
+      } else {
+        result = yahooResult || emResult;
+      }
+    } else {
+      // 美股：只用 Yahoo
+      result = await fetchYahoo(ticker, code, market);
     }
 
     if (!result) {
       return res.status(404).json({ error: '未找到股票数据，请确认代码和市场是否正确' });
     }
 
-    return res.status(200).json(result);
+    // 去掉内部字段 latest_date，不暴露给前端
+    const { latest_date, ...output } = result;
+    return res.status(200).json(output);
   } catch (e) {
     return res.status(500).json({ error: '数据获取失败: ' + e.message });
   }
@@ -91,15 +105,16 @@ async function fetchYahoo(ticker, code, market) {
     if (!chart) return null;
 
     const q = chart.indicators.quote[0];
+    const timestamps = chart.timestamp || [];
     const closes  = q.close;
     const highs   = q.high;
     const lows    = q.low;
     const volumes = q.volume;
     const meta    = chart.meta;
 
-    // 过滤 null 值（停牌日等）
+    // 过滤 null 值（停牌日等），同步保留对应时间戳
     const valid = closes
-      .map((c, i) => ({ c, h: highs[i], l: lows[i], v: volumes[i] }))
+      .map((c, i) => ({ c, h: highs[i], l: lows[i], v: volumes[i], ts: timestamps[i] }))
       .filter(x => x.c != null && !isNaN(x.c));
 
     if (valid.length < 20) return null;
@@ -112,6 +127,12 @@ async function fetchYahoo(ticker, code, market) {
     const prev   = cs[cs.length - 2] ?? latest;
     const change = (latest - prev) / prev * 100;
 
+    // 取最新数据日期（用于多源比较）
+    const lastTs  = valid[valid.length - 1].ts;
+    const latestDate = lastTs
+      ? new Date(lastTs * 1000).toISOString().slice(0, 10)
+      : '1970-01-01';
+
     const analysis = calcTA(cs, hs, ls);
     const name = meta.shortName || meta.longName || code;
 
@@ -123,7 +144,8 @@ async function fetchYahoo(ticker, code, market) {
       change:      round(change, 2),
       volume:      valid[valid.length - 1].v || 0,
       analysis,
-      data_source: 'yahoo'
+      data_source: 'yahoo',
+      latest_date: latestDate   // 内部字段，用于多源比较
     };
   } catch (e) {
     console.log('Yahoo failed:', e.message);
@@ -131,7 +153,7 @@ async function fetchYahoo(ticker, code, market) {
   }
 }
 
-// ─── 东方财富 取数（港股/A股备用） ───
+// ─── 东方财富 取数（港股/A股） ───
 async function fetchEastMoney(code, market) {
   try {
     let secid;
@@ -157,7 +179,7 @@ async function fetchEastMoney(code, market) {
     const name = data.data.name || code;
     const rows = klines.map(k => {
       const p = k.split(',');
-      return { c: parseFloat(p[2]), h: parseFloat(p[3]), l: parseFloat(p[4]) };
+      return { date: p[0], c: parseFloat(p[2]), h: parseFloat(p[3]), l: parseFloat(p[4]) };
     }).filter(x => !isNaN(x.c));
 
     const cs = rows.map(x => x.c);
@@ -166,6 +188,7 @@ async function fetchEastMoney(code, market) {
 
     const latest = cs[cs.length - 1];
     const prev   = cs[cs.length - 2] ?? latest;
+    const latestDate = rows[rows.length - 1].date || '1970-01-01';
 
     const analysis = calcTA(cs, hs, ls);
 
@@ -177,7 +200,8 @@ async function fetchEastMoney(code, market) {
       change:      round((latest - prev) / prev * 100, 2),
       volume:      0,
       analysis,
-      data_source: 'eastmoney'
+      data_source: 'eastmoney',
+      latest_date: latestDate   // 内部字段，用于多源比较
     };
   } catch (e) {
     console.log('EastMoney failed:', e.message);
