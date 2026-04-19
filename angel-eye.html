@@ -1422,11 +1422,6 @@ const EAGLE_GIFT_PWD = 'eagleangel';
 const RECO_JSON_URL  = 'https://raw.githubusercontent.com/yingli0319-svg/eagle-eye-phi/main/recommended_stocks.json';
 
 function showEagleGiftEntry() {
-  // 检查本次会话是否已验证
-  if (sessionStorage.getItem('eagleGiftAuth') === '1') {
-    openGiftPage();
-    return;
-  }
   const overlay = document.getElementById('pwdOverlay');
   overlay.classList.add('active');
   setTimeout(() => document.getElementById('pwdInput').focus(), 100);
@@ -1447,7 +1442,6 @@ function togglePwdVisible() {
 function submitPwd() {
   const val = document.getElementById('pwdInput').value.trim();
   if (val === EAGLE_GIFT_PWD) {
-    sessionStorage.setItem('eagleGiftAuth', '1');
     closePwdModal();
     openGiftPage();
   } else {
