@@ -563,6 +563,229 @@ body {
   .score-grid { grid-template-columns: repeat(2, 1fr); }
   .logo-title { font-size: 1.5rem; }
 }
+/* ══ 鹰哥有礼入口 ══ */
+.eagle-gift-entry {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, rgba(240,192,64,0.08) 0%, rgba(15,22,35,0.95) 100%);
+  border: 1px solid rgba(240,192,64,0.25);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin: 0 0 12px 0;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.eagle-gift-entry:hover {
+  border-color: rgba(240,192,64,0.6);
+  background: linear-gradient(135deg, rgba(240,192,64,0.14) 0%, rgba(15,22,35,0.95) 100%);
+  transform: translateY(-1px);
+}
+.eagle-gift-icon { font-size: 1.8rem; flex-shrink: 0; }
+.eagle-gift-info { flex: 1; }
+.eagle-gift-title { font-size: 1rem; font-weight: 700; color: #f0c040; }
+.eagle-gift-desc { font-size: 0.75rem; color: #64748b; margin-top: 3px; }
+.eagle-gift-arrow { font-size: 1.4rem; color: rgba(240,192,64,0.5); }
+
+/* ══ 密码弹窗 ══ */
+.pwd-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(8px);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+}
+.pwd-overlay.active { display: flex; }
+.pwd-modal {
+  background: #0f1623;
+  border: 1px solid rgba(240,192,64,0.3);
+  border-radius: 20px;
+  padding: 36px 32px;
+  width: 90%;
+  max-width: 380px;
+  text-align: center;
+  position: relative;
+}
+.pwd-modal-icon { font-size: 2.8rem; margin-bottom: 14px; }
+.pwd-modal-title { font-size: 1.2rem; font-weight: 700; color: #f0c040; margin-bottom: 6px; }
+.pwd-modal-sub { font-size: 0.78rem; color: #64748b; margin-bottom: 24px; }
+.pwd-input-wrap { position: relative; margin-bottom: 16px; }
+.pwd-input {
+  width: 100%;
+  background: #0b1220;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 13px 44px 13px 16px;
+  font-size: 1rem;
+  color: #e2e8f0;
+  letter-spacing: 0.15em;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.pwd-input:focus { border-color: rgba(240,192,64,0.5); }
+.pwd-input.error { border-color: #ef4444; animation: shake 0.3s; }
+@keyframes shake {
+  0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)}
+}
+.pwd-toggle {
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 1rem;
+  color: #475569;
+  user-select: none;
+}
+.pwd-error { color: #ef4444; font-size: 0.75rem; height: 18px; margin-bottom: 14px; }
+.pwd-submit {
+  width: 100%;
+  background: linear-gradient(90deg, #d97706, #f0c040);
+  border: none;
+  border-radius: 10px;
+  padding: 13px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0a0f1a;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.pwd-submit:hover { opacity: 0.9; }
+.pwd-close {
+  position: absolute;
+  top: 14px; right: 18px;
+  font-size: 1.3rem;
+  color: #475569;
+  cursor: pointer;
+  line-height: 1;
+}
+.pwd-close:hover { color: #94a3b8; }
+
+/* ══ 鹰哥有礼页 ══ */
+.gift-page {
+  display: none;
+  min-height: 100vh;
+}
+.gift-page.active { display: block; }
+.gift-header-banner {
+  background: linear-gradient(135deg, rgba(240,192,64,0.12) 0%, rgba(10,15,26,0) 60%);
+  border-bottom: 1px solid rgba(240,192,64,0.15);
+  padding: 28px 20px 24px;
+  text-align: center;
+}
+.gift-banner-icon { font-size: 3rem; margin-bottom: 10px; }
+.gift-banner-title { font-size: 1.5rem; font-weight: 800; color: #f0c040; margin-bottom: 6px; }
+.gift-banner-sub { font-size: 0.8rem; color: #64748b; }
+.gift-update-time {
+  text-align: center;
+  font-size: 0.72rem;
+  color: #334155;
+  padding: 10px 0 0;
+}
+.gift-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 0 12px;
+}
+.gift-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.gift-badge-mf { background: #1e3a5f; color: #93c5fd; border: 1px solid #1d4ed8; }
+.gift-badge-mo { background: #2d1b4e; color: #c4b5fd; border: 1px solid #7c3aed; }
+.gift-section-label { font-size: 0.95rem; font-weight: 600; color: #e2e8f0; }
+.gift-section-hint { font-size: 0.72rem; color: #475569; margin-left: auto; }
+.gift-card-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 8px; }
+.gift-stock-card {
+  background: #0f1623;
+  border: 1px solid #1e293b;
+  border-radius: 14px;
+  padding: 16px 18px;
+  transition: border-color 0.2s;
+}
+.gift-stock-card:hover { border-color: rgba(240,192,64,0.3); }
+.gift-stock-row1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.gift-stock-rank {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(240,192,64,0.12);
+  border: 1px solid rgba(240,192,64,0.25);
+  color: #f0c040;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.gift-stock-rank.top1 { background: rgba(240,192,64,0.25); border-color: #f0c040; font-size: 0.85rem; }
+.gift-stock-name-wrap { flex: 1; margin: 0 12px; }
+.gift-stock-name { font-size: 0.95rem; font-weight: 700; color: #e2e8f0; }
+.gift-stock-code { font-size: 0.72rem; color: #475569; margin-top: 1px; }
+.gift-stock-meta { text-align: right; }
+.gift-stock-score { font-size: 1rem; font-weight: 700; color: #f0c040; }
+.gift-stock-weight { font-size: 0.7rem; color: #64748b; margin-top: 2px; }
+.gift-stock-row2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.gift-tag {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 8px;
+  font-size: 0.68rem;
+  font-weight: 500;
+}
+.gift-tag-sector { background: #1e293b; color: #94a3b8; }
+.gift-tag-market { background: #0b1a2f; color: #60a5fa; }
+.gift-tag-bull { background: rgba(34,197,94,0.12); color: #22c55e; border: 1px solid rgba(34,197,94,0.25); }
+.gift-tag-warn { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+.gift-reason {
+  margin-top: 8px;
+  font-size: 0.73rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+.gift-etf-card {
+  background: #0f1623;
+  border: 1px solid rgba(124,58,237,0.2);
+  border-radius: 14px;
+  padding: 16px 18px;
+  transition: border-color 0.2s;
+}
+.gift-etf-card:hover { border-color: rgba(167,139,250,0.4); }
+.gift-mom-bars { display: flex; gap: 14px; margin-top: 9px; flex-wrap: wrap; }
+.gift-mom-item { text-align: center; min-width: 44px; }
+.gift-mom-label { font-size: 0.62rem; color: #475569; margin-bottom: 3px; }
+.gift-mom-val {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.gift-loading { text-align: center; padding: 40px 0; color: #475569; }
+.gift-disclaimer {
+  text-align: center;
+  font-size: 0.68rem;
+  color: #1e293b;
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid #1e293b;
+  line-height: 1.9;
+}
+
 </style>
 </head>
 <body>
@@ -575,6 +798,7 @@ body {
   </div>
   <nav class="header-nav">
     <a href="/">🦅 鹰歌策略</a>
+    <a href="javascript:void(0)" onclick="showEagleGiftEntry()" style="color:#f0c040;font-weight:600;">🎁 鹰哥有礼</a>
   </nav>
 </header>
 
@@ -632,6 +856,16 @@ body {
       <span class="clear-btn" onclick="clearHistory()">清空</span>
     </div>
     <div class="history-list" id="historyList"></div>
+  </div>
+
+  <!-- 鹰哥有礼入口 -->
+  <div class="eagle-gift-entry" onclick="showEagleGiftEntry()">
+    <span class="eagle-gift-icon">🎁</span>
+    <div class="eagle-gift-info">
+      <div class="eagle-gift-title">鹰哥有礼</div>
+      <div class="eagle-gift-desc">每日选股推荐 · 多因子 + 动量ETF</div>
+    </div>
+    <span class="eagle-gift-arrow">›</span>
   </div>
 
   <!-- 免责声明入口 -->
@@ -1134,6 +1368,8 @@ function backToHome() {
   document.getElementById('analysisPage').style.display = 'none';
   document.getElementById('disclaimerPage').classList.remove('active');
   document.getElementById('disclaimerPage').style.display = 'none';
+  document.getElementById('giftPage').classList.remove('active');
+  document.getElementById('giftPage').style.display = 'none';
   document.getElementById('homePage').style.display = 'block';
   window.scrollTo(0, 0);
 }
@@ -1181,7 +1417,224 @@ function showDisclaimer() {
   document.getElementById('disclaimerPage').style.display = 'block';
   window.scrollTo(0, 0);
 }
+// ═══ 鹰哥有礼 ═══
+const EAGLE_GIFT_PWD = 'eagleangel';
+const RECO_JSON_URL  = 'https://raw.githubusercontent.com/yingli0319-svg/eagle-eye-phi/main/recommended_stocks.json';
+
+function showEagleGiftEntry() {
+  // 检查本次会话是否已验证
+  if (sessionStorage.getItem('eagleGiftAuth') === '1') {
+    openGiftPage();
+    return;
+  }
+  const overlay = document.getElementById('pwdOverlay');
+  overlay.classList.add('active');
+  setTimeout(() => document.getElementById('pwdInput').focus(), 100);
+}
+
+function closePwdModal() {
+  document.getElementById('pwdOverlay').classList.remove('active');
+  document.getElementById('pwdInput').value = '';
+  document.getElementById('pwdError').textContent = '';
+  document.getElementById('pwdInput').classList.remove('error');
+}
+
+function togglePwdVisible() {
+  const inp = document.getElementById('pwdInput');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function submitPwd() {
+  const val = document.getElementById('pwdInput').value.trim();
+  if (val === EAGLE_GIFT_PWD) {
+    sessionStorage.setItem('eagleGiftAuth', '1');
+    closePwdModal();
+    openGiftPage();
+  } else {
+    const inp = document.getElementById('pwdInput');
+    inp.classList.add('error');
+    document.getElementById('pwdError').textContent = '密码错误，请重试';
+    setTimeout(() => inp.classList.remove('error'), 400);
+  }
+}
+
+function openGiftPage() {
+  document.getElementById('homePage').style.display = 'none';
+  document.getElementById('analysisPage').style.display = 'none';
+  document.getElementById('disclaimerPage').style.display = 'none';
+  const page = document.getElementById('giftPage');
+  page.classList.add('active');
+  window.scrollTo(0, 0);
+  loadGiftData();
+}
+
+function loadGiftData() {
+  document.getElementById('giftLoading').style.display = 'block';
+  document.getElementById('giftContent').style.display = 'none';
+  document.getElementById('giftNoData').style.display = 'none';
+
+  fetch(RECO_JSON_URL + '?t=' + Date.now())
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(data => {
+      document.getElementById('giftLoading').style.display = 'none';
+      if (!data || (!data.multi_factor?.length && !data.momentum_etf?.length)) {
+        document.getElementById('giftNoData').style.display = 'block';
+        return;
+      }
+      document.getElementById('giftContent').style.display = 'block';
+      document.getElementById('giftUpdateTime').textContent = '更新时间：' + (data.updated_at || '');
+      renderMfList(data.multi_factor || []);
+      renderMoList(data.momentum_etf || []);
+    })
+    .catch(() => {
+      document.getElementById('giftLoading').style.display = 'none';
+      document.getElementById('giftNoData').style.display = 'block';
+    });
+}
+
+function momColor(v) {
+  if (v === null || v === undefined) return '#64748b';
+  return v >= 0 ? '#22c55e' : '#ef4444';
+}
+
+function renderMfList(list) {
+  const el = document.getElementById('mfList');
+  if (!list.length) { el.innerHTML = '<div style="color:#475569;padding:20px 0;text-align:center;">暂无数据</div>'; return; }
+  el.innerHTML = list.map(s => {
+    const bullTag = s.bull_align ? '<span class="gift-tag gift-tag-bull">多头排列</span>' : '';
+    const warnTag = (s.ob_penalty >= 8) ? '<span class="gift-tag gift-tag-warn">⚠️超买</span>' : '';
+    const momStr = s.mom_3m_pct != null ? `<span style="font-size:0.7rem;color:${momColor(s.mom_3m_pct)};margin-left:auto;">3M ${s.mom_3m_pct > 0 ? '+' : ''}${s.mom_3m_pct}%</span>` : '';
+    return `
+    <div class="gift-stock-card">
+      <div class="gift-stock-row1">
+        <div class="gift-stock-rank ${s.rank===1?'top1':''}">#${s.rank}</div>
+        <div class="gift-stock-name-wrap">
+          <div class="gift-stock-name">${s.name || s.code}</div>
+          <div class="gift-stock-code">${s.code} · ${s.market}</div>
+        </div>
+        <div class="gift-stock-meta">
+          <div class="gift-stock-score">${s.final_score}</div>
+          <div class="gift-stock-weight">${s.weight}</div>
+        </div>
+      </div>
+      <div class="gift-stock-row2">
+        <span class="gift-tag gift-tag-sector">${s.sector || ''}</span>
+        <span class="gift-tag gift-tag-market">${s.market}</span>
+        ${bullTag}${warnTag}${momStr}
+      </div>
+      <div class="gift-reason">💡 ${s.reason}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderMoList(list) {
+  const el = document.getElementById('moList');
+  if (!list.length) { el.innerHTML = '<div style="color:#475569;padding:20px 0;text-align:center;">暂无数据</div>'; return; }
+  el.innerHTML = list.map(s => {
+    const warnTag = (s.ob_penalty >= 8) ? '<span class="gift-tag gift-tag-warn">⚠️超买</span>' : '';
+    const momBars = [
+      {label:'1M', val:s.mom_1m_pct},
+      {label:'3M', val:s.mom_3m_pct},
+      {label:'6M', val:s.mom_6m_pct},
+      {label:'12M',val:s.mom_12m_pct},
+    ].map(m => `
+      <div class="gift-mom-item">
+        <div class="gift-mom-label">${m.label}</div>
+        <div class="gift-mom-val" style="color:${momColor(m.val)}">${m.val != null ? (m.val > 0 ? '+' : '') + m.val + '%' : '--'}</div>
+      </div>`).join('');
+    return `
+    <div class="gift-etf-card">
+      <div class="gift-stock-row1">
+        <div class="gift-stock-rank ${s.rank===1?'top1':''}" style="background:rgba(124,58,237,0.15);border-color:rgba(167,139,250,0.3);color:#a78bfa;">#${s.rank}</div>
+        <div class="gift-stock-name-wrap">
+          <div class="gift-stock-name">${s.name || s.code}</div>
+          <div class="gift-stock-code">${s.code} · ${s.market}</div>
+        </div>
+        <div class="gift-stock-meta">
+          <div class="gift-stock-score" style="color:#a78bfa;">${s.score}</div>
+          <div class="gift-stock-weight">${s.weight}</div>
+        </div>
+      </div>
+      <div class="gift-stock-row2">
+        <span class="gift-tag gift-tag-market" style="background:#1e1b3a;color:#a78bfa;">美股ETF</span>
+        ${s.pos_52w != null ? `<span class="gift-tag gift-tag-sector">52W位置 ${s.pos_52w}%</span>` : ''}
+        ${warnTag}
+      </div>
+      <div class="gift-mom-bars">${momBars}</div>
+      <div class="gift-reason">💡 ${s.reason}</div>
+    </div>`;
+  }).join('');
+}
+
 </script>
+
+<!-- ═══ 密码弹窗 ═══ -->
+<div class="pwd-overlay" id="pwdOverlay">
+  <div class="pwd-modal">
+    <span class="pwd-close" onclick="closePwdModal()">×</span>
+    <div class="pwd-modal-icon">🎁</div>
+    <div class="pwd-modal-title">鹰哥有礼</div>
+    <div class="pwd-modal-sub">每日选股推荐 · 请输入访问密码</div>
+    <div class="pwd-input-wrap">
+      <input type="password" class="pwd-input" id="pwdInput" placeholder="输入密码"
+        onkeypress="if(event.key==='Enter') submitPwd()" autocomplete="off" />
+      <span class="pwd-toggle" id="pwdToggle" onclick="togglePwdVisible()">👁</span>
+    </div>
+    <div class="pwd-error" id="pwdError"></div>
+    <button class="pwd-submit" onclick="submitPwd()">进入</button>
+  </div>
+</div>
+
+<!-- ═══ 鹰哥有礼页 ═══ -->
+<div class="gift-page" id="giftPage">
+  <div class="gift-header-banner">
+    <div class="gift-banner-icon">🎁</div>
+    <div class="gift-banner-title">鹰哥有礼</div>
+    <div class="gift-banner-sub">Eagle Song V99 · 每日选股推荐</div>
+    <div class="back-btn" onclick="backToHome()" style="display:inline-block;margin-top:14px;padding:8px 20px;font-size:0.8rem;color:#64748b;border:1px solid #334155;border-radius:8px;cursor:pointer;text-decoration:none;">‹ 返回首页</div>
+  </div>
+
+  <div class="container" style="max-width:680px;">
+    <div class="gift-update-time" id="giftUpdateTime"></div>
+
+    <!-- 加载中 -->
+    <div class="gift-loading" id="giftLoading">
+      <div style="font-size:2rem;margin-bottom:12px;">⏳</div>
+      <div>加载推荐数据中...</div>
+    </div>
+
+    <!-- 内容区 -->
+    <div id="giftContent" style="display:none;">
+
+      <!-- 多因子 -->
+      <div class="gift-section-title">
+        <span class="gift-badge gift-badge-mf">Multi-Factor</span>
+        <span class="gift-section-label">多因子选股 Top6</span>
+        <span class="gift-section-hint">每周调仓 · 等权1/6</span>
+      </div>
+      <div class="gift-card-list" id="mfList"></div>
+
+      <!-- 动量ETF -->
+      <div class="gift-section-title" style="margin-top:8px;">
+        <span class="gift-badge gift-badge-mo">Momentum</span>
+        <span class="gift-section-label">动量ETF Top4</span>
+        <span class="gift-section-hint">每4周调仓 · 各25%</span>
+      </div>
+      <div class="gift-card-list" id="moList"></div>
+
+      <div class="gift-disclaimer">
+        Eagle Song V99 · 每日05:30自动更新<br>
+        本推荐仅供参考，不构成投资建议。投资有风险，入市需谨慎。
+      </div>
+    </div>
+
+    <!-- 无数据提示 -->
+    <div id="giftNoData" style="display:none;text-align:center;padding:40px 0;color:#475569;">
+      <div style="font-size:2rem;margin-bottom:12px;">📭</div>
+      <div>暂无推荐数据，今日数据更新后自动生成</div>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
