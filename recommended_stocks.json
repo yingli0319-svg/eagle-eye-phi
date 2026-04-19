@@ -1,15 +1,15 @@
 {
-  "updated_at": "2026-04-20 02:15",
+  "updated_at": "2026-04-20 02:20",
   "updated_date": "2026-04-20",
   "multi_factor": [
     {
       "rank": 1,
       "ticker": "HK.1211",
       "code": "1211",
-      "name": "中国黄金",
+      "name": "比亚迪",
       "market": "港股",
-      "sector": "矿业",
-      "final_score": 99.2,
+      "sector": "hk_auto",
+      "final_score": 101.2,
       "base_score": 99.2,
       "mom_3m_pct": 1973.0,
       "vol_ratio": 0.88,
@@ -17,7 +17,7 @@
       "ob_penalty": 0.0,
       "bull_align": true,
       "weight": "1/6 (16.7%)",
-      "reason": "多头排列，3月涨幅1973.0%强势"
+      "reason": "多头排列，3月涨幅1973.0%强势，其他加分赛道"
     },
     {
       "rank": 2,
@@ -89,20 +89,20 @@
     },
     {
       "rank": 6,
-      "ticker": "HK.0189",
-      "code": "0189",
-      "name": "建滔积层板",
+      "ticker": "HK.2382",
+      "code": "2382",
+      "name": "舜宇光学",
       "market": "港股",
-      "sector": "其他",
-      "final_score": 41.0,
-      "base_score": 41.0,
-      "mom_3m_pct": 532.0,
-      "vol_ratio": 0.67,
-      "rsi": 55.0,
-      "ob_penalty": 0.0,
+      "sector": "科技/AI",
+      "final_score": 13.2,
+      "base_score": 11.2,
+      "mom_3m_pct": -193.0,
+      "vol_ratio": 0.55,
+      "rsi": 75.9,
+      "ob_penalty": 8.0,
       "bull_align": false,
       "weight": "1/6 (16.7%)",
-      "reason": "短期均线向上，3月涨幅532.0%强势"
+      "reason": "科技加分赛道，⚠️注意超买"
     }
   ],
   "momentum_etf": [
