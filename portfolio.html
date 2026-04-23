@@ -28,7 +28,7 @@ h1{font-size:1.4rem;font-weight:700;color:#f0c040;margin-bottom:4px;}
 .alloc-label{width:120px;font-size:0.76rem;color:#94a3b8;flex-shrink:0;}
 .alloc-bar-bg{flex:1;height:9px;background:#1e293b;border-radius:5px;overflow:hidden;}
 .alloc-bar-fill{height:100%;border-radius:5px;}
-.alloc-pct{width:44px;font-size:0.76rem;text-right;font-weight:600;}
+.alloc-pct{width:44px;font-size:0.76rem;text-align:right;font-weight:600;}
 .strategy-header{display:flex;align-items:center;gap:12px;margin:26px 0 14px;flex-wrap:wrap;}
 .strategy-badge{padding:4px 12px;border-radius:20px;font-size:0.76rem;font-weight:600;}
 .badge-mf{background:#1e3a5f;color:#93c5fd;border:1px solid #1d4ed8;}
@@ -48,7 +48,11 @@ td{padding:12px 12px;font-size:0.82rem;}
 .weight-bar{height:5px;border-radius:3px;background:linear-gradient(90deg,#f0c040,#d97706);min-width:4px;}
 .weight-bar.mo{background:linear-gradient(90deg,#a78bfa,#7c3aed);}
 .footer-note{text-align:center;color:#334155;font-size:0.7rem;margin-top:32px;padding-top:16px;border-top:1px solid #1e293b;line-height:1.8;}
-@media(max-width:768px){.summary-grid{grid-template-columns:repeat(2,1fr);}.alloc-section{grid-template-columns:1fr;}.strategy-meta{display:none;}}
+@media(max-width:768px){
+  .summary-grid{grid-template-columns:repeat(2,1fr);}
+  .alloc-section{grid-template-columns:1fr;}
+  .strategy-meta{display:none;}
+}
 </style>
 </head>
 <body>
@@ -57,6 +61,7 @@ td{padding:12px 12px;font-size:0.82rem;}
   <a href="/" class="back-btn">&larr; Home</a>
   <div class="update-time">Updated: 2026-04-23 05:31</div>
 </div>
+
 <div class="container">
   <h1>Portfolio Holdings</h1>
   <div class="subtitle">Eagle Song Strategy V99 &nbsp;&middot;&nbsp; Multi-Factor + Momentum &nbsp;&middot;&nbsp; Since 2026-03-27</div>
@@ -138,7 +143,10 @@ td{padding:12px 12px;font-size:0.82rem;}
   </div>
   <table>
     <thead>
-      <tr><th>Ticker / Name</th><th>Market</th><th>Shares</th><th>Cost</th><th>Current</th><th>Market Value</th><th>Weight</th><th>PnL</th></tr>
+      <tr>
+        <th>Ticker / Name</th><th>Market</th><th>Shares</th><th>Cost</th>
+        <th>Current</th><th>Market Value</th><th>Weight</th><th>PnL</th>
+      </tr>
     </thead>
     <tbody>
       <tr>
@@ -146,8 +154,8 @@ td{padding:12px 12px;font-size:0.82rem;}
           <span class="sector-tag" style="color:#94a3b8;">📊 </span></td>
         <td style="color:#64748b;font-size:0.78rem;">港股</td>
         <td>4,200</td>
-        <td>HKD 56,375</td>
-        <td style="color:#f0c040;">HKD 58,521</td>
+        <td>HKD 56375.34</td>
+        <td style="color:#f0c040;">HKD 58521.12</td>
         <td style="font-weight:600;">$58,521</td>
         <td>
           <div class="weight-bar-wrap">
@@ -162,8 +170,8 @@ td{padding:12px 12px;font-size:0.82rem;}
           <span class="sector-tag" style="color:#94a3b8;">📊 </span></td>
         <td style="color:#64748b;font-size:0.78rem;">港股</td>
         <td>6,100</td>
-        <td>HKD 57,806</td>
-        <td style="color:#f0c040;">HKD 57,027</td>
+        <td>HKD 57806.04</td>
+        <td style="color:#f0c040;">HKD 57027.07</td>
         <td style="font-weight:600;">$57,027</td>
         <td>
           <div class="weight-bar-wrap">
@@ -178,8 +186,8 @@ td{padding:12px 12px;font-size:0.82rem;}
           <span class="sector-tag" style="color:#94a3b8;">📊 </span></td>
         <td style="color:#64748b;font-size:0.78rem;">美股</td>
         <td>244</td>
-        <td>$61,279</td>
-        <td style="color:#f0c040;">$62,825</td>
+        <td>$61279.38</td>
+        <td style="color:#f0c040;">$62825.12</td>
         <td style="font-weight:600;">$62,825</td>
         <td>
           <div class="weight-bar-wrap">
@@ -194,8 +202,8 @@ td{padding:12px 12px;font-size:0.82rem;}
           <span class="sector-tag" style="color:#94a3b8;">📊 </span></td>
         <td style="color:#64748b;font-size:0.78rem;">美股</td>
         <td>1,145</td>
-        <td>$61,401</td>
-        <td style="color:#f0c040;">$65,322</td>
+        <td>$61400.62</td>
+        <td style="color:#f0c040;">$65322.25</td>
         <td style="font-weight:600;">$65,322</td>
         <td>
           <div class="weight-bar-wrap">
@@ -210,8 +218,8 @@ td{padding:12px 12px;font-size:0.82rem;}
           <span class="sector-tag" style="color:#94a3b8;">📊 </span></td>
         <td style="color:#64748b;font-size:0.78rem;">港股</td>
         <td>3,800</td>
-        <td>HKD 60,082</td>
-        <td style="color:#f0c040;">HKD 59,693</td>
+        <td>HKD 60081.80</td>
+        <td style="color:#f0c040;">HKD 59693.44</td>
         <td style="font-weight:600;">$59,693</td>
         <td>
           <div class="weight-bar-wrap">
@@ -226,8 +234,8 @@ td{padding:12px 12px;font-size:0.82rem;}
           <span class="sector-tag" style="color:#94a3b8;">📊 </span></td>
         <td style="color:#64748b;font-size:0.78rem;">港股</td>
         <td>41,100</td>
-        <td>HKD 61,309</td>
-        <td style="color:#f0c040;">HKD 62,567</td>
+        <td>HKD 61308.87</td>
+        <td style="color:#f0c040;">HKD 62566.53</td>
         <td style="font-weight:600;">$62,567</td>
         <td>
           <div class="weight-bar-wrap">
@@ -247,7 +255,10 @@ td{padding:12px 12px;font-size:0.82rem;}
   </div>
   <table>
     <thead>
-      <tr><th>Ticker / Name</th><th>Market</th><th>Shares</th><th>Cost</th><th>Current</th><th>Market Value</th><th>Weight</th><th>PnL</th></tr>
+      <tr>
+        <th>Ticker / Name</th><th>Market</th><th>Shares</th><th>Cost</th>
+        <th>Current</th><th>Market Value</th><th>Weight</th><th>PnL</th>
+      </tr>
     </thead>
     <tbody>
       <tr>
@@ -255,8 +266,8 @@ td{padding:12px 12px;font-size:0.82rem;}
           <span class="sector-tag" style="color:#94a3b8;">📊 </span></td>
         <td style="color:#64748b;font-size:0.78rem;">美股ETF</td>
         <td>406,100</td>
-        <td>$88,773</td>
-        <td style="color:#f0c040;">$82,032</td>
+        <td>$88773.46</td>
+        <td style="color:#f0c040;">$82032.20</td>
         <td style="font-weight:600;">$82,032</td>
         <td>
           <div class="weight-bar-wrap">
@@ -271,8 +282,8 @@ td{padding:12px 12px;font-size:0.82rem;}
           <span class="sector-tag" style="color:#94a3b8;">🥈 白银ETF</span></td>
         <td style="color:#64748b;font-size:0.78rem;">美股ETF</td>
         <td>1,285</td>
-        <td>$88,768</td>
-        <td style="color:#f0c040;">$88,010</td>
+        <td>$88767.80</td>
+        <td style="color:#f0c040;">$88009.65</td>
         <td style="font-weight:600;">$88,010</td>
         <td>
           <div class="weight-bar-wrap">
@@ -287,8 +298,8 @@ td{padding:12px 12px;font-size:0.82rem;}
           <span class="sector-tag" style="color:#94a3b8;">📊 </span></td>
         <td style="color:#64748b;font-size:0.78rem;">美股ETF</td>
         <td>808</td>
-        <td>$88,234</td>
-        <td style="color:#f0c040;">$88,565</td>
+        <td>$88233.60</td>
+        <td style="color:#f0c040;">$88564.88</td>
         <td style="font-weight:600;">$88,565</td>
         <td>
           <div class="weight-bar-wrap">
@@ -303,8 +314,8 @@ td{padding:12px 12px;font-size:0.82rem;}
           <span class="sector-tag" style="color:#94a3b8;">📊 </span></td>
         <td style="color:#64748b;font-size:0.78rem;">美股ETF</td>
         <td>1,036</td>
-        <td>$85,377</td>
-        <td style="color:#f0c040;">$85,449</td>
+        <td>$85376.76</td>
+        <td style="color:#f0c040;">$85449.28</td>
         <td style="font-weight:600;">$85,449</td>
         <td>
           <div class="weight-bar-wrap">
