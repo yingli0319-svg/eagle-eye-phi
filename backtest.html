@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鹰歌策略 V99 — 回测报告</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter','Microsoft YaHei',sans-serif;background:#080c12;color:#e2e8f0;line-height:1.6;}
+
+/* ── 导航 ── */
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:20px;
+     padding:0 24px;height:52px;background:rgba(8,12,18,0.95);
+     border-bottom:1px solid rgba(240,192,64,0.15);backdrop-filter:blur(10px);}
+.nav-brand{font-size:0.9rem;font-weight:800;color:#f0c040;letter-spacing:0.5px;white-space:nowrap;}
+.nav-link{font-size:0.8rem;color:#94a3b8;text-decoration:none;padding:4px 10px;border-radius:6px;
+           transition:all 0.2s;white-space:nowrap;}
+.nav-link:hover{background:rgba(240,192,64,0.1);color:#f0c040;}
+.nav-link.active{background:rgba(240,192,64,0.15);color:#f0c040;font-weight:600;}
+
+/* ── 页面容器 ── */
+.page{max-width:1400px;margin:0 auto;padding:28px 20px 60px;}
+
+/* ── 页头 ── */
+.page-header{margin-bottom:28px;}
+.page-header h1{font-size:1.5rem;font-weight:800;color:#f0c040;margin-bottom:6px;}
+.page-header .sub{font-size:0.8rem;color:#475569;}
+
+/* ── 汇总卡片网格 ── */
+.kpi-grid{display:grid;gap:12px;margin-bottom:28px;}
+.kpi-grid.cols6{grid-template-columns:repeat(6,1fr);}
+.kpi-grid.cols4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:900px){.kpi-grid.cols6{grid-template-columns:repeat(3,1fr);}.kpi-grid.cols4{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:500px){.kpi-grid.cols6,.kpi-grid.cols4{grid-template-columns:repeat(2,1fr);}}
+
+.kpi{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+       border-radius:10px;padding:14px 16px;text-align:center;}
+.kpi .lbl{font-size:0.7rem;color:#64748b;font-weight:500;letter-spacing:0.3px;margin-bottom:6px;}
+.kpi .val{font-size:1.4rem;font-weight:800;line-height:1;}
+.kpi.green .val{color:#22c55e;}
+.kpi.red-val .val{color:#f87171;}
+.kpi.gold .val{color:#f0c040;}
+.kpi.white .val{color:#e2e8f0;}
+.kpi.blue .val{color:#60a5fa;}
+
+/* ── 区块分割 ── */
+.section-sep{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:32px;}
+@media(max-width:900px){.section-sep{grid-template-columns:1fr;}}
+
+.section-title{font-size:0.85rem;font-weight:700;color:#f0c040;letter-spacing:0.5px;
+                border-bottom:1px solid rgba(240,192,64,0.2);padding-bottom:8px;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.section-title .cnt{font-size:0.7rem;color:#475569;font-weight:400;margin-left:auto;}
+
+/* ── 表格 ── */
+.tbl-wrap{overflow-x:auto;border-radius:8px;border:1px solid rgba(255,255,255,0.06);}
+table{width:100%;border-collapse:collapse;font-size:0.78rem;}
+thead tr{background:rgba(240,192,64,0.06);}
+th{padding:8px 10px;text-align:left;color:#64748b;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.06);white-space:nowrap;}
+td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:top;}
+tr.win td{background:rgba(220,60,60,0.04);}
+tr.loss td{background:rgba(34,197,94,0.04);}
+tr:hover td{background:rgba(240,192,64,0.04);}
+.num{white-space:nowrap;text-align:right;}
+
+.badge{display:inline-block;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+         border-radius:6px;padding:3px 8px;margin:2px;font-size:0.72rem;line-height:1.5;}
+.badge small{color:#475569;display:block;font-size:0.65rem;}
+
+.note{font-size:0.7rem;color:#334155;margin-top:6px;}
+</style>
+</head>
+<body>
+
+<!-- 导航 -->
+<nav>
+  <span class="nav-brand">🦅 鹰歌V99</span>
+  <a class="nav-link" href="/">🦅 鹰歌策略</a>
+  <a class="nav-link" href="/angel-eye.html">🔍 天使鹰眼</a>
+  <a class="nav-link active" href="/backtest.html">📊 回测报告</a>
+  <a class="nav-link" href="/portfolio.html">💼 持仓明细</a>
+</nav>
+
+<div class="page">
+
+  <!-- 页头 -->
+  <div class="page-header">
+    <h1>📊 回测报告 · 港股 + 美股 · 2023 → 今日</h1>
+    <div class="sub">成交价：次日中间价 (open+close)÷2 · 港股每两周调仓 · 美股每季末调仓 · 资金各50% · 生成: 2026-04-24</div>
+  </div>
+
+  <!-- 整体汇总 -->
+  <div class="section-title">🌐 整体组合</div>
+  <div class="kpi-grid cols6">
+    <div class="kpi green"><div class="lbl">总收益率</div><div class="val">+155.29%</div></div>
+    <div class="kpi green"><div class="lbl">年化收益率</div><div class="val">+32.73%</div></div>
+    <div class="kpi red-val"><div class="lbl">整体最大回撤</div><div class="val">-16.68%</div></div>
+    <div class="kpi gold"><div class="lbl">整体胜率</div><div class="val">58.6%</div></div>
+    <div class="kpi white"><div class="lbl">起始资金</div><div class="val">$1,000,000</div></div>
+    <div class="kpi blue"><div class="lbl">期末资产</div><div class="val">$2,552,893</div></div>
+  </div>
+  <div class="note">整体胜率 = 港股+美股全部期次盈利期 / 总期次 (58/99)</div>
+
+  <!-- 港股 + 美股并排 -->
+  <div class="section-sep">
+
+    <!-- 港股 -->
+    <div>
+      <div class="section-title">🇭🇰 港股策略 <span class="cnt">86期 · 每两周</span></div>
+      <div class="kpi-grid cols6" style="margin-bottom:14px;">
+        <div class="kpi green"><div class="lbl">总收益</div><div class="val">+144.84%</div></div>
+        <div class="kpi green"><div class="lbl">年化</div><div class="val">+31.24%</div></div>
+        <div class="kpi red-val"><div class="lbl">最大回撤</div><div class="val">-32.68%</div></div>
+        <div class="kpi gold"><div class="lbl">胜率</div><div class="val">55.8%</div></div>
+        <div class="kpi white"><div class="lbl">夏普比率</div><div class="val">0.78</div></div>
+        <div class="kpi blue"><div class="lbl">期末资产</div><div class="val">$1,224,215</div></div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>#</th><th>调仓日</th><th>持有至</th><th>选股（名称 / 代码 / 评分）</th><th class="num">本期</th><th class="num">累计</th></tr></thead>
+          <tbody>
+        <tr class="win">
+          <td class="num">1</td>
+          <td>2023-01-06</td>
+          <td>2023-01-20</td>
+          <td><span class="badge">腾讯<br><small>HK.0700 / +104.0</small></span> <span class="badge">金山软件<br><small>HK.3888 / +104.0</small></span> <span class="badge">中集集团<br><small>HK.1177 / +102.0</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+3.28%</td>
+          <td class="num">+3.3%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">2</td>
+          <td>2023-01-20</td>
+          <td>2023-02-03</td>
+          <td><span class="badge">中广核新能源<br><small>HK.2727 / +97.2</small></span> <span class="badge">比亚迪<br><small>HK.1211 / +90.8</small></span> <span class="badge">赣锋锂业<br><small>HK.1772 / +87.0</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+1.00%</td>
+          <td class="num">+4.3%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">3</td>
+          <td>2023-02-03</td>
+          <td>2023-02-17</td>
+          <td><span class="badge">赣锋锂业<br><small>HK.1772 / +102.0</small></span> <span class="badge">中国三江化工<br><small>HK.2198 / +100.0</small></span> <span class="badge">美团<br><small>HK.3690 / +77.0</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-11.18%</td>
+          <td class="num">-7.3%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">4</td>
+          <td>2023-02-17</td>
+          <td>2023-03-03</td>
+          <td><span class="badge">小米<br><small>HK.1810 / +102.0</small></span> <span class="badge">中铝<br><small>HK.0916 / +75.1</small></span> <span class="badge">华虹半导体<br><small>HK.1347 / +70.9</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+0.08%</td>
+          <td class="num">-7.3%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">5</td>
+          <td>2023-03-03</td>
+          <td>2023-03-17</td>
+          <td><span class="badge">药明生物<br><small>HK.2269 / +77.0</small></span> <span class="badge">比亚迪<br><small>HK.1211 / +64.0</small></span> <span class="badge">药明康德<br><small>HK.2359 / +64.0</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-12.70%</td>
+          <td class="num">-19.1%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">6</td>
+          <td>2023-03-17</td>
+          <td>2023-03-31</td>
+          <td><span class="badge">商汤科技<br><small>HK.0020 / +81.2</small></span> <span class="badge">中铝<br><small>HK.0916 / +28.1</small></span> <span class="badge">理想汽车<br><small>HK.2015 / +24.5</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+1.71%</td>
+          <td class="num">-17.7%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">7</td>
+          <td>2023-03-31</td>
+          <td>2023-04-14</td>
+          <td><span class="badge">比亚迪<br><small>HK.1211 / +86.2</small></span> <span class="badge">理想汽车<br><small>HK.2015 / +85.0</small></span> <span class="badge">小鹏汽车<br><small>HK.9868 / +74.7</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-4.91%</td>
+          <td class="num">-21.7%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">8</td>
+          <td>2023-04-14</td>
+          <td>2023-04-28</td>
+          <td><span class="badge">商汤科技<br><small>HK.0020 / +99.0</small></span> <span class="badge">理想汽车<br><small>HK.2015 / +47.9</small></span> <span class="badge">比亚迪<br><small>HK.1211 / +39.8</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-4.52%</td>
+          <td class="num">-25.2%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">9</td>
+          <td>2023-04-28</td>
+          <td>2023-05-12</td>
+          <td><span class="badge">中煤能源<br><small>HK.1898 / +48.3</small></span> <span class="badge">商汤科技<br><small>HK.0020 / +42.1</small></span> <span class="badge">比亚迪<br><small>HK.1211 / +39.0</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-2.66%</td>
+          <td class="num">-27.2%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">10</td>
+          <td>2023-05-12</td>
+          <td>2023-05-25</td>
+          <td><span class="badge">理想汽车<br><small>HK.2015 / +82.9</small></span> <span class="badge">中煤能源<br><small>HK.1898 / +72.5</small></span> <span class="badge">中芯国际<br><small>HK.0981 / +49.9</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-3.49%</td>
+          <td class="num">-29.8%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">11</td>
+          <td>2023-05-25</td>
+          <td>2023-06-09</td>
+          <td><span class="badge">比亚迪<br><small>HK.1211 / +53.0</small></span> <span class="badge">中芯国际<br><small>HK.0981 / +52.0</small></span> <span class="badge">理想汽车<br><small>HK.2015 / +47.1</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+8.71%</td>
+          <td class="num">-23.7%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">12</td>
+          <td>2023-06-09</td>
+          <td>2023-06-23</td>
+          <td><span class="badge">中芯国际<br><small>HK.0981 / +87.0</small></span> <span class="badge">金山软件<br><small>HK.3888 / +60.3</small></span> <span class="badge">比亚迪<br><small>HK.1211 / +53.7</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+0.22%</td>
+          <td class="num">-23.5%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">13</td>
+          <td>2023-06-23</td>
+          <td>2023-07-07</td>
+          <td><span class="badge">比亚迪<br><small>HK.1211 / +102.0</small></span> <span class="badge">小鹏汽车<br><small>HK.9868 / +76.4</small></span> <span class="badge">阿里巴巴<br><small>HK.9988 / +47.4</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+12.55%</td>
+          <td class="num">-13.9%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">14</td>
+          <td>2023-07-07</td>
+          <td>2023-07-21</td>
+          <td><span class="badge">小鹏汽车<br><small>HK.9868 / +104.0</small></span> <span class="badge">比亚迪<br><small>HK.1211 / +48.7</small></span> <span class="badge">五矿资源<br><small>HK.1208 / +43.5</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+7.16%</td>
+          <td class="num">-7.7%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">15</td>
+          <td>2023-07-21</td>
+          <td>2023-08-04</td>
+          <td><span class="badge">快手<br><small>HK.1024 / +90.7</small></span> <span class="badge">蔚来<br><small>HK.9866 / +82.5</small></span> <span class="badge">京东<br><small>HK.9618 / +44.1</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+25.22%</td>
+          <td class="num">+15.5%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">16</td>
+          <td>2023-08-04</td>
+          <td>2023-08-18</td>
+          <td><span class="badge">金蝶国际<br><small>HK.0268 / +103.7</small></span> <span class="badge">吉利汽车<br><small>HK.0175 / +89.5</small></span> <span class="badge">药明康德<br><small>HK.2359 / +88.9</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-5.72%</td>
+          <td class="num">+8.9%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">17</td>
+          <td>2023-08-18</td>
+          <td>2023-08-31</td>
+          <td><span class="badge">药明康德<br><small>HK.2359 / +96.0</small></span> <span class="badge">蔚来<br><small>HK.9866 / +62.0</small></span> <span class="badge">金蝶国际<br><small>HK.0268 / +19.0</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+2.12%</td>
+          <td class="num">+11.2%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">18</td>
+          <td>2023-08-31</td>
+          <td>2023-09-15</td>
+          <td><span class="badge">药明康德<br><small>HK.2359 / +102.0</small></span> <span class="badge">阿里巴巴<br><small>HK.9988 / +69.1</small></span> <span class="badge">金蝶国际<br><small>HK.0268 / +57.4</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-6.77%</td>
+          <td class="num">+3.7%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">19</td>
+          <td>2023-09-15</td>
+          <td>2023-09-29</td>
+          <td><span class="badge">药明康德<br><small>HK.2359 / +62.0</small></span> <span class="badge">蔚来<br><small>HK.9866 / +60.9</small></span> <span class="badge">复星医药<br><small>HK.0696 / +46.8</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-4.05%</td>
+          <td class="num">-0.5%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">20</td>
+          <td>2023-09-29</td>
+          <td>2023-10-13</td>
+          <td><span class="badge">药明生物<br><small>HK.2269 / +102.0</small></span> <span class="badge">中煤能源<br><small>HK.1898 / +21.6</small></span> <span class="badge">五矿资源<br><small>HK.1208 / +17.9</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+1.80%</td>
+          <td class="num">+1.3%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">21</td>
+          <td>2023-10-13</td>
+          <td>2023-10-27</td>
+          <td><span class="badge">药明生物<br><small>HK.2269 / +102.0</small></span> <span class="badge">中芯国际<br><small>HK.0981 / +60.8</small></span> <span class="badge">中煤能源<br><small>HK.1898 / +22.8</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+4.03%</td>
+          <td class="num">+5.4%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">22</td>
+          <td>2023-10-27</td>
+          <td>2023-11-10</td>
+          <td><span class="badge">石药集团<br><small>HK.1093 / +53.9</small></span> <span class="badge">药明生物<br><small>HK.2269 / +42.7</small></span> <span class="badge">舜宇光学<br><small>HK.2382 / +22.5</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+1.17%</td>
+          <td class="num">+6.6%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">23</td>
+          <td>2023-11-10</td>
+          <td>2023-11-24</td>
+          <td><span class="badge">石药集团<br><small>HK.1093 / +101.0</small></span> <span class="badge">药明生物<br><small>HK.2269 / +76.2</small></span> <span class="badge">中集集团<br><small>HK.1177 / +62.9</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+0.03%</td>
+          <td class="num">+6.7%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">24</td>
+          <td>2023-11-24</td>
+          <td>2023-12-08</td>
+          <td><span class="badge">石药集团<br><small>HK.1093 / +102.0</small></span> <span class="badge">中集集团<br><small>HK.1177 / +95.0</small></span> <span class="badge">中国再保险<br><small>HK.6185 / +84.1</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-9.83%</td>
+          <td class="num">-3.8%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">25</td>
+          <td>2023-12-08</td>
+          <td>2023-12-22</td>
+          <td><span class="badge">石药集团<br><small>HK.1093 / +52.8</small></span> <span class="badge">中集集团<br><small>HK.1177 / +48.8</small></span> <span class="badge">HK.1801<br><small>HK.1801 / +39.3</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-1.05%</td>
+          <td class="num">-4.8%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">26</td>
+          <td>2023-12-22</td>
+          <td>2024-01-05</td>
+          <td><span class="badge">舜宇光学<br><small>HK.2382 / +97.0</small></span> <span class="badge">石药集团<br><small>HK.1093 / +73.6</small></span> <span class="badge">中国三江化工<br><small>HK.2198 / +53.5</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-0.48%</td>
+          <td class="num">-5.3%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">27</td>
+          <td>2024-01-05</td>
+          <td>2024-01-19</td>
+          <td><span class="badge">石药集团<br><small>HK.1093 / +102.0</small></span> <span class="badge">中国三江化工<br><small>HK.2198 / +100.0</small></span> <span class="badge">中国联通<br><small>HK.0384 / +87.3</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-11.86%</td>
+          <td class="num">-16.5%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">28</td>
+          <td>2024-01-19</td>
+          <td>2024-02-02</td>
+          <td><span class="badge">中国三江化工<br><small>HK.2198 / +24.6</small></span> <span class="badge">中集集团<br><small>HK.1177 / +22.8</small></span> <span class="badge">石药集团<br><small>HK.1093 / +10.9</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-1.18%</td>
+          <td class="num">-17.5%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">29</td>
+          <td>2024-02-02</td>
+          <td>2024-02-16</td>
+          <td><span class="badge">中国联通<br><small>HK.0384 / +22.3</small></span> <span class="badge">百度<br><small>HK.9888 / +13.8</small></span> <span class="badge">紫金矿业<br><small>HK.2899 / +13.4</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+2.04%</td>
+          <td class="num">-15.8%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">30</td>
+          <td>2024-02-16</td>
+          <td>2024-03-01</td>
+          <td><span class="badge">洛阳钼业<br><small>HK.3993 / +44.9</small></span> <span class="badge">建滔积层板<br><small>HK.0189 / +31.3</small></span> <span class="badge">百度<br><small>HK.9888 / +31.0</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+9.51%</td>
+          <td class="num">-7.8%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">31</td>
+          <td>2024-03-01</td>
+          <td>2024-03-15</td>
+          <td><span class="badge">建滔积层板<br><small>HK.0189 / +79.6</small></span> <span class="badge">华虹半导体<br><small>HK.0746 / +47.1</small></span> <span class="badge">阿里巴巴<br><small>HK.9988 / +37.3</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+3.80%</td>
+          <td class="num">-4.3%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">32</td>
+          <td>2024-03-15</td>
+          <td>2024-03-28</td>
+          <td><span class="badge">华虹半导体<br><small>HK.0746 / +86.5</small></span> <span class="badge">吉利汽车<br><small>HK.0175 / +76.0</small></span> <span class="badge">中国联通<br><small>HK.0384 / +73.9</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-2.21%</td>
+          <td class="num">-6.4%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">33</td>
+          <td>2024-03-28</td>
+          <td>2024-04-12</td>
+          <td><span class="badge">美团<br><small>HK.3690 / +104.0</small></span> <span class="badge">吉利汽车<br><small>HK.0175 / +94.0</small></span> <span class="badge">招金矿业<br><small>HK.1818 / +73.5</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+10.42%</td>
+          <td class="num">+3.3%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">34</td>
+          <td>2024-04-12</td>
+          <td>2024-04-26</td>
+          <td><span class="badge">金山软件<br><small>HK.3888 / +95.7</small></span> <span class="badge">吉利汽车<br><small>HK.0175 / +90.2</small></span> <span class="badge">腾讯<br><small>HK.0700 / +69.5</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+6.19%</td>
+          <td class="num">+9.7%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">35</td>
+          <td>2024-04-26</td>
+          <td>2024-05-10</td>
+          <td><span class="badge">哔哩哔哩<br><small>HK.9626 / +107.0</small></span> <span class="badge">复星医药<br><small>HK.0696 / +104.0</small></span> <span class="badge">中铝<br><small>HK.0916 / +102.0</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+7.60%</td>
+          <td class="num">+18.0%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">36</td>
+          <td>2024-05-10</td>
+          <td>2024-05-24</td>
+          <td><span class="badge">复星医药<br><small>HK.0696 / +104.0</small></span> <span class="badge">比亚迪<br><small>HK.1211 / +102.0</small></span> <span class="badge">中国再保险<br><small>HK.6185 / +102.0</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-1.68%</td>
+          <td class="num">+16.1%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">37</td>
+          <td>2024-05-24</td>
+          <td>2024-06-07</td>
+          <td><span class="badge">中国再保险<br><small>HK.6185 / +105.0</small></span> <span class="badge">哔哩哔哩<br><small>HK.9626 / +104.0</small></span> <span class="badge">中铝<br><small>HK.0916 / +100.0</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+3.42%</td>
+          <td class="num">+20.0%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">38</td>
+          <td>2024-06-07</td>
+          <td>2024-06-21</td>
+          <td><span class="badge">比亚迪<br><small>HK.1211 / +101.9</small></span> <span class="badge">中芯国际<br><small>HK.0981 / +80.6</small></span> <span class="badge">金山软件<br><small>HK.3888 / +77.0</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-0.49%</td>
+          <td class="num">+19.4%</td>
+        </tr>
+        <tr class="">
+          <td class="num">39</td>
+          <td>2024-06-21</td>
+          <td>2024-07-05</td>
+          <td><span class="badge">中芯国际<br><small>HK.0981 / +70.2</small></span> <span class="badge">中兴通讯<br><small>HK.0763 / +52.5</small></span> <span class="badge">中国再保险<br><small>HK.6185 / +46.1</small></span></td>
+          <td style="color:#8b949e" class="num">-0.00%</td>
+          <td class="num">+19.4%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">40</td>
+          <td>2024-07-05</td>
+          <td>2024-07-19</td>
+          <td><span class="badge">中兴通讯<br><small>HK.0763 / +87.5</small></span> <span class="badge">华虹半导体<br><small>HK.1347 / +60.0</small></span> <span class="badge">中芯国际<br><small>HK.0981 / +37.9</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+5.97%</td>
+          <td class="num">+26.6%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">41</td>
+          <td>2024-07-19</td>
+          <td>2024-08-02</td>
+          <td><span class="badge">舜宇光学<br><small>HK.2382 / +104.0</small></span> <span class="badge">HK.1801<br><small>HK.1801 / +94.7</small></span> <span class="badge">蔚来<br><small>HK.9866 / +79.8</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-9.93%</td>
+          <td class="num">+14.0%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">42</td>
+          <td>2024-08-02</td>
+          <td>2024-08-16</td>
+          <td><span class="badge">华虹半导体<br><small>HK.1347 / +60.0</small></span> <span class="badge">中广核新能源<br><small>HK.2727 / +33.0</small></span> <span class="badge">联想集团<br><small>HK.0992 / +31.7</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-1.72%</td>
+          <td class="num">+12.0%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">43</td>
+          <td>2024-08-16</td>
+          <td>2024-08-30</td>
+          <td><span class="badge">HK.1801<br><small>HK.1801 / +46.4</small></span> <span class="badge">中国化学<br><small>HK.0867 / +29.1</small></span> <span class="badge">阿里巴巴<br><small>HK.9988 / +25.2</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+1.65%</td>
+          <td class="num">+13.9%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">44</td>
+          <td>2024-08-30</td>
+          <td>2024-09-13</td>
+          <td><span class="badge">中国化学<br><small>HK.0867 / +72.7</small></span> <span class="badge">舜宇光学<br><small>HK.2382 / +39.4</small></span> <span class="badge">药明康德<br><small>HK.2359 / +29.3</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+2.28%</td>
+          <td class="num">+16.5%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">45</td>
+          <td>2024-09-13</td>
+          <td>2024-09-27</td>
+          <td><span class="badge">蔚来<br><small>HK.9866 / +107.0</small></span> <span class="badge">小鹏汽车<br><small>HK.9868 / +99.0</small></span> <span class="badge">药明康德<br><small>HK.2359 / +91.2</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+27.95%</td>
+          <td class="num">+49.0%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">46</td>
+          <td>2024-09-27</td>
+          <td>2024-10-10</td>
+          <td><span class="badge">复星医药<br><small>HK.0696 / +107.0</small></span> <span class="badge">中国化学<br><small>HK.0867 / +105.0</small></span> <span class="badge">药明生物<br><small>HK.2269 / +105.0</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+2.78%</td>
+          <td class="num">+53.2%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">47</td>
+          <td>2024-10-10</td>
+          <td>2024-10-25</td>
+          <td><span class="badge">金山软件<br><small>HK.3888 / +99.0</small></span> <span class="badge">金蝶国际<br><small>HK.0268 / +97.0</small></span> <span class="badge">赣锋锂业<br><small>HK.1772 / +97.0</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-1.65%</td>
+          <td class="num">+50.7%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">48</td>
+          <td>2024-10-25</td>
+          <td>2024-11-08</td>
+          <td><span class="badge">金山软件<br><small>HK.3888 / +77.0</small></span> <span class="badge">赣锋锂业<br><small>HK.1772 / +75.0</small></span> <span class="badge">商汤科技<br><small>HK.0020 / +72.0</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+6.27%</td>
+          <td class="num">+60.1%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">49</td>
+          <td>2024-11-08</td>
+          <td>2024-11-22</td>
+          <td><span class="badge">舜宇光学<br><small>HK.2382 / +104.0</small></span> <span class="badge">中兴通讯<br><small>HK.0763 / +100.0</small></span> <span class="badge">五矿资源<br><small>HK.1208 / +100.0</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-5.74%</td>
+          <td class="num">+50.9%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">50</td>
+          <td>2024-11-22</td>
+          <td>2024-12-06</td>
+          <td><span class="badge">舜宇光学<br><small>HK.2382 / +96.2</small></span> <span class="badge">五矿资源<br><small>HK.1208 / +65.7</small></span> <span class="badge">商汤科技<br><small>HK.0020 / +62.0</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+9.08%</td>
+          <td class="num">+64.6%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">51</td>
+          <td>2024-12-06</td>
+          <td>2024-12-20</td>
+          <td><span class="badge">建滔积层板<br><small>HK.0189 / +94.0</small></span> <span class="badge">哔哩哔哩<br><small>HK.9626 / +79.0</small></span> <span class="badge">快手<br><small>HK.1024 / +77.0</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-4.01%</td>
+          <td class="num">+58.0%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">52</td>
+          <td>2024-12-20</td>
+          <td>2025-01-03</td>
+          <td><span class="badge">商汤科技<br><small>HK.0020 / +62.0</small></span> <span class="badge">建滔积层板<br><small>HK.0189 / +62.0</small></span> <span class="badge">京东<br><small>HK.9618 / +62.0</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-4.52%</td>
+          <td class="num">+50.9%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">53</td>
+          <td>2025-01-03</td>
+          <td>2025-01-17</td>
+          <td><span class="badge">中广核新能源<br><small>HK.2727 / +62.0</small></span> <span class="badge">建滔积层板<br><small>HK.0189 / +26.9</small></span> <span class="badge">中石油<br><small>HK.0857 / +16.1</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+1.97%</td>
+          <td class="num">+53.9%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">54</td>
+          <td>2025-01-17</td>
+          <td>2025-01-28</td>
+          <td><span class="badge">华虹半导体<br><small>HK.1347 / +90.3</small></span> <span class="badge">药明生物<br><small>HK.2269 / +71.9</small></span> <span class="badge">中石油<br><small>HK.0857 / +54.0</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-3.12%</td>
+          <td class="num">+49.1%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">55</td>
+          <td>2025-01-28</td>
+          <td>2025-02-14</td>
+          <td><span class="badge">药明生物<br><small>HK.2269 / +57.2</small></span> <span class="badge">药明康德<br><small>HK.2359 / +54.2</small></span> <span class="badge">商汤科技<br><small>HK.0020 / +33.9</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+17.16%</td>
+          <td class="num">+74.6%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">56</td>
+          <td>2025-02-14</td>
+          <td>2025-02-28</td>
+          <td><span class="badge">百度<br><small>HK.9888 / +79.2</small></span> <span class="badge">理想汽车<br><small>HK.2015 / +55.8</small></span> <span class="badge">中海油<br><small>HK.0883 / +39.9</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+0.97%</td>
+          <td class="num">+76.3%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">57</td>
+          <td>2025-02-28</td>
+          <td>2025-03-14</td>
+          <td><span class="badge">理想汽车<br><small>HK.2015 / +105.0</small></span> <span class="badge">哔哩哔哩<br><small>HK.9626 / +72.8</small></span> <span class="badge">中国化学<br><small>HK.0867 / +71.7</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+2.73%</td>
+          <td class="num">+81.1%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">58</td>
+          <td>2025-03-14</td>
+          <td>2025-03-28</td>
+          <td><span class="badge">理想汽车<br><small>HK.2015 / +75.0</small></span> <span class="badge">洛阳钼业<br><small>HK.3993 / +58.8</small></span> <span class="badge">百度<br><small>HK.9888 / +57.7</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-0.71%</td>
+          <td class="num">+79.9%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">59</td>
+          <td>2025-03-28</td>
+          <td>2025-04-11</td>
+          <td><span class="badge">洛阳钼业<br><small>HK.3993 / +94.0</small></span> <span class="badge">联想集团<br><small>HK.0992 / +45.3</small></span> <span class="badge">中石油<br><small>HK.0857 / +41.3</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-18.27%</td>
+          <td class="num">+47.0%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">60</td>
+          <td>2025-04-11</td>
+          <td>2025-04-25</td>
+          <td><span class="badge">腾讯<br><small>HK.0700 / +67.0</small></span> <span class="badge">阿里巴巴<br><small>HK.9988 / +67.0</small></span> <span class="badge">药明生物<br><small>HK.2269 / +65.0</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+7.34%</td>
+          <td class="num">+57.8%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">61</td>
+          <td>2025-04-25</td>
+          <td>2025-05-09</td>
+          <td><span class="badge">快手<br><small>HK.1024 / +77.0</small></span> <span class="badge">中铝<br><small>HK.0916 / +73.3</small></span> <span class="badge">金蝶国际<br><small>HK.0268 / +60.0</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+4.28%</td>
+          <td class="num">+64.5%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">62</td>
+          <td>2025-05-09</td>
+          <td>2025-05-23</td>
+          <td><span class="badge">快手<br><small>HK.1024 / +80.7</small></span> <span class="badge">复星医药<br><small>HK.0696 / +78.3</small></span> <span class="badge">中国联通<br><small>HK.0384 / +63.1</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-3.74%</td>
+          <td class="num">+58.4%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">63</td>
+          <td>2025-05-23</td>
+          <td>2025-06-06</td>
+          <td><span class="badge">中石油<br><small>HK.0857 / +65.5</small></span> <span class="badge">中煤能源<br><small>HK.1898 / +62.7</small></span> <span class="badge">中国广核<br><small>HK.1816 / +60.6</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+1.10%</td>
+          <td class="num">+60.1%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">64</td>
+          <td>2025-06-06</td>
+          <td>2025-06-20</td>
+          <td><span class="badge">洛阳钼业<br><small>HK.3993 / +102.0</small></span> <span class="badge">中石油<br><small>HK.0857 / +100.0</small></span> <span class="badge">中铝<br><small>HK.0916 / +79.0</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+1.69%</td>
+          <td class="num">+62.8%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">65</td>
+          <td>2025-06-20</td>
+          <td>2025-07-04</td>
+          <td><span class="badge">中石油<br><small>HK.0857 / +84.7</small></span> <span class="badge">中国广核<br><small>HK.1816 / +72.5</small></span> <span class="badge">中煤能源<br><small>HK.1898 / +62.7</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+3.14%</td>
+          <td class="num">+67.9%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">66</td>
+          <td>2025-07-04</td>
+          <td>2025-07-18</td>
+          <td><span class="badge">中国广核<br><small>HK.1816 / +92.9</small></span> <span class="badge">哔哩哔哩<br><small>HK.9626 / +90.0</small></span> <span class="badge">中广核新能源<br><small>HK.2727 / +74.4</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+8.67%</td>
+          <td class="num">+82.5%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">67</td>
+          <td>2025-07-18</td>
+          <td>2025-08-01</td>
+          <td><span class="badge">中广核新能源<br><small>HK.2727 / +107.0</small></span> <span class="badge">联想集团<br><small>HK.0992 / +104.0</small></span> <span class="badge">晶泰科技<br><small>HK.2228 / +104.0</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-1.54%</td>
+          <td class="num">+79.7%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">68</td>
+          <td>2025-08-01</td>
+          <td>2025-08-15</td>
+          <td><span class="badge">联想集团<br><small>HK.0992 / +81.3</small></span> <span class="badge">晶泰科技<br><small>HK.2228 / +76.6</small></span> <span class="badge">中国广核<br><small>HK.1816 / +64.0</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+22.74%</td>
+          <td class="num">+120.6%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">69</td>
+          <td>2025-08-15</td>
+          <td>2025-08-29</td>
+          <td><span class="badge">商汤科技<br><small>HK.0020 / +102.0</small></span> <span class="badge">联想集团<br><small>HK.0992 / +71.6</small></span> <span class="badge">蔚来<br><small>HK.9866 / +49.2</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+18.19%</td>
+          <td class="num">+160.7%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">70</td>
+          <td>2025-08-29</td>
+          <td>2025-09-12</td>
+          <td><span class="badge">百度<br><small>HK.9888 / +68.5</small></span> <span class="badge">哔哩哔哩<br><small>HK.9626 / +56.0</small></span> <span class="badge">中国广核<br><small>HK.1816 / +43.2</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+11.35%</td>
+          <td class="num">+190.3%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">71</td>
+          <td>2025-09-12</td>
+          <td>2025-09-26</td>
+          <td><span class="badge">京东<br><small>HK.9618 / +30.8</small></span> <span class="badge">复星医药<br><small>HK.0696 / +23.0</small></span> <span class="badge">金山软件<br><small>HK.3888 / -16.1</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-2.74%</td>
+          <td class="num">+182.3%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">72</td>
+          <td>2025-09-26</td>
+          <td>2025-10-10</td>
+          <td><span class="badge">中国广核<br><small>HK.1816 / +21.1</small></span> <span class="badge">京东<br><small>HK.9618 / +14.8</small></span> <span class="badge">复星医药<br><small>HK.0696 / -4.6</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+1.53%</td>
+          <td class="num">+186.6%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">73</td>
+          <td>2025-10-10</td>
+          <td>2025-10-24</td>
+          <td><span class="badge">京东<br><small>HK.9618 / +22.7</small></span> <span class="badge">金山软件<br><small>HK.3888 / -3.3</small></span> <span class="badge">比亚迪<br><small>HK.1211 / -27.7</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-3.45%</td>
+          <td class="num">+176.7%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">74</td>
+          <td>2025-10-24</td>
+          <td>2025-11-07</td>
+          <td><span class="badge">中国三江化工<br><small>HK.2198 / +60.0</small></span> <span class="badge">京东<br><small>HK.9618 / +13.1</small></span> <span class="badge">中国再保险<br><small>HK.6185 / -0.8</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-1.04%</td>
+          <td class="num">+173.9%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">75</td>
+          <td>2025-11-07</td>
+          <td>2025-11-21</td>
+          <td><span class="badge">商汤科技<br><small>HK.0020 / +62.0</small></span> <span class="badge">中兴通讯<br><small>HK.0763 / +55.0</small></span> <span class="badge">京东<br><small>HK.9618 / +0.3</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-9.13%</td>
+          <td class="num">+148.9%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">76</td>
+          <td>2025-11-21</td>
+          <td>2025-12-05</td>
+          <td><span class="badge">百度<br><small>HK.9888 / +64.0</small></span> <span class="badge">商汤科技<br><small>HK.0020 / +57.2</small></span> <span class="badge">中广核新能源<br><small>HK.2727 / +20.1</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+5.54%</td>
+          <td class="num">+162.6%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">77</td>
+          <td>2025-12-05</td>
+          <td>2025-12-19</td>
+          <td><span class="badge">中广核新能源<br><small>HK.2727 / +77.0</small></span> <span class="badge">商汤科技<br><small>HK.0020 / +36.4</small></span> <span class="badge">中兴通讯<br><small>HK.0763 / +33.0</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-11.59%</td>
+          <td class="num">+132.2%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">78</td>
+          <td>2025-12-19</td>
+          <td>2026-01-02</td>
+          <td><span class="badge">中广核新能源<br><small>HK.2727 / +31.7</small></span> <span class="badge">美团<br><small>HK.3690 / +19.0</small></span> <span class="badge">复星医药<br><small>HK.0696 / +11.8</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+0.79%</td>
+          <td class="num">+134.0%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">79</td>
+          <td>2026-01-02</td>
+          <td>2026-01-16</td>
+          <td><span class="badge">美团<br><small>HK.3690 / +47.2</small></span> <span class="badge">中广核新能源<br><small>HK.2727 / +37.2</small></span> <span class="badge">复星医药<br><small>HK.0696 / +1.1</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+2.31%</td>
+          <td class="num">+139.4%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">80</td>
+          <td>2026-01-16</td>
+          <td>2026-01-30</td>
+          <td><span class="badge">复星医药<br><small>HK.0696 / +31.6</small></span> <span class="badge">小鹏汽车<br><small>HK.9868 / +10.3</small></span> <span class="badge">比亚迪<br><small>HK.1211 / +3.0</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-4.41%</td>
+          <td class="num">+128.9%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">81</td>
+          <td>2026-01-30</td>
+          <td>2026-02-13</td>
+          <td><span class="badge">中铝<br><small>HK.0916 / +32.3</small></span> <span class="badge">比亚迪<br><small>HK.1211 / +25.4</small></span> <span class="badge">复星医药<br><small>HK.0696 / +12.1</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+2.03%</td>
+          <td class="num">+133.5%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">82</td>
+          <td>2026-02-13</td>
+          <td>2026-02-27</td>
+          <td><span class="badge">理想汽车<br><small>HK.2015 / +14.0</small></span> <span class="badge">吉利汽车<br><small>HK.0175 / +3.8</small></span> <span class="badge">复星医药<br><small>HK.0696 / +3.0</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-2.60%</td>
+          <td class="num">+127.5%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">83</td>
+          <td>2026-02-27</td>
+          <td>2026-03-13</td>
+          <td><span class="badge">百度<br><small>HK.9888 / +35.9</small></span> <span class="badge">联想集团<br><small>HK.0992 / +31.3</small></span> <span class="badge">复星医药<br><small>HK.0696 / +23.6</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-0.06%</td>
+          <td class="num">+127.3%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">84</td>
+          <td>2026-03-13</td>
+          <td>2026-03-27</td>
+          <td><span class="badge">蔚来<br><small>HK.9866 / +58.5</small></span> <span class="badge">石药集团<br><small>HK.1093 / +40.1</small></span> <span class="badge">小鹏汽车<br><small>HK.9868 / +35.9</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-3.08%</td>
+          <td class="num">+120.3%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">85</td>
+          <td>2026-03-27</td>
+          <td>2026-04-10</td>
+          <td><span class="badge">比亚迪<br><small>HK.1211 / +84.8</small></span> <span class="badge">理想汽车<br><small>HK.2015 / +60.2</small></span> <span class="badge">蔚来<br><small>HK.9866 / +45.9</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+7.28%</td>
+          <td class="num">+136.4%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">86</td>
+          <td>2026-04-10</td>
+          <td>2026-04-23</td>
+          <td><span class="badge">理想汽车<br><small>HK.2015 / +75.5</small></span> <span class="badge">联想集团<br><small>HK.0992 / +61.6</small></span> <span class="badge">比亚迪<br><small>HK.1211 / +31.1</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+3.59%</td>
+          <td class="num">+144.8%</td>
+        </tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 美股 -->
+    <div>
+      <div class="section-title">🇺🇸 美股策略 <span class="cnt">13期 · 每季末</span></div>
+      <div class="kpi-grid cols6" style="margin-bottom:14px;">
+        <div class="kpi green"><div class="lbl">总收益</div><div class="val">+165.74%</div></div>
+        <div class="kpi green"><div class="lbl">年化</div><div class="val">+37.58%</div></div>
+        <div class="kpi red-val"><div class="lbl">最大回撤</div><div class="val">-13.55%</div></div>
+        <div class="kpi gold"><div class="lbl">胜率</div><div class="val">76.9%</div></div>
+        <div class="kpi white"><div class="lbl">夏普比率</div><div class="val">1.54</div></div>
+        <div class="kpi blue"><div class="lbl">期末资产</div><div class="val">$1,328,678</div></div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>#</th><th>调仓日</th><th>持有至</th><th>选股（名称 / 代码 / 评分）</th><th class="num">本期</th><th class="num">累计</th></tr></thead>
+          <tbody>
+        <tr class="win">
+          <td class="num">1</td>
+          <td>2023-03-31</td>
+          <td>2023-06-30</td>
+          <td><span class="badge">英特尔<br><small>US.INTC / +104.0</small></span> <span class="badge">亚马逊<br><small>US.AMZN / +102.0</small></span> <span class="badge">镁光<br><small>US.MU / +89.4</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+11.69%</td>
+          <td class="num">+11.7%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">2</td>
+          <td>2023-06-30</td>
+          <td>2023-09-29</td>
+          <td><span class="badge">康菲<br><small>US.COP / +31.7</small></span> <span class="badge">铁矿石<br><small>US.CLF / +17.9</small></span> <span class="badge">雪佛龙<br><small>US.CVX / +8.5</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+5.86%</td>
+          <td class="num">+18.2%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">3</td>
+          <td>2023-09-29</td>
+          <td>2023-12-29</td>
+          <td><span class="badge">铁矿石<br><small>US.CLF / +6.8</small></span> <span class="badge">高通<br><small>US.QCOM / -3.1</small></span> <span class="badge">必和必拓<br><small>US.BHP / -4.0</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+27.49%</td>
+          <td class="num">+50.7%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">4</td>
+          <td>2023-12-29</td>
+          <td>2024-03-28</td>
+          <td><span class="badge">美铝<br><small>US.AA / +94.5</small></span> <span class="badge">NextEra<br><small>US.NEE / +22.6</small></span> <span class="badge">甲骨文<br><small>US.ORCL / +10.6</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+9.18%</td>
+          <td class="num">+64.6%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">5</td>
+          <td>2024-03-28</td>
+          <td>2024-06-28</td>
+          <td><span class="badge">NextEra<br><small>US.NEE / +61.4</small></span> <span class="badge">巴里克黄金<br><small>US.GOLD / +35.7</small></span> <span class="badge">美铝<br><small>US.AA / +34.3</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+11.25%</td>
+          <td class="num">+83.1%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">6</td>
+          <td>2024-06-28</td>
+          <td>2024-09-30</td>
+          <td><span class="badge">特斯拉<br><small>US.TSLA / +81.7</small></span> <span class="badge">Adobe<br><small>US.ADBE / +72.3</small></span> <span class="badge">第一太阳能<br><small>US.FSLR / +62.0</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+10.68%</td>
+          <td class="num">+102.6%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">7</td>
+          <td>2024-09-30</td>
+          <td>2024-12-31</td>
+          <td><span class="badge">AMD<br><small>US.AMD / +54.2</small></span> <span class="badge">罗克韦尔<br><small>US.ROK / +31.8</small></span> <span class="badge">Hexcel<br><small>US.HXL / +22.5</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-5.03%</td>
+          <td class="num">+92.5%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">8</td>
+          <td>2024-12-31</td>
+          <td>2025-03-31</td>
+          <td><span class="badge">Hexcel<br><small>US.HXL / +19.9</small></span> <span class="badge">Intuit<br><small>US.INTU / +13.5</small></span> <span class="badge">雪佛龙<br><small>US.CVX / +8.2</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+0.46%</td>
+          <td class="num">+93.3%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">9</td>
+          <td>2025-03-31</td>
+          <td>2025-06-30</td>
+          <td><span class="badge">纽蒙特<br><small>US.NEM / +100.0</small></span> <span class="badge">斯伦贝谢<br><small>US.SLB / +74.7</small></span> <span class="badge">康菲<br><small>US.COP / +52.8</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-3.88%</td>
+          <td class="num">+85.8%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">10</td>
+          <td>2025-06-30</td>
+          <td>2025-09-30</td>
+          <td><span class="badge">应用材料<br><small>US.AMAT / +104.0</small></span> <span class="badge">迈威尔<br><small>US.MRVL / +104.0</small></span> <span class="badge">第一太阳能<br><small>US.FSLR / +77.0</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+18.77%</td>
+          <td class="num">+120.7%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">11</td>
+          <td>2025-09-30</td>
+          <td>2025-12-31</td>
+          <td><span class="badge">雅宝<br><small>US.ALB / +104.0</small></span> <span class="badge">Chemours<br><small>US.CC / +62.0</small></span> <span class="badge">迈威尔<br><small>US.MRVL / +60.1</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+15.95%</td>
+          <td class="num">+155.9%</td>
+        </tr>
+        <tr class="loss">
+          <td class="num">12</td>
+          <td>2025-12-31</td>
+          <td>2026-03-31</td>
+          <td><span class="badge">US.CRM<br><small>US.CRM / +72.2</small></span> <span class="badge">Eastman Chemical<br><small>US.EMN / +55.1</small></span> <span class="badge">Intuit<br><small>US.INTU / +30.0</small></span></td>
+          <td style="color:#3db56e;font-weight:bold" class="num">-13.55%</td>
+          <td class="num">+121.2%</td>
+        </tr>
+        <tr class="win">
+          <td class="num">13</td>
+          <td>2026-03-31</td>
+          <td>2026-04-23</td>
+          <td><span class="badge">巴里克黄金<br><small>US.GOLD / +62.0</small></span> <span class="badge">德州仪器<br><small>US.TXN / +48.5</small></span> <span class="badge">Vistra Energy<br><small>US.VST / -19.0</small></span></td>
+          <td style="color:#e04c4c;font-weight:bold" class="num">+20.11%</td>
+          <td class="num">+165.7%</td>
+        </tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
