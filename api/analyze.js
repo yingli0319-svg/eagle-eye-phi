@@ -80,7 +80,7 @@ function toYFTicker(code, market) {
 // ─── Yahoo Finance 取数 ───
 async function fetchYahoo(ticker, code, market) {
   try {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=6mo`;
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1y`;
     const resp = await fetch(url, {
       headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
     });
@@ -108,11 +108,13 @@ async function fetchYahoo(ticker, code, market) {
     const hs = valid.map(x => x.h);
     const ls = valid.map(x => x.l);
 
+    const vs = valid.map(x => x.v || 0);
+
     const latest = cs[cs.length - 1];
     const prev   = cs[cs.length - 2] ?? latest;
     const change = (latest - prev) / prev * 100;
 
-    const analysis = calcTA(cs, hs, ls);
+    const analysis = calcTA(cs, hs, ls, vs);
     const name = meta.shortName || meta.longName || code;
 
     return {
@@ -144,7 +146,7 @@ async function fetchEastMoney(code, market) {
       secid = `0.${code}`;   // 深交所
     }
 
-    const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56&klt=101&fqt=0&end=20500101&lmt=130`;
+    const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56&klt=101&fqt=0&end=20500101&lmt=260`;
     const resp = await fetch(url, {
       headers: { 'User-Agent': 'Mozilla/5.0' }
     });
@@ -157,17 +159,18 @@ async function fetchEastMoney(code, market) {
     const name = data.data.name || code;
     const rows = klines.map(k => {
       const p = k.split(',');
-      return { c: parseFloat(p[2]), h: parseFloat(p[3]), l: parseFloat(p[4]) };
+      return { c: parseFloat(p[2]), h: parseFloat(p[3]), l: parseFloat(p[4]), v: parseFloat(p[5]) || 0 };
     }).filter(x => !isNaN(x.c));
 
     const cs = rows.map(x => x.c);
     const hs = rows.map(x => x.h);
     const ls = rows.map(x => x.l);
+    const vs = rows.map(x => x.v);
 
     const latest = cs[cs.length - 1];
     const prev   = cs[cs.length - 2] ?? latest;
 
-    const analysis = calcTA(cs, hs, ls);
+    const analysis = calcTA(cs, hs, ls, vs);
 
     return {
       code,
@@ -186,7 +189,7 @@ async function fetchEastMoney(code, market) {
 }
 
 // ─── 技术指标计算 ───
-function calcTA(cs, hs, ls) {
+function calcTA(cs, hs, ls, vs) {
   const n = cs.length;
 
   // ── 移动均线 ──
@@ -195,10 +198,11 @@ function calcTA(cs, hs, ls) {
     const s = arr.slice(-w);
     return s.reduce((a, b) => a + b, 0) / w;
   };
-  const ma5  = sma(cs, 5);
-  const ma10 = sma(cs, 10);
-  const ma20 = sma(cs, 20);
-  const ma60 = n >= 60 ? sma(cs, 60) : sma(cs, n);
+  const ma5   = sma(cs, 5);
+  const ma10  = sma(cs, 10);
+  const ma20  = sma(cs, 20);
+  const ma60  = n >= 60 ? sma(cs, 60) : sma(cs, n);
+  const ma120 = n >= 120 ? sma(cs, 120) : null;
 
   // ── RSI(14) ──
   const diffs  = cs.slice(1).map((v, i) => v - cs[i]);
@@ -210,7 +214,6 @@ function calcTA(cs, hs, ls) {
   const rsi = avgLoss === 0 ? 100 : round(100 - 100 / (1 + avgGain / avgLoss), 1);
 
   // ── MACD(12, 26, 9) 标准算法 ──
-  // 用全部历史数据逐日推导 EMA，保证收敛精度
   const k12 = 2 / 13, k26 = 2 / 27, k9 = 2 / 10;
   let e12 = cs[0], e26 = cs[0];
   const difSeries = [];
@@ -226,7 +229,6 @@ function calcTA(cs, hs, ls) {
   }
   const macdDIF = difSeries[n - 1];
 
-  // DEA = EMA9(DIF 序列)
   let dea = difSeries[0];
   for (let i = 1; i < difSeries.length; i++) {
     dea = dea * (1 - k9) + difSeries[i] * k9;
@@ -242,6 +244,126 @@ function calcTA(cs, hs, ls) {
   const lower = bMa - 2 * std;
 
   const latest = cs[n - 1];
+
+  // ════════════════════════════════════════════════
+  //  新增指标：ATR / 52周位置 / 动量 / 量比 / MA120
+  // ════════════════════════════════════════════════
+
+  // ── ATR(14) ──
+  let atr14 = null;
+  if (hs.length >= 15 && ls.length >= 15) {
+    const trs = [];
+    for (let i = 1; i < n; i++) {
+      const tr = Math.max(hs[i] - ls[i], Math.abs(hs[i] - cs[i - 1]), Math.abs(ls[i] - cs[i - 1]));
+      trs.push(tr);
+    }
+    const last14TR = trs.slice(-14);
+    atr14 = last14TR.reduce((a, b) => a + b, 0) / 14;
+  }
+
+  // ── 52周高低位置 ──
+  const high52w = Math.max(...hs);
+  const low52w  = Math.min(...ls);
+  const pos52w  = high52w === low52w ? 50 : Math.round((latest - low52w) / (high52w - low52w) * 100);
+
+  // ── 1月/3月动量百分比 ──
+  const mom1m = n >= 22  ? round((latest / cs[n - 22]  - 1) * 100, 1) : null;
+  const mom3m = n >= 66  ? round((latest / cs[n - 66]  - 1) * 100, 1) : null;
+
+  // ── 量比（今日成交量 / 20日均量） ──
+  let volRatio = null;
+  if (vs && vs.length >= 20) {
+    const avgVol20 = vs.slice(-20).reduce((a, b) => a + b, 0) / 20;
+    const todayVol = vs[vs.length - 1];
+    volRatio = avgVol20 > 0 ? round(todayVol / avgVol20, 2) : null;
+  }
+
+  // ════════════════════════════════════════════════
+  //  三框架验证
+  // ════════════════════════════════════════════════
+
+  // ── 框架一：Livermore 关键点突破 ──
+  // 创20日新高=向上突破，创20日新低=向下突破
+  let livermore = { signal: '观望', desc: '等待关键点' };
+  if (n >= 20) {
+    const high20 = Math.max(...hs.slice(-20));
+    const low20  = Math.min(...ls.slice(-20));
+    const prevHigh20 = n >= 40 ? Math.max(...hs.slice(-40, -20)) : high20;
+    const prevLow20  = n >= 40 ? Math.min(...ls.slice(-40, -20)) : low20;
+    if (latest >= high20 && high20 > prevHigh20) {
+      livermore = { signal: '买入', desc: '创新高突破关键点' };
+    } else if (latest <= low20 && low20 < prevLow20) {
+      livermore = { signal: '卖出', desc: '创新低跌破关键点' };
+    } else if (latest >= high20) {
+      livermore = { signal: '关注', desc: '触及20日高点' };
+    } else if (latest <= low20) {
+      livermore = { signal: '警惕', desc: '触及20日低点' };
+    }
+  }
+
+  // ── 框架二：海龟突破确认（20日突破+量比验证） ──
+  let turtle = { signal: '观望', desc: '无突破信号' };
+  if (n >= 20) {
+    const high20 = Math.max(...hs.slice(-21, -1));  // 不含今日
+    const low20  = Math.min(...ls.slice(-21, -1));
+    const volumeOk = volRatio !== null && volRatio >= 1.0;  // 量比≥1确认
+    if (latest > high20) {
+      turtle = volumeOk
+        ? { signal: '买入', desc: '20日突破+量能确认' }
+        : { signal: '关注', desc: '20日突破但量能不足' };
+    } else if (latest < low20) {
+      turtle = volumeOk
+        ? { signal: '卖出', desc: '20日跌破+量能确认' }
+        : { signal: '警惕', desc: '20日跌破但量能不足' };
+    }
+  }
+
+  // ── 框架三：交易圣经盈亏比 ──
+  let bible = { signal: '观望', stop_loss: null, target1: null, target2: null, reward_risk: null, desc: 'ATR不足' };
+  if (atr14 && atr14 > 0) {
+    const stopLoss  = round(latest - 2 * atr14, 3);   // 2×ATR 止损
+    const target1   = round(latest + 3 * atr14, 3);   // 3×ATR 第一目标（3:1盈亏比）
+    const target2   = round(latest + 5 * atr14, 3);   // 5×ATR 第二目标（梦想价）
+    const risk      = latest - stopLoss;
+    const reward    = target1 - stopLoss;
+    const rr        = risk > 0 ? round(reward / risk, 1) : null;
+
+    // 判断信号：RSI<40或价格在布林下轨附近=买入机会，RSI>70或布林上轨=卖出
+    let sig = '观望', desc = '';
+    if (rsi < 40 || latest <= lower * 1.02) {
+      sig = '买入'; desc = '超卖区域，盈亏比有利';
+    } else if (rsi > 70 || latest >= upper * 0.98) {
+      sig = '卖出'; desc = '超买区域，盈亏比不利';
+    } else if (rr && rr >= 3) {
+      sig = '买入'; desc = `盈亏比${rr}:1，风险可控`;
+    } else {
+      desc = `盈亏比${rr}:1`;
+    }
+    bible = { signal: sig, stop_loss: stopLoss, target1, target2, reward_risk: rr, desc };
+  }
+
+  // ── 三框架综合结论 ──
+  const frameworkBull = [livermore.signal, turtle.signal, bible.signal].filter(s => s === '买入').length;
+  const frameworkBear = [livermore.signal, turtle.signal, bible.signal].filter(s => s === '卖出').length;
+  let frameworkSignal = '观望';
+  let frameworkAction = '';
+  if (frameworkBull >= 2) {
+    frameworkSignal = '买入';
+    frameworkAction = bible.target1
+      ? `${round(latest, 2)}买入，看${bible.target1}，梦${bible.target2}，破${bible.stop_loss}走人`
+      : '多框架看涨';
+  } else if (frameworkBear >= 2) {
+    frameworkSignal = '卖出';
+    frameworkAction = bible.stop_loss
+      ? `${round(latest, 2)}卖出，破${bible.stop_loss}必须止损`
+      : '多框架看跌';
+  } else {
+    frameworkAction = '框架信号不一致，观望为主';
+  }
+
+  // ════════════════════════════════════════════════
+  //  评分系统（保持原有逻辑不变）
+  // ════════════════════════════════════════════════
 
   // ── 趋势评分 ──
   let trendScore = 50;
@@ -281,6 +403,7 @@ function calcTA(cs, hs, ls) {
   const label = s => s >= 80 ? '强势' : s >= 60 ? '偏强' : s >= 40 ? '中性' : s >= 20 ? '偏弱' : '弱势';
 
   return {
+    // ── 原有字段（格式固定，不许删减） ──
     score:        totalScore,
     trend:        { score: trendScore, label: label(trendScore) },
     momentum:     { score: momScore,   label: label(momScore)   },
@@ -293,12 +416,33 @@ function calcTA(cs, hs, ls) {
     macd_dif:     round(macdDIF, 4),
     macd_dea:     round(macdDEA, 4),
     macd_hist:    macdHist,
-    ma5:          ma5  ? round(ma5,  3) : null,
-    ma10:         ma10 ? round(ma10, 3) : null,
-    ma20:         ma20 ? round(ma20, 3) : null,
-    ma60:         ma60 ? round(ma60, 3) : null,
+    ma5:          ma5   ? round(ma5,   3) : null,
+    ma10:         ma10  ? round(ma10,  3) : null,
+    ma20:         ma20  ? round(ma20,  3) : null,
+    ma60:         ma60  ? round(ma60,  3) : null,
+    ma120:        ma120 ? round(ma120, 3) : null,
     upper_band:   round(upper, 3),
-    lower_band:   round(lower, 3)
+    lower_band:   round(lower, 3),
+
+    // ── 新增指标 ──
+    atr14,
+    high_52w:     round(high52w, 3),
+    low_52w:      round(low52w,  3),
+    pos_52w:      pos52w,
+    mom_1m:       mom1m,
+    mom_3m:       mom3m,
+    vol_ratio:    volRatio,
+
+    // ── 三框架验证 ──
+    livermore,
+    turtle,
+    bible,
+    framework: {
+      signal: frameworkSignal,
+      action: frameworkAction,
+      bull_count: frameworkBull,
+      bear_count: frameworkBear
+    }
   };
 }
 
