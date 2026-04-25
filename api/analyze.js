@@ -283,21 +283,20 @@ function calcTA(cs, hs, ls, vs) {
   // ════════════════════════════════════════════════
 
   // ── 框架一：Livermore 关键点突破 ──
-  // 收盘价突破20日最高收盘价=向上突破（不用日内极值，上影线不算突破）
+  // 核心逻辑：收盘价创20日新高=突破关键点，配合量能确认
   let livermore = { signal: '观望', desc: '等待关键点' };
   if (n >= 20) {
     const closeHigh20 = Math.max(...cs.slice(-21, -1));  // 前20日最高收盘价（不含今日）
     const closeLow20  = Math.min(...cs.slice(-21, -1));  // 前20日最低收盘价（不含今日）
-    const prevCloseHigh20 = n >= 40 ? Math.max(...cs.slice(-41, -21)) : closeHigh20;
-    const prevCloseLow20  = n >= 40 ? Math.min(...cs.slice(-41, -21)) : closeLow20;
-    if (latest > closeHigh20 && closeHigh20 > prevCloseHigh20) {
-      livermore = { signal: '买入', desc: '收盘创新高突破关键点' };
-    } else if (latest < closeLow20 && closeLow20 < prevCloseLow20) {
-      livermore = { signal: '卖出', desc: '收盘创新低跌破关键点' };
-    } else if (latest > closeHigh20) {
-      livermore = { signal: '关注', desc: '收盘突破20日高点但未创阶段新高' };
+    const volumeOk = volRatio !== null && volRatio >= 1.5;  // 量比≥1.5确认突破
+    if (latest > closeHigh20) {
+      livermore = volumeOk
+        ? { signal: '买入', desc: '收盘突破20日高点+放量确认' }
+        : { signal: '关注', desc: '收盘突破20日高点但量能不足' };
     } else if (latest < closeLow20) {
-      livermore = { signal: '警惕', desc: '收盘跌破20日低点但未创阶段新低' };
+      livermore = volumeOk
+        ? { signal: '卖出', desc: '收盘跌破20日低点+放量确认' }
+        : { signal: '警惕', desc: '收盘跌破20日低点但量能不足' };
     }
   }
 
@@ -331,17 +330,19 @@ function calcTA(cs, hs, ls, vs) {
     const reward    = target1 - latest;                 // 潜在盈利（从当前价到目标）
     const rr        = risk > 0 ? round(reward / risk, 1) : null;
 
-    // 信号判断：盈亏比≥3=买入，≤1=卖出，RSI极端辅助
+    // 信号判断：盈亏比为核心，RSI极端才否决
     let sig = '观望', desc = '';
     if (rr && rr >= 3) {
       sig = '买入'; desc = '盈亏比' + rr + ':1，风险可控';
+    } else if (rr && rr >= 2) {
+      sig = '买入'; desc = '盈亏比' + rr + ':1，可接受';
     } else if (rr && rr <= 1) {
       sig = '卖出'; desc = '盈亏比' + rr + ':1，风险过大';
-    } else if (rsi < 30 || latest <= lower * 1.02) {
-      sig = '买入'; desc = '超卖区域，盈亏比' + (rr || '?') + ':1';
-    } else if (rsi > 75 || latest >= upper * 0.98) {
-      sig = '卖出'; desc = '超买区域，盈亏比不利';
-    } else if (rr && rr >= 2) {
+    } else if (rsi < 30) {
+      sig = '买入'; desc = 'RSI超卖，盈亏比' + (rr || '?') + ':1';
+    } else if (rsi > 80) {
+      sig = '卖出'; desc = 'RSI极度超买，盈亏比不利';
+    } else if (rr && rr >= 1.5) {
       sig = '关注'; desc = '盈亏比' + rr + ':1，可关注';
     } else {
       desc = '盈亏比' + (rr || '?') + ':1';
