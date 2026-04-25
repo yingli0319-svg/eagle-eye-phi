@@ -951,6 +951,60 @@ body {
       </div>
     </div>
 
+    <!-- ══ 三框架验证 ══ -->
+    <div class="analysis-detail" id="frameworkCard">
+      <h3>⚔️ 三框架验证</h3>
+      <!-- Livermore -->
+      <div class="analysis-item">
+        <span class="label">Livermore 关键点</span>
+        <span class="value" id="livermoreSignal">--</span>
+      </div>
+      <div class="analysis-item" style="padding-top:0;border-bottom:none;">
+        <span class="label" style="font-size:0.8rem;color:#64748b;" id="livermoreDesc"></span>
+        <span></span>
+      </div>
+      <!-- 海龟 -->
+      <div class="analysis-item">
+        <span class="label">海龟突破确认</span>
+        <span class="value" id="turtleSignal">--</span>
+      </div>
+      <div class="analysis-item" style="padding-top:0;border-bottom:none;">
+        <span class="label" style="font-size:0.8rem;color:#64748b;" id="turtleDesc"></span>
+        <span></span>
+      </div>
+      <!-- 交易圣经 -->
+      <div class="analysis-item">
+        <span class="label">交易圣经盈亏比</span>
+        <span class="value" id="bibleSignal">--</span>
+      </div>
+      <div class="analysis-item" style="padding-top:0;border-bottom:none;">
+        <span class="label" style="font-size:0.8rem;color:#64748b;" id="bibleDesc"></span>
+        <span></span>
+      </div>
+      <!-- 辅助数据 -->
+      <div class="analysis-item">
+        <span class="label">ATR(14)</span>
+        <span class="value neutral" id="atrValue">--</span>
+      </div>
+      <div class="analysis-item">
+        <span class="label">52周位置</span>
+        <span class="value neutral" id="pos52w">--</span>
+      </div>
+      <div class="analysis-item">
+        <span class="label">1月/3月动量</span>
+        <span class="value neutral" id="momValues">--</span>
+      </div>
+      <div class="analysis-item">
+        <span class="label">量比</span>
+        <span class="value neutral" id="volRatioValue">--</span>
+      </div>
+      <!-- 综合结论 -->
+      <div style="margin-top:14px;padding:14px 16px;background:rgba(240,192,64,0.06);border:1px solid rgba(240,192,64,0.2);border-radius:10px;">
+        <div style="font-size:0.8rem;color:#94a3b8;margin-bottom:6px;">📌 操作结论</div>
+        <div style="font-size:1rem;font-weight:700;" id="frameworkAction">--</div>
+      </div>
+    </div>
+
     <div class="analysis-detail">
       <h3>⚠️ 风险提示</h3>
       <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.8;" id="riskWarning">
@@ -1230,6 +1284,41 @@ function renderAnalysisPage(data) {
   document.getElementById('supportPrice').textContent = analysis.support.toFixed(2);
   document.getElementById('resistPrice').textContent  = analysis.resistance.toFixed(2);
 
+  // ══ 三框架验证 ══
+  if (analysis.livermore) {
+    document.getElementById('livermoreSignal').innerHTML = generateFrameworkSignal(analysis.livermore.signal);
+    document.getElementById('livermoreDesc').textContent = analysis.livermore.desc;
+  }
+  if (analysis.turtle) {
+    document.getElementById('turtleSignal').innerHTML = generateFrameworkSignal(analysis.turtle.signal);
+    document.getElementById('turtleDesc').textContent = analysis.turtle.desc;
+  }
+  if (analysis.bible) {
+    document.getElementById('bibleSignal').innerHTML = generateFrameworkSignal(analysis.bible.signal);
+    document.getElementById('bibleDesc').textContent = analysis.bible.desc;
+  }
+  if (analysis.atr14 != null) {
+    document.getElementById('atrValue').textContent = analysis.atr14.toFixed(3);
+  }
+  if (analysis.pos_52w != null) {
+    const p52 = analysis.pos_52w;
+    const p52Color = p52 >= 80 ? '#ef4444' : p52 >= 50 ? '#f0c040' : '#22c55e';
+    document.getElementById('pos52w').innerHTML = `<span style="color:${p52Color};font-weight:600;">${p52}%</span>`;
+  }
+  const mom1 = analysis.mom_1m != null ? analysis.mom_1m : '--';
+  const mom3 = analysis.mom_3m != null ? analysis.mom_3m : '--';
+  const mom1Color = analysis.mom_1m != null ? (analysis.mom_1m >= 0 ? '#ef4444' : '#22c55e') : '#94a3b8';
+  const mom3Color = analysis.mom_3m != null ? (analysis.mom_3m >= 0 ? '#ef4444' : '#22c55e') : '#94a3b8';
+  document.getElementById('momValues').innerHTML = `<span style="color:${mom1Color};font-weight:600;">1M ${mom1 > 0 ? '+' : ''}${mom1}%</span> / <span style="color:${mom3Color};font-weight:600;">3M ${mom3 > 0 ? '+' : ''}${mom3}%</span>`;
+  if (analysis.vol_ratio != null) {
+    const vrColor = analysis.vol_ratio >= 1.5 ? '#ef4444' : analysis.vol_ratio >= 1.0 ? '#f0c040' : '#94a3b8';
+    document.getElementById('volRatioValue').innerHTML = `<span style="color:${vrColor};font-weight:600;">${analysis.vol_ratio.toFixed(2)}</span>`;
+  }
+  if (analysis.framework) {
+    const fwColor = analysis.framework.signal === '买入' ? '#ef4444' : analysis.framework.signal === '卖出' ? '#22c55e' : '#f0c040';
+    document.getElementById('frameworkAction').innerHTML = `<span style="color:${fwColor};">${analysis.framework.action}</span>`;
+  }
+
   // 写入搜索历史
   addToHistory({ code: data.code, name: data.name, market: data.market });
 }
@@ -1247,6 +1336,19 @@ function showError(message) {
   });
   document.getElementById('supportPrice').textContent = '--';
   document.getElementById('resistPrice').textContent  = '--';
+
+  // 清空三框架
+  ['livermoreSignal','turtleSignal','bibleSignal'].forEach(id => {
+    document.getElementById(id).innerHTML = errorHtml;
+  });
+  ['livermoreDesc','turtleDesc','bibleDesc'].forEach(id => {
+    document.getElementById(id).textContent = '';
+  });
+  document.getElementById('atrValue').textContent = '--';
+  document.getElementById('pos52w').innerHTML = '--';
+  document.getElementById('momValues').innerHTML = '--';
+  document.getElementById('volRatioValue').textContent = '--';
+  document.getElementById('frameworkAction').innerHTML = '--';
 }
 
 // 生成均线信号
@@ -1352,6 +1454,19 @@ function generateTradeSignal(signal) {
   if (signal === '卖出') color = '#22c55e';
   
   return `<span style="color:${color};font-weight:700;font-size:1.1rem;">${signal}</span>`;
+}
+
+// 生成三框架信号标签
+function generateFrameworkSignal(signal) {
+  const map = {
+    '买入':  { color: '#ef4444', bg: 'rgba(231,76,60,0.12)' },
+    '卖出':  { color: '#22c55e', bg: 'rgba(34,197,94,0.12)' },
+    '关注':  { color: '#f0c040', bg: 'rgba(240,192,64,0.12)' },
+    '警惕':  { color: '#fb923c', bg: 'rgba(251,146,60,0.12)' },
+    '观望':  { color: '#94a3b8', bg: 'rgba(148,163,184,0.08)' }
+  };
+  const s = map[signal] || map['观望'];
+  return `<span style="color:${s.color};background:${s.bg};padding:3px 10px;border-radius:6px;font-weight:600;font-size:0.85rem;">${signal}</span>`;
 }
 
 function setScoreColor(id, score) {
