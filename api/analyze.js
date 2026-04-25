@@ -283,61 +283,68 @@ function calcTA(cs, hs, ls, vs) {
   // ════════════════════════════════════════════════
 
   // ── 框架一：Livermore 关键点突破 ──
-  // 创20日新高=向上突破，创20日新低=向下突破
+  // 收盘价突破20日最高收盘价=向上突破（不用日内极值，上影线不算突破）
   let livermore = { signal: '观望', desc: '等待关键点' };
   if (n >= 20) {
-    const high20 = Math.max(...hs.slice(-20));
-    const low20  = Math.min(...ls.slice(-20));
-    const prevHigh20 = n >= 40 ? Math.max(...hs.slice(-40, -20)) : high20;
-    const prevLow20  = n >= 40 ? Math.min(...ls.slice(-40, -20)) : low20;
-    if (latest >= high20 && high20 > prevHigh20) {
-      livermore = { signal: '买入', desc: '创新高突破关键点' };
-    } else if (latest <= low20 && low20 < prevLow20) {
-      livermore = { signal: '卖出', desc: '创新低跌破关键点' };
-    } else if (latest >= high20) {
-      livermore = { signal: '关注', desc: '触及20日高点' };
-    } else if (latest <= low20) {
-      livermore = { signal: '警惕', desc: '触及20日低点' };
+    const closeHigh20 = Math.max(...cs.slice(-21, -1));  // 前20日最高收盘价（不含今日）
+    const closeLow20  = Math.min(...cs.slice(-21, -1));  // 前20日最低收盘价（不含今日）
+    const prevCloseHigh20 = n >= 40 ? Math.max(...cs.slice(-41, -21)) : closeHigh20;
+    const prevCloseLow20  = n >= 40 ? Math.min(...cs.slice(-41, -21)) : closeLow20;
+    if (latest > closeHigh20 && closeHigh20 > prevCloseHigh20) {
+      livermore = { signal: '买入', desc: '收盘创新高突破关键点' };
+    } else if (latest < closeLow20 && closeLow20 < prevCloseLow20) {
+      livermore = { signal: '卖出', desc: '收盘创新低跌破关键点' };
+    } else if (latest > closeHigh20) {
+      livermore = { signal: '关注', desc: '收盘突破20日高点但未创阶段新高' };
+    } else if (latest < closeLow20) {
+      livermore = { signal: '警惕', desc: '收盘跌破20日低点但未创阶段新低' };
     }
   }
 
-  // ── 框架二：海龟突破确认（20日突破+量比验证） ──
+  // ── 框架二：海龟突破确认（20日收盘价突破+量比验证） ──
+  // 标准海龟：收盘价突破前20日最高收盘价（不用日内高点，上影线不算）
   let turtle = { signal: '观望', desc: '无突破信号' };
   if (n >= 20) {
-    const high20 = Math.max(...hs.slice(-21, -1));  // 不含今日
-    const low20  = Math.min(...ls.slice(-21, -1));
+    const closeHigh20 = Math.max(...cs.slice(-21, -1));  // 前20日最高收盘价（不含今日）
+    const closeLow20  = Math.min(...cs.slice(-21, -1));  // 前20日最低收盘价（不含今日）
     const volumeOk = volRatio !== null && volRatio >= 1.0;  // 量比≥1确认
-    if (latest > high20) {
+    if (latest > closeHigh20) {
       turtle = volumeOk
-        ? { signal: '买入', desc: '20日突破+量能确认' }
-        : { signal: '关注', desc: '20日突破但量能不足' };
-    } else if (latest < low20) {
+        ? { signal: '买入', desc: '20日收盘突破+量能确认' }
+        : { signal: '关注', desc: '20日收盘突破但量能不足' };
+    } else if (latest < closeLow20) {
       turtle = volumeOk
-        ? { signal: '卖出', desc: '20日跌破+量能确认' }
-        : { signal: '警惕', desc: '20日跌破但量能不足' };
+        ? { signal: '卖出', desc: '20日收盘跌破+量能确认' }
+        : { signal: '警惕', desc: '20日收盘跌破但量能不足' };
     }
   }
 
   // ── 框架三：交易圣经盈亏比 ──
+  // 止损用2×ATR，目标价用实际阻力位（52周高点/布林上轨），不用ATR线性推
   let bible = { signal: '观望', stop_loss: null, target1: null, target2: null, reward_risk: null, desc: 'ATR不足' };
   if (atr14 && atr14 > 0) {
     const stopLoss  = round(latest - 2 * atr14, 3);   // 2×ATR 止损
-    const target1   = round(latest + 3 * atr14, 3);   // 3×ATR 第一目标（3:1盈亏比）
-    const target2   = round(latest + 5 * atr14, 3);   // 5×ATR 第二目标（梦想价）
+    // 目标1=52周高点（实际阻力），目标2=保守估计1.5×目标1
+    const target1   = round(high52w, 3);               // 52周高点作为第一目标
+    const target2   = round(high52w * 1.15, 3);         // 52周高点+15%作为梦想价
     const risk      = latest - stopLoss;
-    const reward    = target1 - stopLoss;
+    const reward    = target1 - latest;                 // 潜在盈利（从当前价到目标）
     const rr        = risk > 0 ? round(reward / risk, 1) : null;
 
-    // 判断信号：RSI<40或价格在布林下轨附近=买入机会，RSI>70或布林上轨=卖出
+    // 信号判断：盈亏比≥3=买入，≤1=卖出，RSI极端辅助
     let sig = '观望', desc = '';
-    if (rsi < 40 || latest <= lower * 1.02) {
-      sig = '买入'; desc = '超卖区域，盈亏比有利';
-    } else if (rsi > 70 || latest >= upper * 0.98) {
+    if (rr && rr >= 3) {
+      sig = '买入'; desc = '盈亏比' + rr + ':1，风险可控';
+    } else if (rr && rr <= 1) {
+      sig = '卖出'; desc = '盈亏比' + rr + ':1，风险过大';
+    } else if (rsi < 30 || latest <= lower * 1.02) {
+      sig = '买入'; desc = '超卖区域，盈亏比' + (rr || '?') + ':1';
+    } else if (rsi > 75 || latest >= upper * 0.98) {
       sig = '卖出'; desc = '超买区域，盈亏比不利';
-    } else if (rr && rr >= 3) {
-      sig = '买入'; desc = `盈亏比${rr}:1，风险可控`;
+    } else if (rr && rr >= 2) {
+      sig = '关注'; desc = '盈亏比' + rr + ':1，可关注';
     } else {
-      desc = `盈亏比${rr}:1`;
+      desc = '盈亏比' + (rr || '?') + ':1';
     }
     bible = { signal: sig, stop_loss: stopLoss, target1, target2, reward_risk: rr, desc };
   }
