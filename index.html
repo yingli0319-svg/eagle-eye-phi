@@ -2,8 +2,16 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>鹰歌策略 V99 — Eagle Song Strategy</title>
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="鹰眼">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
@@ -778,6 +786,50 @@ function checkPortfolioPwd() {
     setTimeout(()=>{ err.style.display='none'; }, 3000);
   }
 }
+</script>
+
+<!-- PWA Service Worker 注册 -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(reg => console.log('[PWA] Service Worker registered, scope:', reg.scope))
+      .catch(err => console.log('[PWA] Service Worker registration failed:', err));
+  });
+}
+
+// iOS PWA 安装提示
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isStandalone = window.navigator.standalone === true;
+if (isIOS && !isStandalone) {
+  const shown = sessionStorage.getItem('ios-pwa-tip');
+  if (!shown) {
+    const tip = document.createElement('div');
+    tip.innerHTML = '<div style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(15,22,35,0.97);border:1px solid rgba(240,192,64,0.4);border-radius:12px;padding:16px 20px;color:#e2e8f0;font-size:14px;z-index:9999;max-width:340px;text-align:center;backdrop-filter:blur(10px);"><div style="font-size:16px;font-weight:700;margin-bottom:8px;color:#f0c040;">📲 安装鹰眼APP</div><div>点击底部 <b style="color:#f0c040;">分享按钮</b> → 选择 <b style="color:#f0c040;">"添加到主屏幕"</b></div><div style="margin-top:8px;"><button onclick="this.parentElement.parentElement.style.display=\'none\';sessionStorage.setItem(\'ios-pwa-tip\',\'1\')" style="background:linear-gradient(135deg,#f0c040,#d97706);color:#0f172a;border:none;border-radius:6px;padding:6px 18px;font-weight:700;cursor:pointer;">知道了</button></div></div>';
+    document.body.appendChild(tip);
+  }
+}
+
+// Android PWA 安装提示
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const btn = document.createElement('div');
+  btn.id = 'pwa-install-btn';
+  btn.innerHTML = '<div style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#f0c040,#d97706);border-radius:12px;padding:12px 24px;color:#0f172a;font-weight:700;font-size:15px;z-index:9999;cursor:pointer;box-shadow:0 4px 20px rgba(240,192,64,0.3);">📲 安装鹰眼到桌面</div>';
+  btn.onclick = () => {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choice) => {
+      if (choice.outcome === 'accepted') console.log('[PWA] User accepted install');
+      deferredPrompt = null;
+      btn.remove();
+    });
+  };
+  document.body.appendChild(btn);
+  // 10秒后自动隐藏
+  setTimeout(() => { if (document.getElementById('pwa-install-btn')) btn.remove(); }, 15000);
+});
 </script>
 
 </body>
